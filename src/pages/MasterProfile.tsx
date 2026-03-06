@@ -139,25 +139,6 @@ export default function MasterProfile() {
                 </button>
             </div>
 
-            {/* Services Group */}
-            <div className="tg-list-group">
-                <div className="tg-list-group-label">Services Portfolio</div>
-                <div className="tg-list-group-content">
-                    {master.services.map(srv => (
-                        <div key={srv.id} className="tg-list-item">
-                            <div className="tg-list-item-label flex flex-col">
-                                <span className="text-white">{srv.name}</span>
-                                <span className="text-xs text-tg-hint">{srv.time}</span>
-                            </div>
-                            <div className="tg-list-item-value text-teal-500 font-bold">{srv.price}</div>
-                        </div>
-                    ))}
-                    {master.services.length === 0 && (
-                        <div className="p-4 text-center text-tg-hint italic">No services listed</div>
-                    )}
-                </div>
-            </div>
-
             {/* Network Reviews Group */}
             <div className="tg-list-group">
                 <div className="tg-list-group-label">Network Reviews</div>
@@ -176,14 +157,23 @@ export default function MasterProfile() {
                 </div>
             </div>
 
-            {/* Justice Section */}
-            <div className="px-4 mt-6">
-                <button
-                    onClick={() => navigate('/arbitration')}
-                    className="w-full py-4 glass-button text-red-500 rounded-xl text-sm font-bold uppercase tracking-wider"
-                >
-                    Open Dispute / Arbitration
-                </button>
+            {/* Services Group - Moved to Bottom */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Services Portfolio</div>
+                <div className="tg-list-group-content">
+                    {master.services.map(srv => (
+                        <div key={srv.id} className="tg-list-item">
+                            <div className="tg-list-item-label flex flex-col">
+                                <span className="text-white">{srv.name}</span>
+                                <span className="text-xs text-tg-hint">{srv.time}</span>
+                            </div>
+                            <div className="tg-list-item-value text-teal-500 font-bold">{srv.price}</div>
+                        </div>
+                    ))}
+                    {master.services.length === 0 && (
+                        <div className="p-4 text-center text-tg-hint italic">No services listed</div>
+                    )}
+                </div>
             </div>
 
             {/* ABCD Radar Modal */}

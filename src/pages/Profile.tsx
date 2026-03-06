@@ -137,6 +137,21 @@ export default function Profile() {
                 </div>
             </div>
 
+            {/* Statistics & History Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Statistics & Transactions</div>
+                <div className="tg-list-group-content">
+                    <button onClick={() => navigate('/arbitration')} className="tg-list-item">
+                        <div className="tg-list-item-label text-red-500 font-semibold italic">Open Dispute / Arbitration</div>
+                        <div className="tg-list-item-arrow text-red-500">→</div>
+                    </button>
+                    <div className="tg-list-item">
+                        <div className="tg-list-item-label">Verified Deals</div>
+                        <div className="tg-list-item-value text-teal-500 font-bold">12</div>
+                    </div>
+                </div>
+            </div>
+
             {/* Settings & Info Group */}
             <div className="tg-list-group">
                 <div className="tg-list-group-label">Settings</div>

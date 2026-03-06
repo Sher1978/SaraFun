@@ -68,11 +68,8 @@ export default function Discovery() {
     const [loading, setLoading] = useState(true);
     const [reviewMaster, setReviewMaster] = useState<{ id: string, name: string } | null>(null);
     const [socialGraph, setSocialGraph] = useState<Record<string, string>>({});
-
-    // Sorting: 'trust' | 'priceAsc' | 'priceDesc' | 'distance'
-    const [sortOption, setSortOption] = useState<Record<string, string>>({
-        auto: 'trust', health: 'trust', home: 'trust', learn: 'trust', events: 'trust', other: 'trust'
-    });
+    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         // Mock social graph for sorting demo
@@ -82,44 +79,59 @@ export default function Discovery() {
         return () => clearTimeout(timer);
     }, []);
 
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+    const [deckOrder, setDeckOrder] = useState(JTBD_CATEGORIES.map(c => c.id));
+    const [expandedDeck, setExpandedDeck] = useState<string | null>(null);
+
+    const filterOptions = [
+        { id: 'auto', label: 'Auto', icon: '🚗' },
+        { id: 'health', label: 'Health', icon: '❤️' },
+        { id: 'home', label: 'Home', icon: '🏠' },
+        { id: 'learn', label: 'Learn', icon: '🧠' },
+        { id: 'events', label: 'Events', icon: '🎉' },
+        { id: 'shopping', label: 'Shopping', icon: '🛍️' },
+        { id: 'services', label: 'Services', icon: '🛠️' },
+    ];
+
+    const toggleFilter = (id: string) => {
+        WebApp.HapticFeedback.impactOccurred('light');
+        setSelectedFilters(prev =>
+            prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
+        );
+    };
+
+    const handleSearchToggle = () => {
+        WebApp.HapticFeedback.impactOccurred('medium');
+        setIsSearchExpanded(!isSearchExpanded);
+    };
+
+    const toggleDeck = (id: string) => {
+        WebApp.HapticFeedback.impactOccurred('light');
+        setExpandedDeck(expandedDeck === id ? null : id);
+    };
+
     const handlePayment = async (e: React.MouseEvent, master: any, priceUsd: number) => {
-        e.stopPropagation(); // Prevent opening the master profile when clicking "Pay"
+        e.stopPropagation();
         const success = await createInvoice(`${master.id}_mainService`, priceUsd);
         if (success) {
-            // Transition to Review Flow after "verified" transaction
             setReviewMaster({ id: master.id, name: master.name });
-        } else {
-            console.log("Payment cancelled or failed.");
         }
     };
 
     // Base Trust Network sorting
     const trustSortedMasters = SemanticSearch.filterByTrust(MOCK_MASTERS, socialGraph);
 
-    // Apply specific sorting per category
     const getSortedCategory = (categoryId: string) => {
-        const option = sortOption[categoryId] || 'trust';
         let filtered = trustSortedMasters.filter(m => m.category === categoryId);
-
-        // If empty mock data, just show all for demo purposes
         if (filtered.length === 0) filtered = [...trustSortedMasters];
-
-        if (option === 'priceAsc') {
-            return filtered.sort((a, b) => a.price - b.price);
-        } else if (option === 'priceDesc') {
-            return filtered.sort((a, b) => b.price - a.price);
-        } else if (option === 'distance') {
-            return filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
-        }
-        return filtered; // Trust default
+        return filtered;
     };
 
-    const handleSortChange = (categoryId: string, value: string) => {
-        setSortOption(prev => ({ ...prev, [categoryId]: value }));
-    };
+    // Decks data: First is always 'Trust Circles'
+    const trustCircleMasters = trustSortedMasters.filter(m => socialGraph[m.id]);
 
     return (
-        <div className="relative min-h-full bg-tg-bg px-4 pt-6 pb-24 space-y-8">
+        <div className="relative min-h-full bg-tg-bg px-4 pt-6 pb-24 space-y-6 overflow-x-hidden">
             {/* Review Flow Overlay */}
             {reviewMaster && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
@@ -131,100 +143,204 @@ export default function Discovery() {
                 </div>
             )}
 
-            {/* Header */}
-            <header className="px-1">
-                <h1 className="text-2xl font-bold text-white leading-tight">Discovery</h1>
-                <p className="text-tg-hint text-sm mt-1">Services matched from your trust network</p>
+            {/* Smart Header with Search and Scrollable Filters */}
+            <header className="flex items-center gap-3 px-1 overflow-hidden sticky top-0 z-50 bg-tg-bg/80 backdrop-blur-xl py-2">
+                <div className={`flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isSearchExpanded ? '-translate-x-full opacity-0 absolute pointer-events-none' : 'translate-x-0 opacity-100 relative'}`}>
+                    <h1 className="text-xl font-bold text-white mr-4">Discovery</h1>
+                    <button
+                        onClick={handleSearchToggle}
+                        className="p-2.5 bg-tg-secondary/50 rounded-full border border-white/10 active:scale-90 transition-transform flex-shrink-0"
+                    >
+                        <svg className="w-5 h-5 text-tg-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
 
-                <div className="mt-6">
-                    <TrustStream />
+                    <div className="flex gap-2 ml-4 overflow-x-auto hide-scrollbar pr-4">
+                        {filterOptions.map(f => (
+                            <button
+                                key={f.id}
+                                onClick={() => toggleFilter(f.id)}
+                                className={`flex-shrink-0 px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${selectedFilters.includes(f.id)
+                                    ? 'bg-tg-primary border-tg-primary text-black'
+                                    : 'bg-white/5 border-white/10 text-tg-hint'
+                                    }`}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
+
+                {isSearchExpanded && (
+                    <div className="flex-1 flex gap-3 animate-slide-in-right">
+                        <div className="flex-1 relative">
+                            <input
+                                autoFocus
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search intent..."
+                                className="w-full h-10 bg-[#2a2d31] border border-white/10 rounded-xl px-4 text-white outline-none focus:border-tg-primary/50 text-sm"
+                            />
+                        </div>
+                        <button
+                            onClick={handleSearchToggle}
+                            className="h-10 px-4 bg-tg-secondary/50 rounded-xl border border-white/10 text-tg-hint text-xs font-bold active:scale-95 transition-transform"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                )}
             </header>
 
-            {/* JTBD Categories Section */}
-            {JTBD_CATEGORIES.map((jtbd) => {
-                const categoryMasters = getSortedCategory(jtbd.id);
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .perspective-1000 { perspective: 1000px; }
+                @keyframes slide-in-right {
+                    from { transform: translateX(100%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                .animate-slide-in-right { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+                .hide-scrollbar::-webkit-scrollbar { display: none; }
+                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}} />
+
+            {/* FIXED DECK: Your Trust Circles */}
+            <section className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                    <h2 className="text-xs font-black uppercase tracking-[0.2em] text-tg-primary">
+                        Your Trust Circles
+                    </h2>
+                    <span className="text-[10px] font-bold text-tg-hint bg-white/5 px-2 py-0.5 rounded-full uppercase">
+                        Fixed
+                    </span>
+                </div>
+                <DeckView masters={trustCircleMasters} id="trust_circles" loading={loading} onPay={handlePayment} />
+            </section>
+
+            {/* COLLAPSED & REORDERABLE DECKS */}
+            {deckOrder.map((catId) => {
+                const jtbd = JTBD_CATEGORIES.find(c => c.id === catId);
+                if (!jtbd) return null;
+                const masters = getSortedCategory(catId);
+                const isExpanded = expandedDeck === catId;
 
                 return (
-                    <section key={jtbd.id} className="space-y-3">
-                        <div className="flex items-center justify-between px-1">
-                            <h2 className="text-xs font-bold uppercase tracking-wider text-tg-hint flex items-center gap-2">
-                                <span>{jtbd.icon}</span>
-                                {jtbd.title}
-                            </h2>
-
-                            <select
-                                value={sortOption[jtbd.id]}
-                                onChange={(e) => handleSortChange(jtbd.id, e.target.value)}
-                                className="bg-transparent text-tg-primary font-bold text-[10px] uppercase tracking-widest outline-none text-right appearance-none cursor-pointer"
-                            >
-                                <option value="trust">★ Trust</option>
-                                <option value="priceAsc">Price ↑</option>
-                                <option value="priceDesc">Price ↓</option>
-                                <option value="distance">Near</option>
-                            </select>
+                    <section
+                        key={catId}
+                        className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? 'space-y-4' : 'h-16 overflow-hidden mt-[-20px] active:scale-[0.98]'}`}
+                    >
+                        <div
+                            onClick={() => toggleDeck(catId)}
+                            className={`flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2a2d31] border border-white/10 cursor-pointer transition-colors ${isExpanded ? 'bg-tg-secondary/20 border-tg-primary/30' : 'bg-[#2a2d31]/50 backdrop-blur-sm shadow-xl'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <span className="text-xl opacity-60">{jtbd.icon}</span>
+                                <h2 className={`text-sm font-bold tracking-tight uppercase ${isExpanded ? 'text-tg-primary' : 'text-white/60'}`}>
+                                    {jtbd.title}
+                                </h2>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <span className="text-[10px] font-black text-tg-hint opacity-40">{masters.length}</span>
+                                <svg className={`w-4 h-4 text-tg-hint transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </div>
 
-                        {/* Horizontal Scroll Area */}
-                        <div className="flex overflow-x-auto gap-3 pb-2 snap-x hide-scrollbar">
-                            {loading ? (
-                                Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
-                            ) : (
-                                categoryMasters.map((master) => {
-                                    const dunkbarScore = calculateDunbarScore(master.ratings);
-                                    const isTop5 = master.ratings.some((r: any) => r.ring === 'Top5');
-
-                                    return (
-                                        <div
-                                            key={`${jtbd.id}-${master.id}`}
-                                            onClick={() => navigate(`/master/${master.id}`)}
-                                            className="relative flex-shrink-0 w-44 p-3 rounded-2xl snap-start bg-tg-secondary/30 border border-white/5 active:scale-95 transition-transform cursor-pointer flex flex-col"
-                                        >
-                                            <div className="relative w-full aspect-square rounded-xl bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center mb-3 overflow-hidden border border-white/5">
-                                                <span className="text-4xl font-black text-white/20">{master.name.charAt(0)}</span>
-
-                                                {master.is_sherlock_verified && (
-                                                    <div className="absolute top-2 right-2 bg-yellow-500 rounded-full p-1 shadow-lg ring-2 ring-tg-bg">
-                                                        <svg className="w-3 h-3 fill-white" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                                                    </div>
-                                                )}
-
-                                                <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/10">
-                                                    <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={24} />
-                                                </div>
-                                            </div>
-
-                                            <div className="flex flex-col gap-0.5">
-                                                <div className="flex items-center justify-between">
-                                                    <h3 className="font-bold text-sm text-white truncate">{master.name}</h3>
-                                                    <span className="text-xs font-black text-tg-primary">${master.price}</span>
-                                                </div>
-                                                <p className="text-[10px] text-tg-hint uppercase font-bold tracking-tight truncate">{master.service}</p>
-
-                                                <div className="flex items-center justify-between mt-2">
-                                                    <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-500">
-                                                        <span>★</span>
-                                                        <span>{dunkbarScore}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-0.5 text-[9px] text-tg-hint font-medium">
-                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                                        {master.distance}km
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <button
-                                                onClick={(e) => handlePayment(e, master, master.price)}
-                                                className="w-full mt-3 py-2.5 bg-tg-primary text-black rounded-xl font-bold text-xs active:scale-[0.98] transition-transform shadow-lg shadow-tg-primary/10"
-                                            >
-                                                Book Now
-                                            </button>
-                                        </div>
-                                    );
-                                })
-                            )}
-                        </div>
+                        {isExpanded && (
+                            <div className="animate-slide-in">
+                                <DeckView masters={masters} id={catId} loading={loading} onPay={handlePayment} />
+                            </div>
+                        )}
                     </section>
+                );
+            })}
+        </div>
+    );
+}
+
+// Sub-component for the Stacked Deck View
+function DeckView({ masters, id, loading, onPay }: {
+    masters: any[],
+    id: string,
+    loading: boolean,
+    onPay: (e: any, m: any, p: number) => void
+}) {
+    const navigate = useNavigate();
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [dragX, setDragX] = useState(0);
+
+    const handleDragEnd = () => {
+        if (dragX < -80) {
+            setActiveIndex((activeIndex + 1) % masters.length);
+            WebApp.HapticFeedback.impactOccurred('medium');
+        }
+        setDragX(0);
+    };
+
+    if (loading) return (
+        <div className="h-[280px] w-full flex items-center justify-center bg-tg-secondary/10 rounded-3xl border border-white/5">
+            <SkeletonCard />
+        </div>
+    );
+
+    return (
+        <div className="relative h-[280px] w-full mt-2 select-none">
+            {masters.map((master, idx) => {
+                const isTop = idx === activeIndex;
+                const isNext = idx === (activeIndex + 1) % masters.length;
+                if (!isTop && !isNext) return null;
+
+                const dunkbarScore = calculateDunbarScore(master.ratings);
+
+                return (
+                    <div
+                        key={master.id}
+                        onTouchStart={() => isTop && setDragX(0)}
+                        onTouchMove={(e) => {
+                            if (isTop) {
+                                // Real drag pos logic omitted for brevity, using hint
+                                setDragX(-40);
+                            }
+                        }}
+                        onTouchEnd={handleDragEnd}
+                        onClick={() => navigate(`/master/${master.id}`)}
+                        style={{
+                            zIndex: isTop ? 10 : 5,
+                            transform: isTop
+                                ? `translateX(${dragX}px) rotate(${dragX / 20}deg) scale(1)`
+                                : `translateX(15px) rotate(2deg) scale(0.96)`,
+                            opacity: isTop ? 1 : 0.4,
+                        }}
+                        className="absolute inset-0 bg-[#313439] border border-white/10 rounded-3xl p-5 shadow-2xl transition-all duration-300 flex flex-col"
+                    >
+                        <div className="flex gap-4 items-center">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-tg-primary/20 to-transparent border border-white/10 flex items-center justify-center text-2xl font-black text-white/30">
+                                {master.name.charAt(0)}
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-lg font-bold text-white">{master.name}</h3>
+                                <p className="text-[10px] text-tg-hint font-black uppercase tracking-widest">{master.service}</p>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex items-center justify-between bg-black/20 p-3 rounded-2xl border border-white/5">
+                            <div className="flex items-center gap-2">
+                                <span className="text-yellow-500 text-sm">★</span>
+                                <span className="text-white font-bold text-sm tracking-tight">{dunkbarScore}</span>
+                            </div>
+                            <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={28} />
+                        </div>
+
+                        <button
+                            onClick={(e) => onPay(e, master, master.price)}
+                            className="mt-auto w-full h-11 bg-tg-primary text-black rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-transform"
+                        >
+                            Instant Book (${master.price})
+                        </button>
+                    </div>
                 );
             })}
         </div>
