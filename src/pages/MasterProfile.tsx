@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ABCDChart from '../components/ABCDChart';
 import WebApp from '@twa-dev/sdk';
+import InfoTooltip from '../components/InfoTooltip';
 
 // MOCK DATA matching Discovery
 const MASTER_DB = {
@@ -31,6 +32,7 @@ export default function MasterProfile() {
     const { uid } = useParams();
     const navigate = useNavigate();
     const [isFavorite, setIsFavorite] = useState(false);
+    const [showABCDModal, setShowABCDModal] = useState(false);
 
     // Load master data or fallback
     const master = MASTER_DB[uid as keyof typeof MASTER_DB] || {
@@ -82,7 +84,10 @@ export default function MasterProfile() {
                         <div className="flex-1">
                             <h1 className="text-xl font-black leading-tight">{master.name}</h1>
                             {/* Premium Double Circle Rating */}
-                            <div className="flex items-center gap-3 mt-2">
+                            <button
+                                onClick={() => setShowABCDModal(true)}
+                                className="flex items-center gap-3 mt-2 active:scale-95 transition-transform text-left"
+                            >
                                 <div className="flex items-center gap-1.5">
                                     <div className="relative w-8 h-8 flex items-center justify-center">
                                         <svg className="absolute inset-0 w-8 h-8 transform -rotate-90">
@@ -91,7 +96,10 @@ export default function MasterProfile() {
                                         </svg>
                                         <span className="text-[10px] font-black">{master.ratingDunbar.toFixed(1)}</span>
                                     </div>
-                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight">Dunbar<br />Trust</span>
+                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight flex items-center">
+                                        Dunbar<br />Trust
+                                        <InfoTooltip text="Average rating from clients within your extended social network." />
+                                    </span>
                                 </div>
                                 <div className="h-6 w-px bg-tg-hint/20" />
                                 <div className="flex items-center gap-1.5">
@@ -102,9 +110,12 @@ export default function MasterProfile() {
                                         </svg>
                                         <span className="text-[9px] font-black">{master.ratingGlobal.toFixed(1)}</span>
                                     </div>
-                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight">Global<br />Rank</span>
+                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight flex items-center">
+                                        Global<br />Rank
+                                        <InfoTooltip text="Average rating from all clients on the platform." />
+                                    </span>
                                 </div>
-                            </div>
+                            </button>
                         </div>
                     </div>
                     <p className="mt-4 text-[13px] text-tg-hint leading-relaxed font-medium">
@@ -135,7 +146,7 @@ export default function MasterProfile() {
                     <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Services Portfolio</h3>
                     <div className="grid gap-2">
                         {master.services.map(srv => (
-                            <div key={srv.id} className="bg-tg-main border border-tg-hint/10 rounded-xl px-4 py-3 flex items-center justify-between">
+                            <div key={srv.id} className="bg-tg-main border border-tg-hint/10 rounded-xl px-4 py-3 flex flex-row items-center justify-between">
                                 <div className="flex flex-col">
                                     <span className="text-[13px] font-bold">{srv.name}</span>
                                     <span className="text-[10px] text-tg-hint uppercase font-bold tracking-wider">{srv.time}</span>
@@ -146,14 +157,8 @@ export default function MasterProfile() {
                     </div>
                 </div>
 
-                {/* Visual ABCD Radar */}
-                <div className="bg-tg-secondary/30 rounded-3xl p-6 border border-tg-hint/5 flex flex-col items-center">
-                    <h3 className="text-[10px] font-black uppercase text-tg-hint tracking-[0.2em] mb-4">ABCD Reliability Index</h3>
-                    <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={100} />
-                </div>
-
                 {/* Trusted Reviews */}
-                <div className="space-y-3">
+                <div className="space-y-3 mt-6">
                     <div className="flex justify-between items-end mb-2">
                         <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Network Reviews</h3>
                         <span className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-0.5 rounded-md">VERIFIED</span>
@@ -180,6 +185,49 @@ export default function MasterProfile() {
                 </button>
 
             </div>
+
+            {/* ABCD Radar Modal */}
+            {showABCDModal && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+                    onClick={() => setShowABCDModal(false)}
+                >
+                    <div
+                        className="bg-tg-secondary/90 backdrop-blur-xl border border-white/10 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <button
+                            className="absolute top-4 right-4 text-tg-hint hover:text-white"
+                            onClick={() => setShowABCDModal(false)}
+                        >
+                            ✕
+                        </button>
+                        <h3 className="text-lg font-black uppercase tracking-widest mb-6 border-b border-tg-hint/10 pb-4">Reliability Index</h3>
+
+                        <div className="space-y-5">
+                            {[
+                                { label: 'A - Authority', score: master.abcd.a, color: 'bg-blue-500' },
+                                { label: 'B - Benevolence', score: master.abcd.b, color: 'bg-green-500' },
+                                { label: 'C - Competence', score: master.abcd.c, color: 'bg-yellow-500' },
+                                { label: 'D - Dependability', score: master.abcd.d, color: 'bg-red-500' }
+                            ].map(item => (
+                                <div key={item.label} className="space-y-1">
+                                    <div className="flex justify-between text-xs font-bold uppercase tracking-wider text-tg-hint">
+                                        <span>{item.label}</span>
+                                        <span className="text-tg-primary">{item.score.toFixed(1)} / 5.0</span>
+                                    </div>
+                                    <div className="h-2 w-full bg-tg-main rounded-full overflow-hidden">
+                                        <div
+                                            className={`h-full ${item.color} rounded-full`}
+                                            style={{ width: `${(item.score / 5) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

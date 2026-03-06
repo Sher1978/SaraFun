@@ -10,7 +10,9 @@ import MasterDashboard from './pages/MasterDashboard';
 import Onboarding from './pages/Onboarding';
 import SocialArbitration from './pages/SocialArbitration';
 import EditMasterProfile from './pages/EditMasterProfile';
+import BusinessLanding from './pages/BusinessLanding';
 import RulesScreen from './pages/RulesScreen';
+import AddUserScreen from './pages/AddUserScreen';
 import Profile from './pages/Profile';
 import ReferralDashboard from './pages/ReferralDashboard';
 import SherlockAdminConsole from './pages/SherlockAdminConsole';
@@ -74,7 +76,9 @@ export default function App() {
                         <Route path="admin" element={<SherlockAdminConsole />} />
                         <Route path="arbitration" element={<SocialArbitration />} />
                         <Route path="edit-master" element={<EditMasterProfile />} />
+                        <Route path="business-landing" element={<BusinessLanding />} />
                         <Route path="rules" element={<RulesScreen />} />
+                        <Route path="add-user" element={<AddUserScreen />} />
                         <Route path="*" element={<Navigate to="/discovery" replace />} />
                     </Route>
                 </Routes>

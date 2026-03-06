@@ -43,6 +43,7 @@ export const updateMasterProfile = async (uid: string, profile: {
     bio: string;
     category: string;
     hourly_rate: number;
+    photo_url?: string;
 }): Promise<void> => {
     try {
         const userRef = doc(db, 'Users', uid);

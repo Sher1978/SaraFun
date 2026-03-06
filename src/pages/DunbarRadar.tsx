@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { doc, onSnapshot } from 'firebase/firestore';
 import WebApp from '@twa-dev/sdk';
 import { db } from '../firebase';
@@ -7,11 +8,12 @@ import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
 
 // Radar Rings Configuration
+// 15 = Gold, 50 = Silver (light blue), 150 = Bronze, Top5 = Teal/Diamond
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 170, opacity: 'rgba(13, 148, 136, 0.2)' },
-    { id: '50', max: 50, radius: 130, opacity: 'rgba(13, 148, 136, 0.4)' },
-    { id: '15', max: 15, radius: 90, opacity: 'rgba(13, 148, 136, 0.6)' },
-    { id: 'Top5', max: 5, radius: 50, opacity: 'rgba(13, 148, 136, 0.8)' },
+    { id: '150', max: 150, radius: 170, color: 'rgba(180, 83, 9, 0.3)' }, // Bronze
+    { id: '50', max: 50, radius: 130, color: 'rgba(125, 211, 252, 0.3)' }, // Silver/Light Blue
+    { id: '15', max: 15, radius: 90, color: 'rgba(234, 179, 8, 0.4)' }, // Gold
+    { id: 'Top5', max: 5, radius: 50, color: 'rgba(20, 184, 166, 0.7)' }, // Teal
 ];
 
 function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
@@ -26,19 +28,25 @@ function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
         opacity: isDragging ? 0.8 : 1,
     } : undefined;
 
+    // Determine styling based on ring status
+    let statusStyle = 'bg-tg-hint/10 border-tg-hint/30 text-tg-primary grayscale'; // Default (Shadow)
+    if (status === 'Top5') statusStyle = 'bg-teal-500/10 border-teal-500 text-teal-100 shadow-[0_0_8px_rgba(20,184,166,0.6)]';
+    if (status === '15') statusStyle = 'bg-yellow-500/10 border-yellow-500 text-yellow-100 shadow-[0_0_8px_rgba(234,179,8,0.6)]';
+    if (status === '50') statusStyle = 'bg-sky-300/10 border-sky-300 text-sky-100 shadow-[0_0_8px_rgba(125,211,252,0.4)]';
+    if (status === '150') statusStyle = 'bg-amber-700/10 border-amber-700 text-amber-100 shadow-[0_0_8px_rgba(180,83,9,0.4)]';
+
     return (
         <div
             ref={setNodeRef}
             style={style}
             {...listeners}
             {...attributes}
-            className="flex flex-col items-center gap-1 snap-start relative touch-none"
+            className="flex flex-col items-center gap-1 snap-start relative touch-none group"
         >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-medium border-2 shadow-sm ${isDragging ? 'bg-teal-500/30 border-teal-500 text-teal-100' : 'bg-tg-hint/20 border-tg-hint/10 text-tg-primary'
-                }`}>
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-sm transition-all ${isDragging ? 'scale-110 opacity-80' : ''} ${statusStyle}`}>
                 {uid.substring(0, 2)}
             </div>
-            <span className="text-[10px] text-tg-primary truncate w-14 text-center">{uid}</span>
+            <span className="text-[10px] text-tg-primary/80 truncate w-14 text-center font-medium group-hover:text-tg-primary">{uid}</span>
         </div>
     );
 }
@@ -53,16 +61,23 @@ function DroppableArc({ ring, currentCount, isActive, onClick, children }: any) 
     const isFull = currentCount >= ring.max;
     const strokeColor = isOver
         ? (isFull ? 'rgba(239, 68, 68, 0.8)' : 'rgba(34, 197, 94, 0.8)') // Red or Green
-        : ring.opacity;
+        : ring.color;
+
+    // Match glow color to ring color
+    const glowColor = ring.id === '15' ? 'rgba(234,179,8,0.5)' :
+        ring.id === '50' ? 'rgba(125,211,252,0.5)' :
+            ring.id === '150' ? 'rgba(180,83,9,0.5)' :
+                'rgba(20,184,166,0.6)';
 
     return (
-        <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer">
+        <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer group">
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke={strokeColor}
                 strokeWidth="38"
-                className={`transition-all duration-300 origin-bottom ${isActive || isOver ? 'drop-shadow-[0_0_10px_rgba(20,184,166,0.6)]' : ''}`}
+                style={{ filter: isActive || isOver ? `drop-shadow(0 0 12px ${glowColor})` : 'none' }}
+                className={`transition-all duration-300 origin-bottom`}
             />
             <text
                 x="200"
@@ -79,6 +94,7 @@ function DroppableArc({ ring, currentCount, isActive, onClick, children }: any) 
 }
 
 export default function DunbarRadar() {
+    const navigate = useNavigate();
     const [activeRing, setActiveRing] = useState<string | null>(null);
     const [isSearchActive, setIsSearchActive] = useState(false);
 
@@ -146,7 +162,7 @@ export default function DunbarRadar() {
             <div className="relative h-full w-full bg-tg-main text-tg-primary overflow-hidden flex flex-col justify-end">
 
                 {/* Z-Index 8: Search Bar */}
-                <div className={`absolute w-full px-4 transition-all duration-300 z-[8] ${isSearchActive ? 'top-10' : 'top-20'}`}>
+                <div className={`absolute w-full px-4 transition-all duration-300 z-[10] top-4`}>
                     <input
                         type="text"
                         value={searchQuery}
@@ -154,13 +170,13 @@ export default function DunbarRadar() {
                         placeholder="Search semantic network..."
                         onFocus={() => setIsSearchActive(true)}
                         onBlur={() => setIsSearchActive(false)}
-                        className="w-full bg-tg-secondary/60 backdrop-blur-xl border border-tg-hint/20 text-tg-primary rounded-xl px-4 py-3 placeholder:text-tg-hint/60 outline-none"
+                        className="w-full bg-tg-secondary/80 backdrop-blur-xl border border-tg-hint/30 text-tg-primary rounded-xl px-4 py-3 placeholder:text-tg-hint/60 outline-none shadow-lg"
                     />
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-32 w-full flex justify-center z-[1] transition-transform duration-500">
-                    <svg viewBox="0 0 400 200" className="w-[120%] max-w-[500px] overflow-visible">
+                <div className="absolute bottom-[40%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                    <svg viewBox="0 0 400 200" className="w-full max-w-[600px] overflow-visible">
                         {RINGS_CONFIG.map((ring) => {
                             const isActive = activeRing === ring.id;
                             const currentCount = getRingCount(ring.id);
@@ -176,9 +192,11 @@ export default function DunbarRadar() {
                             );
                         })}
 
-                        <circle cx="200" cy="200" r="20" className="fill-tg-main" />
-                        <circle cx="200" cy="200" r="16" className="fill-teal-500 drop-shadow-[0_0_8px_rgba(20,184,166,0.8)]" />
-                        <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-xl font-medium pointer-events-none">+</text>
+                        <g onClick={() => navigate('/add-user')} className="cursor-pointer hover:drop-shadow-[0_0_15px_rgba(20,184,166,1)] transition-all">
+                            <circle cx="200" cy="200" r="24" className="fill-tg-main pointer-events-none" />
+                            <circle cx="200" cy="200" r="20" className="fill-teal-500 drop-shadow-[0_0_12px_rgba(20,184,166,0.9)] pointer-events-none" />
+                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-2xl font-black pointer-events-none">+</text>
+                        </g>
                     </svg>
                 </div>
 

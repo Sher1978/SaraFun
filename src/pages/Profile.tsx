@@ -6,6 +6,7 @@ import { db } from '../firebase';
 import { QRCodeSVG } from 'qrcode.react';
 import { runStressTestSeed } from '../services/AdminStressTestSeed';
 import { ReferralService } from '../services/ReferralService';
+import InfoTooltip from '../components/InfoTooltip';
 
 export default function Profile() {
     const navigate = useNavigate();
@@ -68,7 +69,10 @@ export default function Profile() {
 
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <div className="text-[10px] uppercase font-black text-tg-hint tracking-[0.2em] mb-1">Total Assets</div>
+                        <div className="text-[10px] uppercase font-black text-tg-hint tracking-[0.2em] mb-1 flex items-center">
+                            Total Assets
+                            <InfoTooltip text="Your available balance of ⭐️ used for platform payments." />
+                        </div>
                         <div className="text-3xl font-black text-tg-primary flex items-center gap-2">
                             {stats.stars.toLocaleString()} <span className="text-yellow-500">⭐</span>
                         </div>
@@ -81,7 +85,10 @@ export default function Profile() {
                         <div className="text-lg font-bold">{stats.ton.toFixed(2)} TON</div>
                     </div>
                     <div className="text-right">
-                        <div className="text-[10px] uppercase font-black text-tg-hint">Oracle Rate</div>
+                        <div className="text-[10px] uppercase font-black text-tg-hint flex items-center justify-end">
+                            Oracle Rate
+                            <InfoTooltip text="Platform's internal exchange rate pegged to TON/USD." />
+                        </div>
                         <div className="text-xs font-mono opacity-80">50 ⭐️ / $1</div>
                     </div>
                 </div>
@@ -97,7 +104,7 @@ export default function Profile() {
                     My QR Code
                 </button>
                 <button
-                    onClick={() => navigate(isMaster ? '/dashboard' : '/edit-master')}
+                    onClick={() => navigate(isMaster ? '/dashboard' : '/business-landing')}
                     className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-transform"
                 >
                     <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
