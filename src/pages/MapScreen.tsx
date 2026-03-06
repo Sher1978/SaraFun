@@ -75,7 +75,7 @@ export default function MapScreen() {
     const visibleMasters = filteredMasters.filter(m => isInside(m.lat, m.lng));
 
     return (
-        <APIProvider apiKey={(import.meta as any).env.VITE_GOOGLE_MAPS_API_KEY || "YOUR_GOOGLE_MAPS_API_KEY_HERE"}>
+        <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <div className="relative w-full h-[calc(100vh-64px)] bg-tg-main text-tg-primary flex flex-col">
 
                 {/* Category Chips */}
