@@ -134,11 +134,11 @@ export default function MapScreen() {
                     <Map
                         center={center}
                         zoom={zoom}
+                        mapId="DEMO_MAP_ID"
                         gestureHandling={'greedy'}
                         disableDefaultUI={true}
                         styles={isDarkMode ? MapStyleDark : MapStyleLight}
                         onCameraChanged={onCameraChanged}
-                    // Removed mapId to prioritize local styles property
                     >
                         {/* Current User Marker */}
                         {userLocation && (

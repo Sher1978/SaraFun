@@ -16,10 +16,10 @@ export default function TrustMarker({ uid, name, lat, lng, circle, onClick }: Tr
 
     const ringColors = {
         Top5: '#FFD700',   // Dunbar Gold
-        '15': 'rgba(20, 184, 166, 1)',   // Teal
-        '50': 'rgba(20, 184, 166, 0.7)',
-        '150': 'rgba(20, 184, 166, 0.5)',
-        Global: '#C0C0C0' // Global Silver
+        '15': '#14b8a6',   // Teal
+        '50': 'rgba(20, 184, 166, 0.8)',
+        '150': 'rgba(20, 184, 166, 0.6)',
+        Global: '#64748b'  // Slate/Shadow
     };
 
     const ringShadow = {

@@ -39,13 +39,15 @@ export default function TabBar() {
                                 navigate(tab.path);
                             }
                         }}
-                        className={`flex flex-col items-center justify-center w-[20%] h-full transition-colors duration-200 ${isActive ? 'text-teal-500' : 'text-tg-hint'
+                        className={`flex flex-col items-center justify-center w-[20%] h-full transition-all duration-200 ${tab.id === 'scanner'
+                            ? 'bg-teal-500/20 rounded-2xl mx-1'
+                            : isActive ? 'text-teal-500' : 'text-tg-hint'
                             }`}
                     >
-                        <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                            {React.createElement(tab.icon, { size: 26, strokeWidth: isActive ? 2.5 : 2 })}
+                        <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'scale-100'} ${tab.id === 'scanner' ? 'text-teal-400' : ''}`}>
+                            {React.createElement(tab.icon, { size: 26, strokeWidth: (isActive || tab.id === 'scanner') ? 2.5 : 2 })}
                         </div>
-                        <span className={`text-[10px] mt-[2px] font-medium leading-none tracking-tight ${isActive ? 'font-semibold' : 'opacity-80'}`}>
+                        <span className={`text-[10px] mt-[2px] font-medium leading-none tracking-tight ${(isActive || tab.id === 'scanner') ? 'font-semibold' : 'opacity-80'}`}>
                             {tab.label}
                         </span>
                     </button>

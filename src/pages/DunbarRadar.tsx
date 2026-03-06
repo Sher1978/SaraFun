@@ -7,15 +7,15 @@ import { updateSocialGraph, CircleId } from '../services/userService';
 import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
-// Radar Rings Configuration - Tight spacing
+// Radar Rings Configuration - Optimized spacing
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 170, color: '#f43f5e', opacity: 0.25, delay: '0.8s' }, // Reddish-Rose
-    { id: '50', max: 50, radius: 140, color: '#0ea5e9', opacity: 0.35, delay: '0.6s' },  // Blue
-    { id: '15', max: 15, radius: 110, color: '#d4af37', opacity: 0.45, delay: '0.4s' },   // Gold (Rolled back)
-    { id: 'Top5', max: 5, radius: 80, color: '#14b8a6', opacity: 0.65, delay: '0.2s' },    // Teal
+    { id: '150', max: 150, radius: 180, color: '#f43f5e', opacity: 0.15, delay: '0.8s' }, // Reddish-Rose
+    { id: '50', max: 50, radius: 135, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },  // Blue
+    { id: '15', max: 15, radius: 95, color: '#d4af37', opacity: 0.35, delay: '0.4s' },   // Gold
+    { id: 'Top5', max: 5, radius: 55, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },   // Teal
 ];
 
-function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, status: string, isOverlay?: boolean }) {
+function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: string, status: string, photo?: string, isOverlay?: boolean }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: uid,
         data: { currentStatus: status }
@@ -27,18 +27,27 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
         opacity: (isDragging && !isOverlay) ? 0 : 1,
     } : undefined;
 
-    // determine styling based on ring status
-    let statusStyle = 'bg-slate-800/40 border-slate-700/50 text-slate-400 grayscale';
-    if (status === 'Top5') statusStyle = 'bg-teal-900/40 border-teal-500 text-teal-100 shadow-[0_2px_8px_rgba(20,184,166,0.3)]';
-    if (status === '15') statusStyle = 'bg-amber-900/20 border-[#d4af37]/80 text-[#d4af37]';
-    if (status === '50') statusStyle = 'bg-blue-900/20 border-[#0ea5e9]/80 text-blue-100';
-    if (status === '150') statusStyle = 'bg-amber-900/20 border-[#cd7f32]/80 text-amber-100';
+    // Determine colors based on status
+    const ringColors: Record<string, string> = {
+        Top5: '#14b8a6',
+        '15': '#d4af37',
+        '50': '#0ea5e9',
+        '150': '#f43f5e',
+        Shadow: '#64748b'
+    };
+
+    const activeColor = ringColors[status] || ringColors.Shadow;
 
     if (isOverlay) {
         return (
             <div className="flex flex-col items-center gap-1 z-[100] pointer-events-none scale-110">
-                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-xl ${statusStyle}`}>
-                    {uid.substring(0, 2)}
+                <div
+                    className="w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-xl bg-tg-secondary/80 overflow-hidden"
+                    style={{ borderColor: activeColor, boxShadow: `0 0 15px ${activeColor}40` }}
+                >
+                    {photo ? (
+                        <img src={photo} alt="" className="w-full h-full object-cover" />
+                    ) : uid.substring(0, 2).toUpperCase()}
                 </div>
             </div>
         );
@@ -52,8 +61,17 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
             {...attributes}
             className="flex flex-col items-center gap-1 snap-start relative touch-none group"
         >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-md transition-all ${isDragging ? 'opacity-0' : ''} ${statusStyle}`}>
-                {uid.substring(0, 2)}
+            <div
+                className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-md transition-all overflow-hidden ${isDragging ? 'opacity-0' : 'hover:scale-105'}`}
+                style={{
+                    borderColor: activeColor,
+                    backgroundColor: `${activeColor}10`,
+                    boxShadow: status !== 'Shadow' ? `0 0 10px ${activeColor}20` : 'none'
+                }}
+            >
+                {photo ? (
+                    <img src={photo} alt="" className="w-full h-full object-cover" />
+                ) : uid.substring(0, 2).toUpperCase()}
             </div>
             <span className="text-[10px] text-tg-hint truncate w-14 text-center font-bold">{uid}</span>
         </div>
@@ -147,7 +165,7 @@ function CreateContactModal({ isOpen, onClose, onSave }: any) {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-            <div className="w-full max-w-sm glass-photo p-6 rounded-3xl space-y-6 animate-in fade-in zoom-in duration-300">
+            <div className="w-full max-w-sm glass-photo p-6 rounded-3xl space-y-6 animate-in fade-in zoom-in duration-300 border border-white/10">
                 <div className="flex justify-between items-center">
                     <h2 className="text-xl font-black">Create Contact</h2>
                     <button onClick={onClose} className="p-2 text-tg-hint hover:text-white transition-colors">
@@ -160,32 +178,43 @@ function CreateContactModal({ isOpen, onClose, onSave }: any) {
                         <div>
                             <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">First Name</label>
                             <input
+                                autoFocus
                                 value={name} onChange={(e) => setName(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors text-white"
                             />
                         </div>
                         <div>
                             <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Last Name</label>
                             <input
                                 value={lastName} onChange={(e) => setLastName(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors text-white"
                             />
                         </div>
                     </div>
                     <div>
-                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Email</label>
+                        <div className="flex justify-between items-center mb-1 ml-1">
+                            <label className="text-[10px] font-black text-tg-hint uppercase">Email</label>
+                            <span className="text-[8px] font-bold text-tg-hint/40 uppercase">Optional</span>
+                        </div>
                         <input
                             value={email} onChange={(e) => setEmail(e.target.value)} type="email"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                            placeholder="alex@example.com"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors text-white"
                         />
                     </div>
                     <div>
                         <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Telegram @</label>
-                        <input
-                            value={telegram} onChange={(e) => setTelegram(e.target.value)}
-                            placeholder="@username"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
-                        />
+                        <div className="relative">
+                            <input
+                                value={telegram} onChange={(e) => setTelegram(e.target.value)}
+                                placeholder="@username"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors text-white"
+                            />
+                        </div>
+                        <p className="mt-2 text-[10px] leading-relaxed text-tg-hint/60 bg-white/5 p-2 rounded-lg border border-white/5">
+                            <span className="text-teal-500 font-bold mr-1">💡 Tip:</span>
+                            Minimize this popup using the <span className="inline-flex items-center text-white"><svg className="w-3 h-3 mx-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></span> arrow to find and copy a contact's username from Telegram.
+                        </p>
                     </div>
                 </div>
 
@@ -315,7 +344,7 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[30%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                <div className="absolute bottom-[20%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
                     <svg viewBox="0 0 400 200" className="w-full max-w-[500px] overflow-visible">
                         {RINGS_CONFIG.map((ring) => {
                             const isActive = activeRing === ring.id;
@@ -334,9 +363,9 @@ export default function DunbarRadar() {
                         })}
 
                         <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group">
-                            <circle cx="200" cy="200" r="32" className="fill-tg-bg" />
-                            <circle cx="200" cy="200" r="28" className="fill-tg-primary" />
-                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
+                            <circle cx="200" cy="195" r="32" className="fill-tg-bg" />
+                            <circle cx="200" cy="195" r="28" className="fill-tg-primary" />
+                            <text x="200" y="195" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
                         </g>
                     </svg>
                 </div>
@@ -348,7 +377,7 @@ export default function DunbarRadar() {
                 />
 
                 {/* Z-Index 9: Shadow List or Active Ring Contacts - Increased height, removed divider, button overlap */}
-                <div className="absolute bottom-0 w-full bg-tg-secondary/90 backdrop-blur-2xl z-[9] pb-4 pt-4 rounded-t-3xl shadow-2xl">
+                <div className="absolute bottom-0 w-full bg-tg-secondary/90 backdrop-blur-2xl z-[9] pb-4 pt-4 rounded-t-3xl shadow-2xl border-t border-white/5">
                     <div className="px-4 mb-3 flex justify-between items-center">
                         <h3 className="font-bold text-[11px] text-tg-hint uppercase tracking-widest">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
                         <span className="text-[10px] text-tg-hint font-medium">Drag to promote</span>
@@ -356,7 +385,12 @@ export default function DunbarRadar() {
 
                     <div className="flex overflow-x-auto gap-4 px-4 pb-2 snap-x hide-scrollbar h-[5.5rem] items-center">
                         {contactsToShow.map(([uid, status]) => (
-                            <DraggableAvatar key={uid} uid={uid} status={status} />
+                            <DraggableAvatar
+                                key={uid}
+                                uid={uid}
+                                status={status}
+                                photo={uid === 'alex' ? 'https://avatar.iran.liara.run/public/boy?username=alex' : undefined}
+                            />
                         ))}
                         {contactsToShow.length === 0 && (
                             <div className="text-tg-hint text-[11px] italic w-full text-center py-6">No contacts matching filter</div>

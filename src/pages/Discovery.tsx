@@ -25,6 +25,7 @@ const MOCK_MASTERS = [
         id: 'master_1',
         name: 'Alex Minov',
         service: 'Car Detailing',
+        avatar: 'https://avatar.iran.liara.run/public/boy?username=Alex',
         price: 50,
         ratings: [
             { rating: 4.8, ring: 'Top5' as const },
@@ -39,6 +40,7 @@ const MOCK_MASTERS = [
         id: 'master_2',
         name: 'Sarah J.',
         service: 'Yoga Instructor',
+        avatar: 'https://avatar.iran.liara.run/public/girl?username=Sarah',
         price: 30,
         ratings: [
             { rating: 5.0, ring: '15' as const },
@@ -52,6 +54,7 @@ const MOCK_MASTERS = [
         id: 'master_3',
         name: 'Mike Tkach',
         service: 'Plumbing',
+        avatar: 'https://avatar.iran.liara.run/public/boy?username=Mike',
         price: 80,
         ratings: [
             { rating: 3.8, ring: '50' as const },
@@ -317,12 +320,16 @@ function DeckView({ masters, id, loading, onPay }: {
                         className="absolute inset-0 bg-[#313439] border border-white/10 rounded-3xl p-5 shadow-2xl transition-all duration-300 flex flex-col"
                     >
                         <div className="flex gap-4 items-center">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-tg-primary/20 to-transparent border border-white/10 flex items-center justify-center text-2xl font-black text-white/30">
-                                {master.name.charAt(0)}
+                            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
+                                {master.avatar ? (
+                                    <img src={master.avatar} alt={master.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-2xl font-black text-white/20">{master.name.charAt(0)}</span>
+                                )}
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-lg font-bold text-white">{master.name}</h3>
-                                <p className="text-[10px] text-tg-hint font-black uppercase tracking-widest">{master.service}</p>
+                                <h3 className="text-lg font-bold text-white leading-tight">{master.name}</h3>
+                                <p className="text-[10px] text-tg-primary font-black uppercase tracking-widest mt-0.5">{master.service}</p>
                             </div>
                         </div>
 
