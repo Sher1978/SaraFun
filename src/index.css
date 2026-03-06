@@ -42,15 +42,23 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
   border-radius: 2px;
 }
 
-/* Global Font Scaling and Spacing Fixes */
+/* Cyber-Neon Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 :root {
   --tg-viewport-height: 100vh;
   --tg-viewport-stable-height: 100vh;
 
-  /* Matte Premium Palette */
-  --color-matte-bg: #1a1c1e;
-  --color-matte-surface: #2c2e30;
-  --color-matte-teal: #14b8a6;
+  /* Cyber-Neon Palette */
+  --neon: #00E5CC;
+  --neon-dim: rgba(0, 229, 204, 0.15);
+  --bg-dark: #0d0f14;
+  --card-bg: rgba(18, 22, 32, 0.85);
+
+  /* Matte Premium Palette (Legacy compatibility) */
+  --color-matte-bg: #0d0f14;
+  --color-matte-surface: #121620;
+  --color-matte-teal: #00E5CC;
   --color-matte-gold: #d4af37;
   --color-matte-silver: #a0a0a0;
   --color-matte-bronze: #cd7f32;
@@ -59,13 +67,13 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   font-size: 16px;
   line-height: 1.3;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
-  background-color: var(--color-matte-bg);
-  color: var(--color-matte-text);
+  background-color: var(--bg-dark);
+  color: #ffffff;
   padding-bottom: env(safe-area-inset-bottom);
 }
 

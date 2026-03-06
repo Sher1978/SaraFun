@@ -71,35 +71,37 @@ export default function Profile() {
     };
 
     return (
-        <div className="min-h-full bg-tg-bg overflow-y-auto pb-20">
-            {/* Native Header */}
-            <header className="flex flex-col items-center pt-8 pb-4 bg-tg-bg">
+        <div className="min-h-full bg-[#0d0f14] overflow-y-auto pb-24">
+            {/* Native Header -> Cyber Header */}
+            <header className="flex flex-col items-center pt-8 pb-6 bg-[#0d0f14]">
                 <div
                     onClick={handleAvatarClick}
-                    className="w-[100px] h-[100px] bg-teal-500 rounded-full flex items-center justify-center text-3xl font-semibold border-4 border-tg-bg shadow-xl cursor-pointer active:scale-95 transition-transform"
+                    className="w-[100px] h-[100px] bg-gradient-to-br from-[#00E5CC] to-[#009980] rounded-full flex items-center justify-center text-3xl font-black border-4 border-[#0d0f14] shadow-[0_0_30px_rgba(0,229,204,0.3)] cursor-pointer active:scale-95 transition-transform text-[#0d0f14]"
                 >
                     {WebApp.initDataUnsafe?.user?.last_name?.charAt(0) || WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
-                <h1 className="mt-3 text-xl font-semibold text-white">
+                <h1 className="mt-4 text-2xl font-black text-white tracking-tight" style={{ textShadow: '0 0 10px rgba(0,229,204,0.3)' }}>
                     {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
                 </h1>
-                <p className="text-sm text-tg-hint">
+                <p className="text-xs font-bold text-[#00E5CC] opacity-60 uppercase tracking-widest mt-1">
                     +{currentUserUid.substring(0, 3)} {currentUserUid.substring(3, 6)} {currentUserUid.substring(6)}
                 </p>
             </header>
 
             {/* Account Info Group */}
-            <div className="tg-list-group">
-                <div className="tg-list-group-label">Account</div>
-                <div className="tg-list-group-content">
-                    <div className="tg-list-item">
-                        <div className="tg-list-item-label">UID</div>
-                        <div className="tg-list-item-value">{currentUserUid}</div>
+            <div className="px-4 mb-6">
+                <div className="text-[10px] font-black text-[#00E5CC] uppercase tracking-[0.2em] mb-2 ml-1 opacity-70">Account Node</div>
+                <div className="bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl overflow-hidden">
+                    <div className="flex justify-between items-center p-4 border-b border-white/5">
+                        <div className="text-sm font-bold text-white/60">UID</div>
+                        <div className="text-sm font-black text-[#00E5CC]">{currentUserUid}</div>
                     </div>
-                    <button onClick={handleCopyLink} className="tg-list-item">
-                        <div className="tg-list-item-label">Referral Link</div>
-                        <div className="tg-list-item-value truncate max-w-[150px] opacity-60">{referralLink}</div>
-                        <div className="tg-list-item-arrow">→</div>
+                    <button onClick={handleCopyLink} className="w-full flex justify-between items-center p-4 active:bg-white/5 transition-colors">
+                        <div className="text-sm font-bold text-white/60">Network Link</div>
+                        <div className="flex items-center gap-2">
+                            <div className="text-sm font-black text-[#00E5CC] opacity-40 truncate max-w-[120px]">sarafun.io/...</div>
+                            <div className="text-[#00E5CC] opacity-40">→</div>
+                        </div>
                     </button>
                 </div>
             </div>

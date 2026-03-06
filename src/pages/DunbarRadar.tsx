@@ -8,11 +8,12 @@ import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
 // Radar Rings Configuration - Optimized spacing
+// Radar Rings Configuration - Cyber-Neon Edition
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 180, color: '#f43f5e', opacity: 0.15, delay: '0.8s' }, // Reddish-Rose
-    { id: '50', max: 50, radius: 135, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },  // Blue
-    { id: '15', max: 15, radius: 95, color: '#d4af37', opacity: 0.35, delay: '0.4s' },   // Gold
-    { id: 'Top5', max: 5, radius: 55, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },   // Teal
+    { id: '150', max: 150, radius: 180, color: '#FF2D55', opacity: 0.1, delay: '0.8s' }, // Neon Red
+    { id: '50', max: 50, radius: 135, color: '#007AFF', opacity: 0.2, delay: '0.6s' },  // Neon Blue
+    { id: '15', max: 15, radius: 95, color: '#FFD60A', opacity: 0.3, delay: '0.4s' },   // Neon Yellow
+    { id: 'Top5', max: 5, radius: 55, color: '#00E5CC', opacity: 0.5, delay: '0.2s' },   // Neon Turquoise
 ];
 
 function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: string, status: string, photo?: string, isOverlay?: boolean }) {
@@ -348,7 +349,7 @@ export default function DunbarRadar() {
 
     return (
         <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-            <div className={`relative h-full w-full bg-[#1a1c1e] text-[#e2e8f0] overflow-hidden flex flex-col justify-end transition-colors duration-500 ${activeId ? 'bg-[#0f1113]' : ''}`}>
+            <div className={`relative h-full w-full bg-[#0d0f14] text-white overflow-hidden flex flex-col justify-end transition-colors duration-500 ${activeId ? 'bg-[#050608]' : ''}`}>
 
                 {/* Z-Index 8: Search Bar */}
                 <div className={`absolute w-full px-4 transition-all duration-300 z-[10] top-4`}>
