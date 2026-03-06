@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { APIProvider, Map, MapCameraChangedEvent } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, MapCameraChangedEvent, AdvancedMarker } from '@vis.gl/react-google-maps';
 import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import TrustMarker, { TrustMarkerProps } from '../components/TrustMarker';
