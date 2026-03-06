@@ -8,11 +8,12 @@ import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable, DragOverlay, useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
 
 // Radar Rings Configuration - Optimized spacing
+// Radar Rings Configuration - Normalized equal spacing
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 180, color: '#f43f5e', opacity: 0.15, delay: '0.8s' }, // Reddish-Rose
-    { id: '50', max: 50, radius: 135, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },  // Blue
-    { id: '15', max: 15, radius: 95, color: '#d4af37', opacity: 0.35, delay: '0.4s' },   // Gold
-    { id: 'Top5', max: 5, radius: 55, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },   // Teal
+    { id: '150', max: 150, radius: 195, color: '#f43f5e', opacity: 0.15, delay: '0.8s' },
+    { id: '50', max: 50, radius: 155, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },
+    { id: '15', max: 15, radius: 115, color: '#d4af37', opacity: 0.35, delay: '0.4s' },
+    { id: 'Top5', max: 5, radius: 75, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },
 ];
 
 function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: string, status: string, photo?: string, isOverlay?: boolean }) {
@@ -330,9 +331,9 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[80px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                <div className="absolute bottom-[90px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
                     <div className="relative w-full max-w-[500px]">
-                        <svg viewBox="0 0 400 200" className="w-full overflow-visible">
+                        <svg viewBox="0 0 400 240" className="w-full overflow-visible">
                             {RINGS_CONFIG.map((ring) => {
                                 const isActive = activeRing === ring.id;
                                 const currentCount = getRingCount(ring.id);
@@ -348,22 +349,24 @@ export default function DunbarRadar() {
                                     />
                                 );
                             })}
-
-                            <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group">
-                                <circle cx="200" cy="195" r="32" className="fill-tg-bg" />
-                                <circle cx="200" cy="195" r="28" className="fill-tg-primary" />
-                                <text x="200" y="195" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
-                            </g>
                         </svg>
+
+                        {/* Center "+" Button Overlay - Matches Scanner button style */}
+                        <div
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="absolute left-1/2 bottom-[-15px] -translate-x-1/2 w-16 h-16 bg-teal-500 rounded-full border-[3px] border-tg-bg shadow-xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
+                        >
+                            <span className="text-black text-3xl font-black mb-1">+</span>
+                        </div>
 
                         {/* Pending Promotion Overlay */}
                         {pendingPromotion && (
-                            <div className="absolute left-1/2 bottom-[5px] -translate-x-1/2 z-50 animate-vibrate">
+                            <div className="absolute left-1/2 bottom-[-15px] -translate-x-1/2 z-[12] animate-vibrate pointer-events-none">
                                 <DraggableAvatar
                                     uid={pendingPromotion}
                                     status="Shadow"
                                 />
-                                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-teal-500 text-black text-[9px] font-black px-2 py-1 rounded-full whitespace-nowrap animate-bounce shadow-lg">
+                                <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-teal-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full whitespace-nowrap animate-bounce shadow-lg">
                                     DRAG TO RING
                                 </div>
                             </div>
