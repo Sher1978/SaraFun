@@ -274,10 +274,25 @@ function DeckView({ masters, id, loading, onPay }: {
     const navigate = useNavigate();
     const [activeIndex, setActiveIndex] = useState(0);
     const [dragX, setDragX] = useState(0);
+    const [startX, setStartX] = useState(0);
 
-    const handleDragEnd = () => {
-        if (dragX < -80) {
-            setActiveIndex((activeIndex + 1) % masters.length);
+    const handleTouchStart = (e: React.TouchEvent) => {
+        setStartX(e.touches[0].clientX);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        const currentX = e.touches[0].clientX;
+        setDragX(currentX - startX);
+    };
+
+    const handleTouchEnd = () => {
+        if (dragX < -100) {
+            // Swipe Left -> Next
+            setActiveIndex((prev) => (prev + 1) % masters.length);
+            WebApp.HapticFeedback.impactOccurred('medium');
+        } else if (dragX > 100) {
+            // Swipe Right -> Prev
+            setActiveIndex((prev) => (prev - 1 + masters.length) % masters.length);
             WebApp.HapticFeedback.impactOccurred('medium');
         }
         setDragX(0);
@@ -290,34 +305,32 @@ function DeckView({ masters, id, loading, onPay }: {
     );
 
     return (
-        <div className="relative h-[280px] w-full mt-2 select-none">
+        <div className="relative h-[280px] w-full mt-2 select-none perspective-1000">
             {masters.map((master, idx) => {
-                const isTop = idx === activeIndex;
-                const isNext = idx === (activeIndex + 1) % masters.length;
-                if (!isTop && !isNext) return null;
+                const diff = (idx - activeIndex + masters.length) % masters.length;
 
+                // Only render top 3 for performance
+                if (diff > 2) return null;
+
+                const isTop = diff === 0;
                 const dunkbarScore = calculateDunbarScore(master.ratings);
 
                 return (
                     <div
                         key={master.id}
-                        onTouchStart={() => isTop && setDragX(0)}
-                        onTouchMove={(e) => {
-                            if (isTop) {
-                                // Real drag pos logic omitted for brevity, using hint
-                                setDragX(-40);
-                            }
-                        }}
-                        onTouchEnd={handleDragEnd}
+                        onTouchStart={isTop ? handleTouchStart : undefined}
+                        onTouchMove={isTop ? handleTouchMove : undefined}
+                        onTouchEnd={isTop ? handleTouchEnd : undefined}
                         onClick={() => navigate(`/master/${master.id}`)}
                         style={{
-                            zIndex: isTop ? 10 : 5,
+                            zIndex: 10 - diff,
                             transform: isTop
-                                ? `translateX(${dragX}px) rotate(${dragX / 20}deg) scale(1)`
-                                : `translateX(15px) rotate(2deg) scale(0.96)`,
-                            opacity: isTop ? 1 : 0.4,
+                                ? `translateX(${dragX}px) rotate(${dragX / 25}deg) scale(1)`
+                                : `translateY(${diff * 8}px) scale(${1 - diff * 0.04}) translateZ(-${diff * 20}px)`,
+                            opacity: 1 - diff * 0.3,
+                            visibility: diff > 2 ? 'hidden' : 'visible',
                         }}
-                        className="absolute inset-0 bg-[#313439] border border-white/10 rounded-3xl p-5 shadow-2xl transition-all duration-300 flex flex-col"
+                        className={`absolute inset-0 bg-[#313439] border border-white/10 rounded-3xl p-5 shadow-2xl flex flex-col ${isTop ? 'transition-none' : 'transition-all duration-500'}`}
                     >
                         <div className="flex gap-4 items-center">
                             <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">

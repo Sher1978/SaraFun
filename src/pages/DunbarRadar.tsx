@@ -79,7 +79,7 @@ function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: strin
     );
 }
 
-function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: any) {
+function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny, shouldAnimate }: any) {
     const { setNodeRef, isOver } = useDroppable({
         id: ring.id,
         data: { maxContent: ring.max, currentContent: currentCount }
@@ -119,7 +119,7 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
 
             {/* Background Arch Shadow */}
             <path
-                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
+                d={`M ${200 - ring.radius} 210 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 210`}
                 fill="none"
                 stroke="rgba(0,0,0,0.5)"
                 strokeWidth="48"
@@ -127,25 +127,25 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
             />
             {/* Main Volumetric Arch */}
             <path
-                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
+                d={`M ${200 - ring.radius} 210 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 210`}
                 fill="none"
                 stroke={`url(#${gradId})`}
                 strokeWidth="42"
                 strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
                 filter={`url(#${glintId})`}
-                className={`transition-all duration-500 origin-bottom animate-radar-pulse ${isActive || isOver ? 'scale-[1.02]' : ''}`}
+                className={`transition-all duration-500 origin-bottom ${(shouldAnimate || isOver) ? 'animate-radar-pulse' : ''} ${isActive || isOver ? 'scale-[1.02]' : ''}`}
                 style={{
                     animationDelay: ring.delay,
                     // @ts-ignore
                     '--pulse-color': strokeColor,
-                    '--base-opacity': isDraggingAny ? 0.3 : ring.opacity,
+                    '--base-opacity': (isDraggingAny || (activeRing && !isActive)) ? 0.2 : ring.opacity,
                     strokeDasharray: '2000',
                     strokeDashoffset: (isActive || isOver) ? '0' : '0'
                 } as any}
             />
             <text
                 x="200"
-                y={200 - ring.radius}
+                y={210 - ring.radius}
                 textAnchor="middle"
                 alignmentBaseline="middle"
                 className={`fill-white text-[12px] font-black pointer-events-none transition-all ${isOver ? 'scale-125' : ''}`}
@@ -343,6 +343,7 @@ export default function DunbarRadar() {
                                         key={ring.id}
                                         ring={ring}
                                         currentCount={currentCount}
+                                        shouldAnimate={activeRing ? activeRing === ring.id : true}
                                         isActive={isActive}
                                         isDraggingAny={!!activeId}
                                         onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
@@ -351,17 +352,17 @@ export default function DunbarRadar() {
                             })}
                         </svg>
 
-                        {/* Center "+" Button Overlay - Matches Scanner button style */}
+                        {/* Center "+" Button Overlay - Center aligned to contact block top edge */}
                         <div
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-[-15px] -translate-x-1/2 w-16 h-16 bg-teal-500 rounded-full border-[3px] border-tg-bg shadow-xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
+                            className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 w-16 h-16 bg-teal-500 rounded-full border-[3px] border-[#1a1c1e] shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
                         >
                             <span className="text-black text-3xl font-black mb-1">+</span>
                         </div>
 
                         {/* Pending Promotion Overlay */}
                         {pendingPromotion && (
-                            <div className="absolute left-1/2 bottom-[-15px] -translate-x-1/2 z-[12] animate-vibrate pointer-events-none">
+                            <div className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 z-[12] animate-vibrate pointer-events-none">
                                 <DraggableAvatar
                                     uid={pendingPromotion}
                                     status="Shadow"
