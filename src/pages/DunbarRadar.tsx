@@ -324,7 +324,33 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[40%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                <div className="absolute bottom-[35%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                    {/* Ring Stats Overlay */}
+                    <div className="absolute inset-0 flex justify-between items-center px-6 pointer-events-none z-10 px-10">
+                        {/* Left Column: Top5 & 15 */}
+                        <div className="flex flex-col gap-4 text-[10px] font-black uppercase tracking-tighter">
+                            <div className="flex flex-col">
+                                <span className="text-teal-500">Top 5 Arc</span>
+                                <span className="text-white text-lg leading-none">{getRingCount('Top5')}/5</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[#eab308]">15 Group</span>
+                                <span className="text-white text-lg leading-none">{getRingCount('15')}/15</span>
+                            </div>
+                        </div>
+                        {/* Right Column: 50 & 150 */}
+                        <div className="flex flex-col gap-4 text-[10px] font-black uppercase tracking-tighter text-right">
+                            <div className="flex flex-col">
+                                <span className="text-[#0ea5e9]">50 Circle</span>
+                                <span className="text-white text-lg leading-none">{getRingCount('50')}/50</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[#cd7f32]">150 World</span>
+                                <span className="text-white text-lg leading-none">{getRingCount('150')}/150</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <svg viewBox="0 0 400 200" className="w-full max-w-[600px] overflow-visible">
                         {RINGS_CONFIG.map((ring) => {
                             const isActive = activeRing === ring.id;
@@ -357,20 +383,20 @@ export default function DunbarRadar() {
                 />
 
                 {/* Z-Index 9: Shadow List or Active Ring Contacts */}
-                <div className="absolute bottom-0 w-full bg-tg-secondary/70 backdrop-blur-2xl border-t border-tg-hint/20 z-[9] pb-16 pt-4 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-                    <div className="w-12 h-1.5 bg-tg-hint/30 rounded-full mx-auto mb-4" />
+                <div className="absolute bottom-0 w-full bg-tg-secondary/70 backdrop-blur-2xl border-t border-tg-hint/20 z-[9] pb-4 pt-2 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
+                    <div className="w-12 h-1 bg-tg-hint/30 rounded-full mx-auto mb-2" />
 
-                    <div className="px-4 mb-2 flex justify-between items-end">
-                        <h3 className="font-semibold text-sm">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
-                        <span className="text-[10px] text-tg-hint uppercase tracking-wider font-bold">Drag to Rings</span>
+                    <div className="px-4 mb-1 flex justify-between items-end">
+                        <h3 className="font-semibold text-xs">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
+                        <span className="text-[9px] text-tg-hint uppercase tracking-wider font-bold">Drag to Rings</span>
                     </div>
 
-                    <div className="flex overflow-x-auto gap-3 px-4 pb-4 snap-x hide-scrollbar h-24 items-center">
+                    <div className="flex overflow-x-auto gap-3 px-4 pb-2 snap-x hide-scrollbar h-20 items-center">
                         {contactsToShow.map(([uid, status]) => (
                             <DraggableAvatar key={uid} uid={uid} status={status} />
                         ))}
                         {contactsToShow.length === 0 && (
-                            <div className="text-tg-hint text-sm italic w-full text-center">No contacts here</div>
+                            <div className="text-tg-hint text-[10px] italic w-full text-center">No contacts here</div>
                         )}
                     </div>
                 </div>

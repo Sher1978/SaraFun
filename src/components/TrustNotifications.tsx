@@ -31,7 +31,7 @@ export default function TrustNotifications() {
     };
 
     return (
-        <div className="fixed top-20 left-0 right-0 z-[110] pointer-events-none px-4 flex flex-col gap-2">
+        <div className="fixed top-4 left-0 right-0 z-[110] pointer-events-none px-4 flex flex-col gap-2">
             <AnimatePresence>
                 {notifications.map(n => (
                     <motion.div
