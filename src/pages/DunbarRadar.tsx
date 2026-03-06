@@ -7,13 +7,12 @@ import { updateSocialGraph, CircleId } from '../services/userService';
 import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
-// Radar Rings Configuration - Matte Premium Palette
-// Gold: #d4af37, Silver: #a0a0a0, Bronze: #cd7f32
+// Radar Rings Configuration - Wider spacing & specific pulse sequence
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 240, color: '#cd7f32', opacity: 0.2, delay: '0.6s' }, // Matte Copper (Overflow)
-    { id: '50', max: 50, radius: 180, color: '#0ea5e9', opacity: 0.3, delay: '0.4s' },  // Matte Blue (Edge)
-    { id: '15', max: 15, radius: 120, color: '#eab308', opacity: 0.4, delay: '0.2s' },   // Matte Sand
-    { id: 'Top5', max: 5, radius: 60, color: '#14b8a6', opacity: 0.6, delay: '0s' },    // Matte Teal
+    { id: '150', max: 150, radius: 320, color: '#f43f5e', opacity: 0.25, delay: '0.8s' }, // Reddish-Rose (Overflows)
+    { id: '50', max: 50, radius: 240, color: '#0ea5e9', opacity: 0.35, delay: '0.6s' },  // Blue
+    { id: '15', max: 15, radius: 160, color: '#f5deb3', opacity: 0.45, delay: '0.4s' },   // Sand
+    { id: 'Top5', max: 5, radius: 80, color: '#14b8a6', opacity: 0.65, delay: '0.2s' },    // Teal
 ];
 
 function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, status: string, isOverlay?: boolean }) {
@@ -25,15 +24,15 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         zIndex: isDragging ? 50 : 1,
-        opacity: (isDragging && !isOverlay) ? 0 : 1, // Hide original if dragging, but overlay is visible
+        opacity: (isDragging && !isOverlay) ? 0 : 1,
     } : undefined;
 
-    // Determine styling based on ring status - Photorealistic Matte
-    let statusStyle = 'bg-slate-800/40 border-slate-700/50 text-slate-400 grayscale'; // Default (Shadow)
-    if (status === 'Top5') statusStyle = 'bg-teal-900/40 border-teal-500/80 text-teal-100 shadow-[0_4px_12px_rgba(20,184,166,0.3)]';
-    if (status === '15') statusStyle = 'bg-yellow-900/40 border-[#d4af37]/80 text-yellow-100 shadow-[0_4px_12px_rgba(212,175,55,0.3)]';
-    if (status === '50') statusStyle = 'bg-slate-800/40 border-slate-400/80 text-slate-100 shadow-[0_4px_12px_rgba(160,160,160,0.3)]';
-    if (status === '150') statusStyle = 'bg-amber-900/40 border-[#cd7f32]/80 text-amber-100 shadow-[0_4px_12px_rgba(205,127,50,0.3)]';
+    // determine styling based on ring status
+    let statusStyle = 'bg-slate-800/40 border-slate-700/50 text-slate-400 grayscale';
+    if (status === 'Top5') statusStyle = 'bg-teal-900/40 border-teal-500 text-teal-100 shadow-[0_2px_8px_rgba(20,184,166,0.3)]';
+    if (status === '15') statusStyle = 'bg-[#f5deb3]/20 border-[#f5deb3]/80 text-[#f5deb3]';
+    if (status === '50') statusStyle = 'bg-blue-900/20 border-[#0ea5e9]/80 text-blue-100';
+    if (status === '150') statusStyle = 'bg-amber-900/20 border-[#cd7f32]/80 text-amber-100';
 
     if (isOverlay) {
         return (
@@ -41,7 +40,6 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
                 <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-xl ${statusStyle}`}>
                     {uid.substring(0, 2)}
                 </div>
-                <span className="text-[10px] text-white font-black">{uid}</span>
             </div>
         );
     }
@@ -57,7 +55,7 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
             <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-md transition-all ${isDragging ? 'opacity-0' : ''} ${statusStyle}`}>
                 {uid.substring(0, 2)}
             </div>
-            <span className="text-[10px] text-slate-400 truncate w-14 text-center font-medium group-hover:text-white transition-colors">{uid}</span>
+            <span className="text-[10px] text-tg-hint truncate w-14 text-center font-bold">{uid}</span>
         </div>
     );
 }
@@ -68,77 +66,70 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
         data: { maxContent: ring.max, currentContent: currentCount }
     });
 
-    // Volume Glints Gradient IDs
     const gradId = `grad-${ring.id}`;
+    const glintId = `glint-${ring.id}`;
 
     const isFull = currentCount >= ring.max;
     const isNinetyPercent = currentCount >= ring.max * 0.9 && !isFull;
 
-    // Design: Photorealistic Shimmering
-    let shimmerClass = '';
     let strokeColor = ring.color;
-
-    if (isDraggingAny) {
-        if (isFull) {
-            shimmerClass = 'animate-shimmer-red';
-            strokeColor = '#ef4444';
-        } else if (isNinetyPercent) {
-            shimmerClass = 'animate-shimmer-yellow';
-            strokeColor = '#eab308';
-        } else {
-            shimmerClass = 'animate-shimmer-green';
-            strokeColor = '#22c55e';
-        }
-    } else {
-        // Sequential Pulse in idle state
-        shimmerClass = 'animate-pulse-sequential';
-    }
-
-    if (isOver) {
-        strokeColor = isFull ? '#ef4444' : '#22c55e';
-    }
+    if (isOver) strokeColor = isFull ? '#ef4444' : '#22c55e';
 
     return (
         <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer group">
             <defs>
+                {/* Volumetric Gradient */}
                 <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="white" stopOpacity="0.3" />
+                    <stop offset="0%" stopColor="white" stopOpacity="0.4" />
                     <stop offset="50%" stopColor={strokeColor} stopOpacity="1" />
-                    <stop offset="100%" stopColor="black" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="black" stopOpacity="0.3" />
                 </linearGradient>
+                {/* Glint Filter for volume effect */}
+                <filter id={glintId}>
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+                    <feSpecularLighting in="blur" surfaceScale="5" specularConstant="1" specularExponent="20" lightingColor="#ffffff" result="specular">
+                        <fePointLight x="200" y="50" z="100" />
+                    </feSpecularLighting>
+                    <feComposite in="specular" in2="SourceAlpha" operator="in" result="composite" />
+                    <feMerge>
+                        <feMergeNode in="SourceGraphic" />
+                        <feMergeNode in="composite" />
+                    </feMerge>
+                </filter>
             </defs>
-            {/* Background Depth Shadow */}
+
+            {/* Background Arch Shadow */}
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
-                stroke="rgba(0,0,0,0.4)"
-                strokeWidth="42"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="48"
                 className="transition-all duration-300 pointer-events-none"
             />
-            {/* Main Arc */}
+            {/* Main Volumetric Arch */}
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke={`url(#${gradId})`}
-                strokeWidth="38"
+                strokeWidth="42"
                 strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
-                className={`transition-all duration-300 origin-bottom ${shimmerClass}`}
+                filter={`url(#${glintId})`}
+                className={`transition-all duration-500 origin-bottom animate-radar-pulse ${isActive || isOver ? 'scale-[1.02]' : ''}`}
                 style={{
                     animationDelay: ring.delay,
                     // @ts-ignore
                     '--pulse-color': strokeColor,
-                    '--base-opacity': ring.opacity,
-                    filter: (isActive || isOver)
-                        ? `drop-shadow(0 0 20px ${strokeColor})`
-                        : 'drop-shadow(0 8px 16px rgba(0,0,0,0.6))'
+                    '--base-opacity': isDraggingAny ? 0.3 : ring.opacity,
+                    strokeDasharray: '2000',
+                    strokeDashoffset: (isActive || isOver) ? '0' : '0'
                 } as any}
             />
             <text
                 x="200"
-                y={200 - ring.radius + 4}
+                y={200 - ring.radius}
                 textAnchor="middle"
                 alignmentBaseline="middle"
-                className={`fill-white text-[10px] font-black pointer-events-none transition-colors ${isOver && isFull ? 'fill-red-500 scale-110' : ''}`}
+                className={`fill-white text-[12px] font-black pointer-events-none transition-all ${isOver ? 'scale-125' : ''}`}
             >
                 {currentCount}/{ring.max}
             </text>
@@ -324,34 +315,34 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[35%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
-                    {/* Ring Stats Overlay */}
-                    <div className="absolute inset-0 flex justify-between items-center px-6 pointer-events-none z-10 px-10">
+                <div className="absolute bottom-[30%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                    {/* Ring Stats Overlay - Positioned specifically left/right of arcs */}
+                    <div className="absolute inset-0 flex justify-between items-center px-4 pointer-events-none z-10">
                         {/* Left Column: Top5 & 15 */}
-                        <div className="flex flex-col gap-4 text-[10px] font-black uppercase tracking-tighter">
-                            <div className="flex flex-col">
-                                <span className="text-teal-500">Top 5 Arc</span>
-                                <span className="text-white text-lg leading-none">{getRingCount('Top5')}/5</span>
+                        <div className="flex flex-col gap-6 text-[10px] font-black uppercase tracking-tighter">
+                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
+                                <span className="text-teal-500">Top 5</span>
+                                <span className="text-white text-base leading-none">{getRingCount('Top5')}</span>
                             </div>
-                            <div className="flex flex-col">
-                                <span className="text-[#eab308]">15 Group</span>
-                                <span className="text-white text-lg leading-none">{getRingCount('15')}/15</span>
+                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
+                                <span className="text-[#f5deb3]">15 Group</span>
+                                <span className="text-white text-base leading-none">{getRingCount('15')}</span>
                             </div>
                         </div>
                         {/* Right Column: 50 & 150 */}
-                        <div className="flex flex-col gap-4 text-[10px] font-black uppercase tracking-tighter text-right">
-                            <div className="flex flex-col">
+                        <div className="flex flex-col gap-6 text-[10px] font-black uppercase tracking-tighter text-right">
+                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
                                 <span className="text-[#0ea5e9]">50 Circle</span>
-                                <span className="text-white text-lg leading-none">{getRingCount('50')}/50</span>
+                                <span className="text-white text-base leading-none">{getRingCount('50')}</span>
                             </div>
-                            <div className="flex flex-col">
+                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
                                 <span className="text-[#cd7f32]">150 World</span>
-                                <span className="text-white text-lg leading-none">{getRingCount('150')}/150</span>
+                                <span className="text-white text-base leading-none">{getRingCount('150')}</span>
                             </div>
                         </div>
                     </div>
 
-                    <svg viewBox="0 0 400 200" className="w-full max-w-[600px] overflow-visible">
+                    <svg viewBox="0 0 400 200" className="w-full max-w-[500px] overflow-visible">
                         {RINGS_CONFIG.map((ring) => {
                             const isActive = activeRing === ring.id;
                             const currentCount = getRingCount(ring.id);
@@ -368,10 +359,10 @@ export default function DunbarRadar() {
                             );
                         })}
 
-                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer hover:drop-shadow-[0_0_15px_rgba(20,184,166,1)] transition-all">
-                            <circle cx="200" cy="200" r="28" className="fill-tg-main pointer-events-none" />
-                            <circle cx="200" cy="200" r="24" className="fill-teal-500 drop-shadow-[0_0_16px_rgba(20,184,166,0.9)] pointer-events-none" />
-                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-xl font-black pointer-events-none">+</text>
+                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group animate-radar-pulse" style={{ '--pulse-color': '#14b8a6', '--base-opacity': 1 } as any}>
+                            <circle cx="200" cy="200" r="32" className="fill-tg-bg" />
+                            <circle cx="200" cy="200" r="28" className="fill-tg-primary shadow-lg transition-transform group-active:scale-90" />
+                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black transition-transform group-active:scale-90">+</text>
                         </g>
                     </svg>
                 </div>
@@ -382,21 +373,19 @@ export default function DunbarRadar() {
                     onSave={handleCreateContact}
                 />
 
-                {/* Z-Index 9: Shadow List or Active Ring Contacts */}
-                <div className="absolute bottom-0 w-full bg-tg-secondary/70 backdrop-blur-2xl border-t border-tg-hint/20 z-[9] pb-4 pt-2 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">
-                    <div className="w-12 h-1 bg-tg-hint/30 rounded-full mx-auto mb-2" />
-
-                    <div className="px-4 mb-1 flex justify-between items-end">
-                        <h3 className="font-semibold text-xs">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
-                        <span className="text-[9px] text-tg-hint uppercase tracking-wider font-bold">Drag to Rings</span>
+                {/* Z-Index 9: Shadow List or Active Ring Contacts - Increased height, removed divider, button overlap */}
+                <div className="absolute bottom-0 w-full bg-tg-secondary/90 backdrop-blur-2xl z-[9] pb-4 pt-4 rounded-t-3xl shadow-2xl">
+                    <div className="px-4 mb-3 flex justify-between items-center">
+                        <h3 className="font-bold text-[11px] text-tg-hint uppercase tracking-widest">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
+                        <span className="text-[10px] text-tg-hint font-medium">Drag to promote</span>
                     </div>
 
-                    <div className="flex overflow-x-auto gap-3 px-4 pb-2 snap-x hide-scrollbar h-20 items-center">
+                    <div className="flex overflow-x-auto gap-4 px-4 pb-2 snap-x hide-scrollbar h-[5.5rem] items-center">
                         {contactsToShow.map(([uid, status]) => (
                             <DraggableAvatar key={uid} uid={uid} status={status} />
                         ))}
                         {contactsToShow.length === 0 && (
-                            <div className="text-tg-hint text-[10px] italic w-full text-center">No contacts here</div>
+                            <div className="text-tg-hint text-[11px] italic w-full text-center py-6">No contacts matching filter</div>
                         )}
                     </div>
                 </div>

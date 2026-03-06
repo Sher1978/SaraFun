@@ -25,34 +25,29 @@ export default function TabBar() {
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full h-16 bg-tg-secondary border-t border-tg-hint/10 flex items-center justify-around px-2 pb-safe z-50">
+        <nav className="fixed bottom-0 w-full h-[50px] bg-tg-secondary border-t border-tg-hint/10 flex items-center justify-around pb-safe z-50">
             {tabs.map((tab) => {
                 const isActive = tab.path !== '#' && location.pathname.startsWith(tab.path);
-                const isScanner = tab.id === 'scanner';
-
-                if (isScanner) {
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={tab.action}
-                            className="relative -top-6 flex items-center justify-center w-16 h-16 bg-teal-500 text-black rounded-full shadow-[0_8px_20px_rgba(20,184,166,0.4)] border-4 border-tg-secondary active:scale-90 transition-all z-[60]"
-                        >
-                            <tab.icon />
-                        </button>
-                    );
-                }
 
                 return (
                     <button
                         key={tab.id}
-                        onClick={() => navigate(tab.path)}
-                        className={`flex flex-col items-center justify-center w-14 h-full transition-colors duration-200 ${isActive ? 'text-teal-500' : 'text-tg-hint hover:text-tg-primary'
+                        onClick={() => {
+                            if (tab.id === 'scanner' && tab.action) {
+                                tab.action();
+                            } else {
+                                navigate(tab.path);
+                            }
+                        }}
+                        className={`flex flex-col items-center justify-center w-[20%] h-full transition-colors duration-200 ${isActive ? 'text-teal-500' : 'text-tg-hint'
                             }`}
                     >
-                        <div className={isActive ? 'animate-pulse' : ''}>
-                            <tab.icon />
+                        <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'scale-100'}`}>
+                            {React.createElement(tab.icon, { size: 26, strokeWidth: isActive ? 2.5 : 2 })}
                         </div>
-                        <span className="text-[10px] mt-1 font-black uppercase tracking-tighter scale-90">{tab.label}</span>
+                        <span className={`text-[10px] mt-[2px] font-medium leading-none tracking-tight ${isActive ? 'font-semibold' : 'opacity-80'}`}>
+                            {tab.label}
+                        </span>
                     </button>
                 );
             })}

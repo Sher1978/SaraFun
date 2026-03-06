@@ -16,9 +16,9 @@ export default function Profile() {
     const [avatarClickCount, setAvatarClickCount] = useState(0);
     const [lastClickTime, setLastClickTime] = useState(0);
 
-    const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
+    const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || '260669598';
     const referralLink = `https://t.me/sarafun_bot/app?startapp=${currentUserUid}`;
-    const qrData = referralLink; // User specifically asked for this bot link in handshake
+    const qrData = referralLink;
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -71,121 +71,99 @@ export default function Profile() {
     };
 
     return (
-        <div className="min-h-full bg-[#1a1c1e] text-[#f8fafc] px-4 pt-10 pb-24 space-y-6">
-            {/* Header: Bio & Avatar */}
-            <header className="flex flex-col items-center space-y-4">
+        <div className="min-h-full bg-tg-bg overflow-y-auto pb-20">
+            {/* Native Header */}
+            <header className="flex flex-col items-center pt-8 pb-4 bg-tg-bg">
                 <div
                     onClick={handleAvatarClick}
-                    className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-base font-bold border-4 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)] cursor-pointer active:scale-95 transition-transform select-none"
+                    className="w-[100px] h-[100px] bg-teal-500 rounded-full flex items-center justify-center text-3xl font-semibold border-4 border-tg-bg shadow-xl cursor-pointer active:scale-95 transition-transform"
                 >
                     {WebApp.initDataUnsafe?.user?.last_name?.charAt(0) || WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
-                <div className="text-center">
-                    <h1 className="text-base font-black tracking-tight uppercase italic underline decoration-[#14b8a6] underline-offset-4 text-white">
-                        {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
-                    </h1>
-                    <p className="text-xs text-slate-400 mt-1 font-mono uppercase tracking-widest">
-                        Reputation: Elite
-                    </p>
-                    <p className="text-[10px] text-teal-500/80 font-mono mt-1 tracking-wider">
-                        UID: {currentUserUid}
-                    </p>
-                </div>
+                <h1 className="mt-3 text-xl font-semibold text-white">
+                    {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
+                </h1>
+                <p className="text-sm text-tg-hint">
+                    +{currentUserUid.substring(0, 3)} {currentUserUid.substring(3, 6)} {currentUserUid.substring(6)}
+                </p>
             </header>
 
-            {/* Wallet Block */}
-            <section className="glass-photo p-4 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 blur-3xl rounded-full" />
-
-                <div className="flex justify-between items-start mb-4">
-                    <div>
-                        <div className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-1 flex items-center">
-                            Total Assets
-                            <InfoTooltip text="Your available balance of ⭐️ used for platform payments." />
-                        </div>
-                        <div className="text-xl font-black text-white flex items-center gap-2">
-                            {stats.stars.toLocaleString()} <span className="text-[#d4af37]">⭐</span>
-                        </div>
+            {/* Account Info Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Account</div>
+                <div className="tg-list-group-content">
+                    <div className="tg-list-item">
+                        <div className="tg-list-item-label">UID</div>
+                        <div className="tg-list-item-value">{currentUserUid}</div>
                     </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
-                    <div>
-                        <div className="text-[10px] uppercase font-black text-slate-400">Value in Ton</div>
-                        <div className="text-base font-bold text-white tracking-widest">{stats.ton.toFixed(2)} TON</div>
-                    </div>
-                    <div className="text-right">
-                        <div className="text-[10px] uppercase font-black text-slate-400 flex items-center justify-end">
-                            Oracle Rate
-                            <InfoTooltip text="Platform's internal exchange rate pegged to TON/USD." />
-                        </div>
-                        <div className="text-[11px] font-mono text-[#14b8a6]">50 ⭐️ / $1</div>
-                    </div>
-                </div>
-            </section>
-
-            <div className="grid grid-cols-2 gap-3">
-                <button
-                    onClick={() => setShowQRModal(true)}
-                    className="h-12 bg-[#14b8a6] text-white rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#14b8a6]/20 active:scale-[0.98] transition-transform"
-                >
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                    My QR Code
-                </button>
-                <button
-                    onClick={() => navigate(isMaster ? '/dashboard' : '/business-landing')}
-                    className="h-12 bg-white/5 border border-white/10 text-white rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-white/10 transition-transform glass-button"
-                >
-                    <svg className="w-5 h-5 text-[#14b8a6]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                    {isMaster ? 'Dashboard' : 'Start Biz'}
-                </button>
-            </div>
-            {/* Lower Actions & Menu */}
-            <div className="grid grid-cols-1 gap-4">
-                {/* Referral prominent block */}
-                <section className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center">
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-3">Invite Friends, Earn 1%</span>
-                    <button
-                        onClick={handleCopyLink}
-                        className="w-full h-12 bg-white/5 text-white rounded-xl font-mono text-[11px] border border-white/5 flex items-center justify-between px-4 active:bg-white/10 transition-colors"
-                    >
-                        <span className="truncate mr-4 opacity-60">{referralLink}</span>
-                        <svg className="w-5 h-5 flex-shrink-0 text-[#14b8a6]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    <button onClick={handleCopyLink} className="tg-list-item">
+                        <div className="tg-list-item-label">Referral Link</div>
+                        <div className="tg-list-item-value truncate max-w-[150px] opacity-60">{referralLink}</div>
+                        <div className="tg-list-item-arrow">→</div>
                     </button>
-                </section>
+                </div>
+            </div>
 
-                {/* List Menu */}
-                <section className="space-y-2">
-                    {[
-                        { label: 'Referral Empire', path: '/referrals', icon: '🎁' },
-                        { label: 'Community Rules', path: '/rules', icon: '📜' },
-                        { label: 'System Settings', path: '#', icon: '⚙️', action: () => WebApp.showAlert("System Settings coming soon.") },
-                    ].map((item) => (
-                        <button
-                            key={item.label}
-                            onClick={() => item.action ? item.action() : navigate(item.path)}
-                            className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl px-5 flex items-center justify-between active:bg-white/10 transition-all active:scale-[0.99] glass-button"
-                        >
-                            <div className="flex items-center gap-4">
-                                <span className="text-xl">{item.icon}</span>
-                                <span className="text-xs font-black uppercase tracking-widest text-white">{item.label}</span>
-                            </div>
-                            <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                        </button>
-                    ))}
-                </section>
+            {/* Wallet Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Wallet & Assets</div>
+                <div className="tg-list-group-content">
+                    <div className="tg-list-item">
+                        <div className="tg-list-item-label">Star Balance</div>
+                        <div className="tg-list-item-value text-yellow-500 font-bold">{stats.stars.toLocaleString()} ⭐</div>
+                    </div>
+                    <div className="tg-list-item">
+                        <div className="tg-list-item-label">Value in TON</div>
+                        <div className="tg-list-item-value">{stats.ton.toFixed(2)} TON</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Business & Actions Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Business & Sharing</div>
+                <div className="tg-list-group-content">
+                    <button onClick={() => setShowQRModal(true)} className="tg-list-item glass-button">
+                        <div className="tg-list-item-label text-teal-500 font-semibold">My QR Code</div>
+                        <div className="tg-list-item-arrow">→</div>
+                    </button>
+                    <button
+                        onClick={() => navigate(isMaster ? '/dashboard' : '/business-landing')}
+                        className="tg-list-item"
+                    >
+                        <div className="tg-list-item-label">{isMaster ? 'Dashboard' : 'Start Business'}</div>
+                        <div className="tg-list-item-arrow">→</div>
+                    </button>
+                </div>
+            </div>
+
+            {/* Settings & Info Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Settings</div>
+                <div className="tg-list-group-content">
+                    <button onClick={() => navigate('/referrals')} className="tg-list-item">
+                        <div className="tg-list-item-label">Referral Empire</div>
+                        <div className="tg-list-item-arrow">→</div>
+                    </button>
+                    <button onClick={() => navigate('/rules')} className="tg-list-item">
+                        <div className="tg-list-item-label">Community Rules</div>
+                        <div className="tg-list-item-arrow">→</div>
+                    </button>
+                </div>
             </div>
             {/* Admin Audit Tool (Dev Only) */}
             {currentUserUid === '8524844089' && (
-                <button
-                    onClick={async () => {
-                        await runStressTestSeed();
-                        WebApp.showPopup({ title: 'Engine Primed', message: 'Stress-test data injected. Audit mode active.' });
-                    }}
-                    className="w-full h-10 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors mt-5"
-                >
-                    System Stress-Test Seeding
-                </button>
+                <div className="tg-list-group px-4">
+                    <button
+                        onClick={async () => {
+                            await runStressTestSeed();
+                            WebApp.showPopup({ title: 'Engine Primed', message: 'Stress-test data injected. Audit mode active.' });
+                        }}
+                        className="w-full py-2 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors"
+                    >
+                        System Stress-Test Seeding
+                    </button>
+                </div>
             )}
 
             {/* QR Modal */}

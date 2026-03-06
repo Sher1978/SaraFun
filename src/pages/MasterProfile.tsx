@@ -53,137 +53,137 @@ export default function MasterProfile() {
     };
 
     return (
-        <div className="min-h-full bg-[#1a1c1e] text-[#f8fafc] pb-28">
-            {/* Header Nav */}
-            <div className="sticky top-0 z-50 bg-[#1a1c1e]/80 backdrop-blur-xl border-b border-white/5 flex items-center justify-between p-3">
-                <button onClick={() => navigate(-1)} className="text-tg-hint active:text-tg-primary transition-colors p-1">
+        <div className="min-h-full bg-tg-bg overflow-y-auto pb-20">
+            {/* Native Header */}
+            <div className="relative">
+                <button onClick={() => navigate(-1)} className="absolute top-4 left-4 z-50 text-white bg-black/20 backdrop-blur-md p-2 rounded-full active:scale-95 transition-transform">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <span className="font-bold text-sm tracking-widest uppercase">{master.category}</span>
-                <button onClick={() => { setIsFavorite(!isFavorite); WebApp.HapticFeedback.impactOccurred('light'); }} className={`p-1 transition-colors ${isFavorite ? 'text-red-500' : 'text-tg-hint'}`}>
-                    <svg className="w-6 h-6" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                <div className="absolute top-4 right-4 z-50 flex gap-2">
+                    <button onClick={() => { setIsFavorite(!isFavorite); WebApp.HapticFeedback.impactOccurred('light'); }} className={`p-2 rounded-full backdrop-blur-md bg-black/20 active:scale-95 transition-transform ${isFavorite ? 'text-red-500' : 'text-white'}`}>
+                        <svg className="w-6 h-6" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    </button>
+                    {/* Ellipsis Menu (Business Settings) */}
+                    <button
+                        onClick={() => navigate('/edit-master')}
+                        className="p-2 rounded-full backdrop-blur-md bg-black/20 text-white active:scale-95 transition-transform"
+                    >
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* Cover / Profile Header */}
+                <div className="h-64 bg-gradient-to-br from-teal-600 to-teal-900 flex items-end p-6">
+                    <div className="flex-1">
+                        <h1 className="text-2xl font-bold text-white leading-tight">{master.name}</h1>
+                        <p className="text-white/70 text-sm mt-1">{master.category}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Reputation Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Reputation & Trust</div>
+                <div className="tg-list-group-content">
+                    <button onClick={() => setShowABCDModal(true)} className="tg-list-item">
+                        <div className="tg-list-item-label">Reliability Index (A-D)</div>
+                        <div className="tg-list-item-value flex items-center gap-2">
+                            <div className="flex items-center gap-1">
+                                <span className="text-teal-500 font-bold">{master.ratingDunbar.toFixed(1)}</span>
+                                <span className="text-[10px] opacity-40">TRUST</span>
+                            </div>
+                            <div className="w-px h-4 bg-white/10" />
+                            <div className="flex items-center gap-1">
+                                <span className="text-yellow-500 font-bold">{master.ratingGlobal.toFixed(1)}</span>
+                                <span className="text-[10px] opacity-40">RANK</span>
+                            </div>
+                        </div>
+                        <div className="tg-list-item-arrow">→</div>
+                    </button>
+                    <div className="tg-list-item">
+                        <div className="tg-list-item-label">Verified Reviews</div>
+                        <div className="tg-list-item-value">{master.reviewsCount}</div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bio Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">About</div>
+                <div className="tg-list-group-content">
+                    <div className="tg-list-item flex-col items-start gap-1 p-4">
+                        <div className="text-sm text-white/90 leading-relaxed font-medium">
+                            {master.bio}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Quick Actions (Glass Buttons) */}
+            <div className="px-4 py-2 grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => handleAction('Review Flow Opening...')}
+                    className="h-12 glass-button rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+                >
+                    <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    Review
+                </button>
+                <button
+                    onClick={() => handleAction('Contacting Master...')}
+                    className="h-12 bg-teal-500 text-black rounded-xl text-sm font-bold flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20"
+                >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    Message
                 </button>
             </div>
 
-            <div className="px-5 pt-4 space-y-6">
-
-                {/* Hero / Identity Box */}
-                <div className="glass-photo p-3 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#14b8a6]/5 blur-3xl rounded-full" />
-
-                    <div className="flex gap-3 items-center">
-                        <div className="relative">
-                            <div className="w-20 h-20 rounded-xl bg-teal-500/20 text-teal-500 flex items-center justify-center font-black text-base shadow-inner border border-teal-500/20 z-10 relative">
-                                {master.name.charAt(0)}
+            {/* Services Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Services Portfolio</div>
+                <div className="tg-list-group-content">
+                    {master.services.map(srv => (
+                        <div key={srv.id} className="tg-list-item">
+                            <div className="tg-list-item-label flex flex-col">
+                                <span className="text-white">{srv.name}</span>
+                                <span className="text-xs text-tg-hint">{srv.time}</span>
                             </div>
-                            <div className="absolute -bottom-2 -right-2 bg-var(--tg-theme-button-color, #2481cc) rounded-lg p-1 border border-tg-main text-white shadow-sm z-20">
-                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                            </div>
+                            <div className="tg-list-item-value text-teal-500 font-bold">{srv.price}</div>
                         </div>
-
-                        <div className="flex-1">
-                            <h1 className="text-base font-black leading-tight">{master.name}</h1>
-                            {/* Premium Double Circle Rating */}
-                            <button
-                                onClick={() => setShowABCDModal(true)}
-                                className="flex items-center gap-3 mt-2 active:scale-95 transition-transform text-left"
-                            >
-                                <div className="flex items-center gap-1.5">
-                                    <div className="relative w-8 h-8 flex items-center justify-center">
-                                        <svg className="absolute inset-0 w-8 h-8 transform -rotate-90">
-                                            <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" className="text-tg-hint/20" />
-                                            <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="88" strokeDashoffset={`${88 - (88 * master.ratingDunbar / 5)}`} className="text-teal-500" />
-                                        </svg>
-                                        <span className="text-[10px] font-black">{master.ratingDunbar.toFixed(1)}</span>
-                                    </div>
-                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight flex items-center">
-                                        Dunbar<br />Trust
-                                        <InfoTooltip text="Average rating from clients within your extended social network." />
-                                    </span>
-                                </div>
-                                <div className="h-6 w-px bg-tg-hint/20" />
-                                <div className="flex items-center gap-1.5">
-                                    <div className="relative w-7 h-7 flex items-center justify-center">
-                                        <svg className="absolute inset-0 w-7 h-7 transform -rotate-90">
-                                            <circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-tg-hint/20" />
-                                            <circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="75" strokeDashoffset={`${75 - (75 * master.ratingGlobal / 5)}`} className="text-yellow-500" />
-                                        </svg>
-                                        <span className="text-[9px] font-black">{master.ratingGlobal.toFixed(1)}</span>
-                                    </div>
-                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight flex items-center">
-                                        Global<br />Rank
-                                        <InfoTooltip text="Average rating from all clients on the platform." />
-                                    </span>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                    <p className="mt-4 text-[13px] text-tg-hint leading-relaxed font-medium">
-                        {master.bio}
-                    </p>
+                    ))}
+                    {master.services.length === 0 && (
+                        <div className="p-4 text-center text-tg-hint italic">No services listed</div>
+                    )}
                 </div>
+            </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-3">
-                    <button
-                        onClick={() => handleAction('Review Flow Opening...')}
-                        className="h-11 bg-white/5 border border-white/10 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-white/10 transition-colors glass-button"
-                    >
-                        <svg className="w-4 h-4 text-[#d4af37]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
-                        Review
-                    </button>
-                    <button
-                        onClick={() => handleAction('Lead Form Generated!')}
-                        className="h-11 bg-[#14b8a6] text-white rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#14b8a6]/10 active:scale-[0.98] transition-transform"
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                        Contact
-                    </button>
-                </div>
-
-                {/* Services Grid up to 20 */}
-                <div className="space-y-3">
-                    <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Services Portfolio</h3>
-                    <div className="grid gap-2">
-                        {master.services.map(srv => (
-                            <div key={srv.id} className="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex flex-row items-center justify-between">
-                                <div className="flex flex-col">
-                                    <span className="text-[13px] font-bold text-white">{srv.name}</span>
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">{srv.time}</span>
-                                </div>
-                                <span className="font-mono font-bold text-[#14b8a6]">{srv.price}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Trusted Reviews */}
-                <div className="space-y-3 mt-4">
-                    <div className="flex justify-between items-end mb-2">
-                        <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Network Reviews</h3>
-                        <span className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-0.5 rounded-md">VERIFIED</span>
-                    </div>
+            {/* Network Reviews Group */}
+            <div className="tg-list-group">
+                <div className="tg-list-group-label">Network Reviews</div>
+                <div className="tg-list-group-content">
                     {master.trustedReviews.map(r => (
-                        <div key={r.id} className="glass-photo p-3">
-                            <div className="flex items-center justify-between mb-2">
-                                <div className="font-bold text-sm text-white">{r.author}</div>
-                                <span className={`text-[9px] uppercase font-black tracking-widest px-2 py-1 rounded border ${r.circle === 'Top5' ? 'bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/20' : 'bg-[#14b8a6]/10 text-[#14b8a6] border-[#14b8a6]/20'}`}>
-                                    {r.circle === 'Top5' ? 'Inner Circle' : 'Node'}
+                        <div key={r.id} className="tg-list-item flex-col items-start p-4 gap-2">
+                            <div className="flex justify-between w-full">
+                                <span className="font-bold text-white">{r.author}</span>
+                                <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${r.circle === 'Top5' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-teal-500/20 text-teal-500'}`}>
+                                    {r.circle === 'Top5' ? 'Inner Circle' : 'Verified'}
                                 </span>
                             </div>
-                            <p className="text-[13px] text-slate-300 leading-relaxed font-medium">{r.text}</p>
+                            <p className="text-sm text-white/80 leading-relaxed italic">"{r.text}"</p>
                         </div>
                     ))}
                 </div>
+            </div>
 
-                {/* Justice & Arbitration */}
+            {/* Justice Section */}
+            <div className="px-4 mt-6">
                 <button
                     onClick={() => navigate('/arbitration')}
-                    className="w-full h-12 mt-5 border border-red-500/30 bg-red-500/5 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] active:bg-red-500/20 transition-colors glass-button"
+                    className="w-full py-4 glass-button text-red-500 rounded-xl text-sm font-bold uppercase tracking-wider"
                 >
                     Open Dispute / Arbitration
                 </button>
-
             </div>
 
             {/* ABCD Radar Modal */}

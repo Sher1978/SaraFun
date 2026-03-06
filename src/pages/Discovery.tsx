@@ -119,7 +119,7 @@ export default function Discovery() {
     };
 
     return (
-        <div className="relative min-h-full bg-[#1a1c1e] text-[#e2e8f0] px-4 pt-6 pb-24 space-y-10">
+        <div className="relative min-h-full bg-tg-bg px-4 pt-6 pb-24 space-y-8">
             {/* Review Flow Overlay */}
             {reviewMaster && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
@@ -132,24 +132,23 @@ export default function Discovery() {
             )}
 
             {/* Header */}
-            <header className="space-y-4">
-                <div>
-                    <h1 className="text-base font-bold tracking-tight text-white">Discovery</h1>
-                    <p className="text-slate-400 text-sm mt-1">Services matched from your trust network</p>
-                </div>
+            <header className="px-1">
+                <h1 className="text-2xl font-bold text-white leading-tight">Discovery</h1>
+                <p className="text-tg-hint text-sm mt-1">Services matched from your trust network</p>
 
-                {/* Social Proof Ticker (NEW) */}
-                <TrustStream />
+                <div className="mt-6">
+                    <TrustStream />
+                </div>
             </header>
 
-            {/* JTBD Categories Carousels */}
+            {/* JTBD Categories Section */}
             {JTBD_CATEGORIES.map((jtbd) => {
                 const categoryMasters = getSortedCategory(jtbd.id);
 
                 return (
-                    <section key={jtbd.id} className="space-y-4">
-                        <div className="flex items-center justify-between border-b border-tg-hint/10 pb-2">
-                            <h2 className="text-base font-black flex items-center gap-2">
+                    <section key={jtbd.id} className="space-y-3">
+                        <div className="flex items-center justify-between px-1">
+                            <h2 className="text-xs font-bold uppercase tracking-wider text-tg-hint flex items-center gap-2">
                                 <span>{jtbd.icon}</span>
                                 {jtbd.title}
                             </h2>
@@ -157,22 +156,21 @@ export default function Discovery() {
                             <select
                                 value={sortOption[jtbd.id]}
                                 onChange={(e) => handleSortChange(jtbd.id, e.target.value)}
-                                className="bg-transparent text-[#14b8a6] font-bold text-xs uppercase tracking-widest outline-none text-right appearance-none cursor-pointer hover:opacity-80 transition-opacity"
+                                className="bg-transparent text-tg-primary font-bold text-[10px] uppercase tracking-widest outline-none text-right appearance-none cursor-pointer"
                             >
-                                <option value="trust" className="text-black">★ Trust First</option>
-                                <option value="priceAsc" className="text-black">Price: Low - High</option>
-                                <option value="priceDesc" className="text-black">Price: High - Low</option>
-                                <option value="distance" className="text-black">Nearest to Me</option>
+                                <option value="trust">★ Trust</option>
+                                <option value="priceAsc">Price ↑</option>
+                                <option value="priceDesc">Price ↓</option>
+                                <option value="distance">Near</option>
                             </select>
                         </div>
 
                         {/* Horizontal Scroll Area */}
-                        <div className="flex overflow-x-auto gap-3 pb-4 snap-x hide-scrollbar">
+                        <div className="flex overflow-x-auto gap-3 pb-2 snap-x hide-scrollbar">
                             {loading ? (
                                 Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
                             ) : (
                                 categoryMasters.map((master) => {
-                                    // Recalculate personal Dunbar Score
                                     const dunkbarScore = calculateDunbarScore(master.ratings);
                                     const isTop5 = master.ratings.some((r: any) => r.ring === 'Top5');
 
@@ -180,54 +178,46 @@ export default function Discovery() {
                                         <div
                                             key={`${jtbd.id}-${master.id}`}
                                             onClick={() => navigate(`/master/${master.id}`)}
-                                            className={`relative flex-shrink-0 w-48 p-3 rounded-xl snap-start glass-photo transition-transform active:scale-95 cursor-pointer flex flex-col justify-between ${master.is_sherlock_verified ? 'ring-1 ring-[#d4af37]/50 shadow-[0_0_20px_rgba(212,175,55,0.1)]' :
-                                                isTop5 ? 'ring-1 ring-[#14b8a6]/30 shadow-[0_0_15px_rgba(20,184,166,0.1)]' : ''
-                                                }`}
+                                            className="relative flex-shrink-0 w-44 p-3 rounded-2xl snap-start bg-tg-secondary/30 border border-white/5 active:scale-95 transition-transform cursor-pointer flex flex-col"
                                         >
-                                            <div className="flex flex-col mb-2 relative group w-full">
-                                                {/* Large Photo/Avatar Area */}
-                                                <div className="w-full h-36 rounded-xl bg-gradient-to-br from-teal-500/10 to-teal-500/5 flex items-center justify-center mb-3 relative overflow-hidden border border-tg-hint/10">
-                                                    <span className="text-5xl font-black text-teal-500/40">{master.name.charAt(0)}</span>
-                                                    {master.is_sherlock_verified && (
-                                                        <div className="absolute top-2 right-2 bg-yellow-500 rounded-full p-1 shadow-md border border-white/20">
-                                                            <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                                                        </div>
-                                                    )}
-                                                    <div className="absolute bottom-2 right-2 bg-tg-main/80 backdrop-blur-sm p-1 rounded-lg border border-white/10 shadow-sm">
-                                                        <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={30} />
+                                            <div className="relative w-full aspect-square rounded-xl bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center mb-3 overflow-hidden border border-white/5">
+                                                <span className="text-4xl font-black text-white/20">{master.name.charAt(0)}</span>
+
+                                                {master.is_sherlock_verified && (
+                                                    <div className="absolute top-2 right-2 bg-yellow-500 rounded-full p-1 shadow-lg ring-2 ring-tg-bg">
+                                                        <svg className="w-3 h-3 fill-white" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                                                     </div>
-                                                    <div className="absolute bottom-2 left-2 bg-tg-main/80 backdrop-blur-sm px-2 py-0.5 rounded text-xs font-bold shadow-sm border border-white/10 text-tg-primary flex items-center gap-1">
-                                                        <span className="text-yellow-500 text-[10px]">★</span> {dunkbarScore}
-                                                    </div>
+                                                )}
+
+                                                <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/40 backdrop-blur-md px-1.5 py-0.5 rounded-lg border border-white/10">
+                                                    <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={24} />
                                                 </div>
                                             </div>
 
-                                            {/* Card Content & Score */}
-                                            <div className="flex items-center justify-between gap-1 w-full">
-                                                <div className="flex items-center gap-1 overflow-hidden">
-                                                    <h3 className="font-black text-[15px] truncate">{master.name}</h3>
-                                                    {master.abcd.c > 4.5 && (
-                                                        <span className="text-blue-500 text-xs" title="Community Verified">☑️</span>
-                                                    )}
+                                            <div className="flex flex-col gap-0.5">
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-bold text-sm text-white truncate">{master.name}</h3>
+                                                    <span className="text-xs font-black text-tg-primary">${master.price}</span>
                                                 </div>
-                                                <span className="text-sm font-black text-tg-primary ml-2">${master.price}</span>
-                                            </div>
-                                            <div className="flex justify-between items-center mt-0.5 mb-2 relative">
-                                                <p className="text-[10px] uppercase font-bold text-tg-hint tracking-wider truncate">
-                                                    {master.service}
-                                                </p>
-                                                <span className="text-[9px] font-mono text-tg-hint/80 uppercase flex items-center gap-0.5 whitespace-nowrap">
-                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                                    {master.distance}km
-                                                </span>
+                                                <p className="text-[10px] text-tg-hint uppercase font-bold tracking-tight truncate">{master.service}</p>
+
+                                                <div className="flex items-center justify-between mt-2">
+                                                    <div className="flex items-center gap-1 text-[10px] font-bold text-yellow-500">
+                                                        <span>★</span>
+                                                        <span>{dunkbarScore}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-0.5 text-[9px] text-tg-hint font-medium">
+                                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                        {master.distance}km
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <button
                                                 onClick={(e) => handlePayment(e, master, master.price)}
-                                                className="w-full mt-4 h-12 bg-[#14b8a6] text-white rounded-lg font-bold text-sm shadow-lg transition-all active:scale-[0.98] active:opacity-90 flex items-center justify-center gap-1"
+                                                className="w-full mt-3 py-2.5 bg-tg-primary text-black rounded-xl font-bold text-xs active:scale-[0.98] transition-transform shadow-lg shadow-tg-primary/10"
                                             >
-                                                <span>Pay with</span>
-                                                <svg className="w-3.5 h-3.5 fill-[#d4af37]" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                                Book Now
                                             </button>
                                         </div>
                                     );
