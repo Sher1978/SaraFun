@@ -240,26 +240,26 @@ p {
 }
 
 
-/* Radar Sequential Pulse Animation (4s cycle: 1s glow, 3s pause) */
+/* Radar Sequential Pulse Animation (4s cycle: 1.5s glow, 2.5s pause) */
 @keyframes radar-pulse {
   0% {
     filter: drop-shadow(0 0 0px var(--pulse-color, #14b8a6));
-    stroke-opacity: var(--base-opacity);
+    opacity: 0.6;
   }
 
-  12.5% {
-    filter: drop-shadow(0 0 20px var(--pulse-color, #14b8a6));
-    stroke-opacity: 0.8;
+  20% {
+    filter: drop-shadow(0 0 40px var(--pulse-color, #14b8a6));
+    opacity: 1;
   }
 
-  25% {
+  40% {
     filter: drop-shadow(0 0 0px var(--pulse-color, #14b8a6));
-    stroke-opacity: var(--base-opacity);
+    opacity: 0.6;
   }
 
   100% {
     filter: drop-shadow(0 0 0px var(--pulse-color, #14b8a6));
-    stroke-opacity: var(--base-opacity);
+    opacity: 0.6;
   }
 }
 
