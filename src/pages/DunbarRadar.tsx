@@ -379,10 +379,10 @@ export default function DunbarRadar() {
                             </div>
                         )}
 
-                        {/* Center "+" Button Overlay - Heightened and Scaled for Sprint 23 */}
+                        {/* Center "+" Button Overlay - Topmost layer for Sprint 24 */}
                         <div
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-[-36px] -translate-x-1/2 w-[72px] h-[72px] bg-[#14b8a6] rounded-full border-[3px] border-[#1a1c1e] shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
+                            className="absolute left-1/2 bottom-[-36px] -translate-x-1/2 w-[72px] h-[72px] bg-[#14b8a6] rounded-full border-[3px] border-[#1a1c1e] shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[60]"
                         >
                             <span className="text-black text-4xl font-black mb-1">+</span>
                         </div>
