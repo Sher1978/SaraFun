@@ -79,9 +79,9 @@ export default function ReferralDashboard() {
                 <h3 className="text-sm font-black uppercase text-tg-hint tracking-widest leading-none">The Bonus Protocol</h3>
                 <div className="space-y-3">
                     {[
-                        "Earn 10% of their first 100⭐️ transaction.",
-                        "Invited friends start with a Reputation boost.",
-                        "Scaling rewards for high-volume inviters."
+                        "Earn 1% of every transaction in your 3-level network.",
+                        "Building a web of trust increases your Reputation.",
+                        "Direct rewards credited instantly to your Stars balance."
                     ].map((text, i) => (
                         <div key={i} className="flex items-center gap-3 text-sm opacity-80">
                             <span className="w-1.5 h-1.5 bg-teal-500 rounded-full flex-shrink-0" />
