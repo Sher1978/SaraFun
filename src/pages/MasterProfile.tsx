@@ -55,7 +55,7 @@ export default function MasterProfile() {
     return (
         <div className="min-h-full bg-tg-main text-tg-primary pb-28">
             {/* Header Nav */}
-            <div className="sticky top-0 z-50 bg-tg-main/80 backdrop-blur-xl border-b border-tg-hint/10 flex items-center justify-between p-4">
+            <div className="sticky top-0 z-50 bg-tg-main/80 backdrop-blur-xl border-b border-tg-hint/10 flex items-center justify-between p-3">
                 <button onClick={() => navigate(-1)} className="text-tg-hint active:text-tg-primary transition-colors p-1">
                     <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
@@ -68,12 +68,12 @@ export default function MasterProfile() {
             <div className="px-5 pt-4 space-y-6">
 
                 {/* Hero / Identity Box */}
-                <div className="bg-tg-secondary/40 border border-tg-hint/10 rounded-3xl p-5 relative overflow-hidden backdrop-blur-sm">
+                <div className="bg-tg-secondary/40 border border-tg-hint/10 rounded-xl p-3 relative overflow-hidden backdrop-blur-sm">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 blur-3xl rounded-full" />
 
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-3 items-center">
                         <div className="relative">
-                            <div className="w-20 h-20 rounded-2xl bg-teal-500/20 text-teal-500 flex items-center justify-center font-black text-2xl shadow-inner border border-teal-500/20 z-10 relative">
+                            <div className="w-20 h-20 rounded-xl bg-teal-500/20 text-teal-500 flex items-center justify-center font-black text-base shadow-inner border border-teal-500/20 z-10 relative">
                                 {master.name.charAt(0)}
                             </div>
                             <div className="absolute -bottom-2 -right-2 bg-var(--tg-theme-button-color, #2481cc) rounded-lg p-1 border border-tg-main text-white shadow-sm z-20">
@@ -82,7 +82,7 @@ export default function MasterProfile() {
                         </div>
 
                         <div className="flex-1">
-                            <h1 className="text-xl font-black leading-tight">{master.name}</h1>
+                            <h1 className="text-base font-black leading-tight">{master.name}</h1>
                             {/* Premium Double Circle Rating */}
                             <button
                                 onClick={() => setShowABCDModal(true)}
@@ -158,13 +158,13 @@ export default function MasterProfile() {
                 </div>
 
                 {/* Trusted Reviews */}
-                <div className="space-y-3 mt-6">
+                <div className="space-y-3 mt-4">
                     <div className="flex justify-between items-end mb-2">
                         <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Network Reviews</h3>
                         <span className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-0.5 rounded-md">VERIFIED</span>
                     </div>
                     {master.trustedReviews.map(r => (
-                        <div key={r.id} className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-4">
+                        <div key={r.id} className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3">
                             <div className="flex items-center justify-between mb-2">
                                 <div className="font-bold text-sm">{r.author}</div>
                                 <span className={`text-[9px] uppercase font-black tracking-widest px-2 py-1 rounded border ${r.circle === 'Top5' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' : 'bg-teal-500/10 text-teal-500 border-teal-500/20'}`}>
@@ -179,7 +179,7 @@ export default function MasterProfile() {
                 {/* Justice & Arbitration */}
                 <button
                     onClick={() => navigate('/arbitration')}
-                    className="w-full h-12 mt-8 border border-red-500/30 bg-red-500/5 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] active:bg-red-500/20 transition-colors"
+                    className="w-full h-12 mt-5 border border-red-500/30 bg-red-500/5 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] active:bg-red-500/20 transition-colors"
                 >
                     Open Dispute / Arbitration
                 </button>
@@ -189,11 +189,11 @@ export default function MasterProfile() {
             {/* ABCD Radar Modal */}
             {showABCDModal && (
                 <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in"
+                    className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-black/60 backdrop-blur-sm animate-fade-in"
                     onClick={() => setShowABCDModal(false)}
                 >
                     <div
-                        className="bg-tg-secondary/90 backdrop-blur-xl border border-white/10 p-6 rounded-3xl w-full max-w-sm shadow-2xl relative"
+                        className="bg-tg-secondary/90 backdrop-blur-xl border border-white/10 p-3 rounded-xl w-full max-w-sm shadow-2xl relative"
                         onClick={e => e.stopPropagation()}
                     >
                         <button
@@ -202,7 +202,7 @@ export default function MasterProfile() {
                         >
                             ✕
                         </button>
-                        <h3 className="text-lg font-black uppercase tracking-widest mb-6 border-b border-tg-hint/10 pb-4">Reliability Index</h3>
+                        <h3 className="text-base font-black uppercase tracking-widest mb-4 border-b border-tg-hint/10 pb-4">Reliability Index</h3>
 
                         <div className="space-y-5">
                             {[

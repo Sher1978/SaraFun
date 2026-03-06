@@ -34,7 +34,7 @@ export default function InfoTooltip({ text, title }: InfoTooltipProps) {
                     />
 
                     {/* The popup */}
-                    <div className="absolute z-[120] bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-3 bg-tg-secondary/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-2xl animate-fade-in pointer-events-none">
+                    <div className="absolute z-[120] bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 p-3 bg-tg-secondary/90 backdrop-blur-xl border border-white/10 shadow-2xl rounded-xl animate-fade-in pointer-events-none">
                         <div className="relative z-10 w-full">
                             {title && <h4 className="text-[10px] font-black uppercase tracking-widest text-tg-primary mb-1">{title}</h4>}
                             <p className="text-xs text-tg-primary/80 font-medium leading-relaxed">

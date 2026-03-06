@@ -41,9 +41,9 @@ export default function ReviewFlow({ masterId, masterName, onSubmit }: ReviewFlo
     };
 
     return (
-        <div className="bg-tg-secondary/90 backdrop-blur-2xl border border-tg-hint/20 rounded-3xl p-6 space-y-8 shadow-2xl">
+        <div className="bg-tg-secondary/90 backdrop-blur-2xl border border-tg-hint/20 rounded-xl p-3 space-y-8 shadow-2xl">
             <div className="text-center">
-                <h2 className="text-xl font-bold">The Trust Review</h2>
+                <h2 className="text-base font-bold">The Trust Review</h2>
                 <p className="text-tg-hint text-xs mt-1 uppercase tracking-widest font-black">Verify your experience with {masterName}</p>
             </div>
 
@@ -52,7 +52,7 @@ export default function ReviewFlow({ masterId, masterName, onSubmit }: ReviewFlo
                     <div key={key} className="space-y-2">
                         <div className="flex justify-between items-center text-sm font-semibold">
                             <label>{labels[key]}</label>
-                            <span className="text-teal-500 font-black text-lg">{scores[key].toFixed(1)}</span>
+                            <span className="text-teal-500 font-black text-base">{scores[key].toFixed(1)}</span>
                         </div>
                         <input
                             type="range"
@@ -61,7 +61,7 @@ export default function ReviewFlow({ masterId, masterName, onSubmit }: ReviewFlo
                             step="0.1"
                             value={scores[key]}
                             onChange={(e) => handleSliderChange(key, parseFloat(e.target.value))}
-                            className="w-full h-1.5 bg-tg-hint/20 rounded-lg appearance-none cursor-pointer accent-teal-500"
+                            className="w-full h-1 bg-tg-hint/20 rounded-full appearance-none cursor-pointer accent-teal-500 hover:accent-teal-400 transition-all custom-slider"
                         />
                     </div>
                 ))}
@@ -69,7 +69,7 @@ export default function ReviewFlow({ masterId, masterName, onSubmit }: ReviewFlo
 
             <button
                 onClick={handleSubmit}
-                className="w-full bg-teal-500 text-white py-4 rounded-2xl font-bold text-lg shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-transform active:scale-95 mt-4"
+                className="w-full bg-teal-500 text-white py-4 rounded-xl font-bold text-base shadow-[0_0_20px_rgba(20,184,166,0.3)] transition-transform active:scale-95 mt-4"
             >
                 Submit Verified Review
             </button>

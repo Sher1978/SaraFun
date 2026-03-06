@@ -24,7 +24,7 @@ export default function CommunityPulse() {
                 <div className="inline-block px-3 py-1 bg-teal-500/10 border border-teal-500/20 rounded-full text-[10px] font-black text-teal-500 uppercase tracking-widest">
                     Live Feed • {city}
                 </div>
-                <h1 className="text-3xl font-black tracking-tighter uppercase italic">Community Pulse</h1>
+                <h1 className="text-base font-black tracking-tighter uppercase italic">Community Pulse</h1>
                 <p className="text-tg-hint text-sm">Real-time trust density across the network.</p>
             </header>
 
@@ -42,9 +42,9 @@ export default function CommunityPulse() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.05 }}
                             key={item.name}
-                            className="bg-tg-secondary/30 border border-tg-hint/10 p-4 rounded-2xl flex items-center gap-4 group active:scale-[0.98] transition-all"
+                            className="bg-tg-secondary/30 border border-tg-hint/10 p-3 rounded-xl flex items-center gap-3 group active:scale-[0.98] transition-all"
                         >
-                            <div className="w-8 flex-shrink-0 text-lg font-black italic text-tg-hint group-hover:text-teal-500 transition-colors">
+                            <div className="w-8 flex-shrink-0 text-base font-black italic text-tg-hint group-hover:text-teal-500 transition-colors">
                                 #{i + 1}
                             </div>
                             <div className="flex-1">
@@ -55,7 +55,7 @@ export default function CommunityPulse() {
                                 <div className="text-[10px] text-tg-hint uppercase tracking-wider">{item.sector}</div>
                             </div>
                             <div className="text-right">
-                                <div className="text-lg font-black text-teal-500">★ {item.trustScore}</div>
+                                <div className="text-base font-black text-teal-500">★ {item.trustScore}</div>
                                 <div className="text-[8px] uppercase opacity-60">Avg Trust</div>
                             </div>
                         </motion.div>
@@ -64,7 +64,7 @@ export default function CommunityPulse() {
             </section>
 
             {/* Global Density Map Placeholder */}
-            <section className="bg-tg-secondary/50 p-6 rounded-3xl border border-tg-hint/10 text-center space-y-4">
+            <section className="bg-tg-secondary/50 p-3 rounded-xl border border-tg-hint/10 text-center space-y-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest">Network Saturation</h3>
                 <div className="h-2 w-full bg-tg-main rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-teal-500 to-blue-500" style={{ width: '68%' }} />

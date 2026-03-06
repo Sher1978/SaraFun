@@ -14,7 +14,7 @@ export default function RulesScreen() {
     const navigate = useNavigate();
 
     return (
-        <div className="p-6 bg-tg-main text-tg-primary min-h-screen space-y-8">
+        <div className="p-3 bg-tg-main text-tg-primary min-h-screen space-y-8">
             <header className="relative">
                 <button
                     onClick={() => navigate(-1)}
@@ -22,7 +22,7 @@ export default function RulesScreen() {
                 >
                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <h1 className="text-3xl font-black italic tracking-tighter pl-8 pt-1">{t('laws_title')}</h1>
+                <h1 className="text-base font-black italic tracking-tighter pl-8 pt-1">{t('laws_title')}</h1>
                 <div className="h-1 w-20 bg-teal-500 mt-2 rounded-full ml-8" />
             </header>
 
@@ -30,7 +30,7 @@ export default function RulesScreen() {
                 {LAWS.map(law => (
                     <div key={law.id} className="group">
                         <div className="flex items-center gap-3 mb-2">
-                            <span className="text-teal-500 font-black text-lg">0{law.id}</span>
+                            <span className="text-teal-500 font-black text-base">0{law.id}</span>
                             <h3 className="font-bold uppercase tracking-widest text-sm text-tg-hint">{law.title}</h3>
                         </div>
                         <p className="pl-9 text-tg-primary leading-relaxed font-medium">

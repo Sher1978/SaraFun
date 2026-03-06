@@ -35,11 +35,11 @@ export default function SherlockAdminConsole() {
         <div className="min-h-screen bg-tg-main text-tg-primary flex flex-col md:flex-row pb-20 md:pb-0">
             {/* Sidebar / Topnav */}
             <nav className="bg-tg-secondary/50 border-b md:border-b-0 md:border-r border-tg-hint/10 md:w-64 flex-shrink-0 z-10 sticky top-0 md:h-screen overflow-x-auto hide-scrollbar">
-                <div className="p-4 md:p-6 hidden md:block">
-                    <h1 className="text-xl font-black italic uppercase text-yellow-500">Superadmin</h1>
+                <div className="p-3 md:p-3 hidden md:block">
+                    <h1 className="text-base font-black italic uppercase text-yellow-500">Superadmin</h1>
                     <p className="text-[10px] text-tg-hint uppercase tracking-widest mt-1">Control Center</p>
                 </div>
-                <div className="flex md:flex-col p-2 md:p-4 gap-2">
+                <div className="flex md:flex-col p-2 md:p-3 gap-2">
                     {tabs.map(tab => (
                         <button
                             key={tab.id}
@@ -49,7 +49,7 @@ export default function SherlockAdminConsole() {
                                 : 'text-tg-hint hover:bg-tg-secondary'
                                 }`}
                         >
-                            <span className="text-lg">{tab.icon}</span>
+                            <span className="text-base">{tab.icon}</span>
                             <span className="hidden md:inline">{tab.label}</span>
                         </button>
                     ))}
@@ -57,7 +57,7 @@ export default function SherlockAdminConsole() {
             </nav>
 
             {/* Main Content Area */}
-            <main className="flex-1 overflow-y-auto p-4 md:p-8">
+            <main className="flex-1 overflow-y-auto p-3 md:p-3">
                 {activeTab === 'dashboard' && <DashboardTab />}
                 {activeTab === 'settings' && <SettingsTab />}
                 {activeTab === 'users' && <UsersTab />}
@@ -74,23 +74,23 @@ export default function SherlockAdminConsole() {
 function DashboardTab() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">City Heartbeat</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-6 rounded-3xl">
+            <h2 className="text-base font-black">City Heartbeat</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-3 rounded-xl">
                     <div className="text-[10px] font-black tracking-widest text-tg-hint uppercase mb-2">Total Value Locked</div>
-                    <div className="text-3xl font-bold text-yellow-500">142,500 ⭐</div>
+                    <div className="text-base font-bold text-yellow-500">142,500 ⭐</div>
                 </div>
-                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-6 rounded-3xl">
+                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-3 rounded-xl">
                     <div className="text-[10px] font-black tracking-widest text-tg-hint uppercase mb-2">Active Users (24h)</div>
-                    <div className="text-3xl font-bold">1,245</div>
+                    <div className="text-base font-bold">1,245</div>
                 </div>
-                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-6 rounded-3xl">
+                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-3 rounded-xl">
                     <div className="text-[10px] font-black tracking-widest text-tg-hint uppercase mb-2">Open Disputes</div>
-                    <div className="text-3xl font-bold text-red-500">3</div>
+                    <div className="text-base font-bold text-red-500">3</div>
                 </div>
             </div>
             {/* Placeholder for charts */}
-            <div className="h-64 bg-tg-secondary/20 rounded-3xl border border-tg-hint/10 flex items-center justify-center text-tg-hint text-sm italic">
+            <div className="h-64 bg-tg-secondary/20 rounded-xl border border-tg-hint/10 flex items-center justify-center text-tg-hint text-sm italic">
                 Analytics Chart Area
             </div>
         </div>
@@ -139,8 +139,8 @@ function SettingsTab() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">Global Parameters</h2>
-            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-6 space-y-4 max-w-2xl">
+            <h2 className="text-base font-black">Global Parameters</h2>
+            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3 space-y-4 max-w-2xl">
                 {loading && <div className="text-sm italic text-tg-hint">Loading current parameters...</div>}
                 {!loading && (
                     <>
@@ -165,7 +165,7 @@ function SettingsTab() {
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className={`bg-yellow-500 text-black px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform mt-4 ${saving ? 'opacity-50' : ''}`}
+                            className={`bg-yellow-500 text-black px-4 py-3 rounded-xl font-bold active:scale-95 transition-transform mt-4 ${saving ? 'opacity-50' : ''}`}
                         >
                             {saving ? 'Saving...' : 'Save Variables'}
                         </button>
@@ -196,26 +196,26 @@ function UsersTab() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">User Registry</h2>
-            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl overflow-hidden overflow-x-auto">
+            <h2 className="text-base font-black">User Registry</h2>
+            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-xl overflow-hidden overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-tg-main text-tg-hint text-xs uppercase font-black">
                         <tr>
-                            <th className="p-4">UID / Name</th>
-                            <th className="p-4">Type</th>
-                            <th className="p-4">Balance</th>
-                            <th className="p-4 text-right">Actions</th>
+                            <th className="p-3">UID / Name</th>
+                            <th className="p-3">Type</th>
+                            <th className="p-3">Balance</th>
+                            <th className="p-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-tg-hint/10">
-                        {loading && <tr><td colSpan={4} className="p-8 text-center text-tg-hint italic">Loading users...</td></tr>}
+                        {loading && <tr><td colSpan={4} className="p-3 text-center text-tg-hint italic">Loading users...</td></tr>}
                         {!loading && users.map(user => (
                             <tr key={user.id} className="hover:bg-tg-main/50 transition-colors">
-                                <td className="p-4">
+                                <td className="p-3">
                                     <div className="font-bold">{user.display_name || user.first_name || 'Unknown'}</div>
                                     <div className="text-[10px] text-tg-hint font-mono">{user.id}</div>
                                 </td>
-                                <td className="p-4">
+                                <td className="p-3">
                                     {(user.is_master || user.is_business_mode) && (
                                         <span className="bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-md text-[10px] font-bold">Master</span>
                                     )}
@@ -223,8 +223,8 @@ function UsersTab() {
                                         <span className="bg-tg-hint/10 text-tg-hint px-2 py-1 rounded-md text-[10px] font-bold">Client</span>
                                     )}
                                 </td>
-                                <td className="p-4">{user.stars_balance || 0} ⭐</td>
-                                <td className="p-4 text-right">
+                                <td className="p-3">{user.stars_balance || 0} ⭐</td>
+                                <td className="p-3 text-right">
                                     <button className="text-teal-500 text-xs font-bold hover:underline">DETAILS</button>
                                 </td>
                             </tr>
@@ -257,31 +257,31 @@ function TransactionsTab() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">Transaction Ledger</h2>
-            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl overflow-hidden overflow-x-auto">
+            <h2 className="text-base font-black">Transaction Ledger</h2>
+            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-xl overflow-hidden overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-tg-main text-tg-hint text-xs uppercase font-black">
                         <tr>
-                            <th className="p-4">TX ID</th>
-                            <th className="p-4">Users (From → To)</th>
-                            <th className="p-4">Amount</th>
-                            <th className="p-4">Status</th>
+                            <th className="p-3">TX ID</th>
+                            <th className="p-3">Users (From → To)</th>
+                            <th className="p-3">Amount</th>
+                            <th className="p-3">Status</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-tg-hint/10">
-                        {loading && <tr><td colSpan={4} className="p-8 text-center text-tg-hint italic">Loading ledger...</td></tr>}
+                        {loading && <tr><td colSpan={4} className="p-3 text-center text-tg-hint italic">Loading ledger...</td></tr>}
                         {!loading && txs.map(tx => (
                             <tr key={tx.id} className="hover:bg-tg-main/50 transition-colors">
-                                <td className="p-4 font-mono text-[10px] text-tg-hint">{tx.id}</td>
-                                <td className="p-4">
+                                <td className="p-3 font-mono text-[10px] text-tg-hint">{tx.id}</td>
+                                <td className="p-3">
                                     <div className="text-xs">
                                         <span className="text-red-400">{tx.clientUid?.substring(0, 8)}</span>
                                         {' → '}
                                         <span className="text-teal-400">{tx.masterUid?.substring(0, 8)}</span>
                                     </div>
                                 </td>
-                                <td className="p-4 font-bold">{tx.amount_stars} ⭐</td>
-                                <td className="p-4">
+                                <td className="p-3 font-bold">{tx.amount_stars} ⭐</td>
+                                <td className="p-3">
                                     <span className={`px-2 py-1 rounded-md text-[10px] font-bold ${tx.status === 'completed' ? 'bg-teal-500/10 text-teal-500' :
                                         tx.status === 'pending_undo' ? 'bg-yellow-500/10 text-yellow-500' :
                                             tx.status === 'frozen' ? 'bg-blue-500/10 text-blue-500' :
@@ -337,8 +337,8 @@ function ReferralsTab() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">Network Topology</h2>
-            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-6">
+            <h2 className="text-base font-black">Network Topology</h2>
+            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3">
                 <p className="text-sm text-tg-hint mb-4">Tree view of referral relationships (grouped by Inviter)</p>
                 {loading && <div className="text-sm italic text-tg-hint">Scanning network structure...</div>}
 
@@ -424,7 +424,7 @@ function RolesTab() {
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h2 className="text-2xl font-black">Access Control</h2>
+            <h2 className="text-base font-black">Access Control</h2>
             <p className="text-xs text-tg-hint uppercase tracking-widest leading-relaxed max-w-2xl">
                 Manage system administrators. Supported Roles:<br />
                 <span className="text-yellow-500 font-bold">Superadmin</span> - Full access<br />
@@ -433,7 +433,7 @@ function RolesTab() {
             </p>
 
             {/* Add New Admin Form */}
-            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-6 flex flex-col md:flex-row gap-4 max-w-3xl items-end">
+            <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3 flex flex-col md:flex-row gap-3 max-w-3xl items-end">
                 <div className="flex-1 w-full">
                     <label className="text-[10px] font-black text-tg-hint uppercase block mb-1">Telegram UID</label>
                     <input
@@ -457,28 +457,28 @@ function RolesTab() {
                 </div>
                 <button
                     onClick={handleAddAdmin}
-                    className="w-full md:w-auto bg-tg-button text-tg-button-text px-6 py-3 rounded-xl font-bold active:scale-95 transition-transform"
+                    className="w-full md:w-auto bg-tg-button text-tg-button-text px-4 py-3 rounded-xl font-bold active:scale-95 transition-transform"
                 >
                     Add User
                 </button>
             </div>
 
             {/* Active Admins List */}
-            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl overflow-hidden overflow-x-auto">
+            <div className="w-full bg-tg-secondary/50 border border-tg-hint/10 rounded-xl overflow-hidden overflow-x-auto">
                 <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-tg-main text-tg-hint text-xs uppercase font-black">
                         <tr>
-                            <th className="p-4">Telegram UID</th>
-                            <th className="p-4">Assigned Role</th>
-                            <th className="p-4 text-right">Actions</th>
+                            <th className="p-3">Telegram UID</th>
+                            <th className="p-3">Assigned Role</th>
+                            <th className="p-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-tg-hint/10">
-                        {loading && <tr><td colSpan={3} className="p-8 text-center text-tg-hint italic">Loading admins...</td></tr>}
+                        {loading && <tr><td colSpan={3} className="p-3 text-center text-tg-hint italic">Loading admins...</td></tr>}
                         {!loading && admins.map(adm => (
                             <tr key={adm.id} className="hover:bg-tg-main/50 transition-colors">
-                                <td className="p-4 font-mono font-bold text-tg-primary">{adm.id}</td>
-                                <td className="p-4">
+                                <td className="p-3 font-mono font-bold text-tg-primary">{adm.id}</td>
+                                <td className="p-3">
                                     <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest ${adm.role === 'Superadmin' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
                                             adm.role === 'Admin' ? 'bg-teal-500/10 text-teal-500 border border-teal-500/20' :
                                                 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
@@ -486,7 +486,7 @@ function RolesTab() {
                                         {adm.role}
                                     </span>
                                 </td>
-                                <td className="p-4 text-right">
+                                <td className="p-3 text-right">
                                     <button
                                         onClick={() => handleRemoveAdmin(adm.id)}
                                         className="text-red-500 text-xs font-bold hover:underline"
@@ -498,13 +498,13 @@ function RolesTab() {
                         ))}
                         {/* Always show the hardcoded root admin just in case */}
                         <tr className="bg-yellow-500/5">
-                            <td className="p-4 font-mono font-bold text-yellow-500">8524844089</td>
-                            <td className="p-4">
+                            <td className="p-3 font-mono font-bold text-yellow-500">8524844089</td>
+                            <td className="p-3">
                                 <span className="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest bg-yellow-500/20 text-yellow-600 border border-yellow-500/30">
                                     ROOT (Superadmin)
                                 </span>
                             </td>
-                            <td className="p-4 text-right text-[10px] text-tg-hint uppercase">
+                            <td className="p-3 text-right text-[10px] text-tg-hint uppercase">
                                 Immutable
                             </td>
                         </tr>

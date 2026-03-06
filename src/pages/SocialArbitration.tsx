@@ -34,18 +34,18 @@ export default function SocialArbitration() {
     };
 
     return (
-        <div className="p-6 bg-tg-main text-tg-primary min-h-screen flex flex-col gap-6">
+        <div className="p-3 bg-tg-main text-tg-primary min-h-screen flex flex-col gap-3">
             <header className="flex flex-col gap-1">
-                <h1 className="text-2xl font-black">Social Arbitration</h1>
+                <h1 className="text-base font-black">Social Arbitration</h1>
                 <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Dispute Center</p>
             </header>
 
-            <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-4">
+            <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3">
                 <h3 className="text-xs font-bold text-tg-hint mb-2 uppercase">Original Review</h3>
                 <p className="text-sm italic">"{reviewText}"</p>
             </section>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
                 <div>
                     <label className="text-xs font-bold mb-2 block text-tg-hint uppercase">Your Public Response</label>
                     <textarea
@@ -70,7 +70,7 @@ export default function SocialArbitration() {
 
             <div className="mt-auto flex flex-col gap-3">
                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 flex gap-3 items-center">
-                    <span className="text-2xl">⚖️</span>
+                    <span className="text-base">⚖️</span>
                     <p className="text-[10px] text-yellow-500 font-bold uppercase leading-tight">
                         Bible 2.4: You must stake 500⭐️ ($10). <br />
                         If Dispute is lost, the amount is burnt & karma is lost.

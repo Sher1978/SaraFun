@@ -68,11 +68,11 @@ export default function MasterDashboard() {
 
             {/* POS Modal */}
             {isPosOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-                    <div className="bg-tg-secondary w-full max-w-sm rounded-3xl p-6 space-y-4 border border-tg-hint/20">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-md">
+                    <div className="bg-tg-secondary w-full max-w-sm rounded-xl p-3 space-y-4 border border-tg-hint/20">
                         <div className="flex justify-between items-center">
-                            <h2 className="text-xl font-bold">Quick Checkout POS</h2>
-                            <button onClick={() => { setIsPosOpen(false); setPosQrData(null); }} className="text-tg-hint font-bold text-lg">&times;</button>
+                            <h2 className="text-base font-bold">Quick Checkout POS</h2>
+                            <button onClick={() => { setIsPosOpen(false); setPosQrData(null); }} className="text-tg-hint font-bold text-base">&times;</button>
                         </div>
 
                         {!posQrData ? (
@@ -84,7 +84,7 @@ export default function MasterDashboard() {
                                         placeholder="50"
                                         value={posAmount}
                                         onChange={e => setPosAmount(e.target.value)}
-                                        className="w-full bg-tg-main text-tg-primary mt-1 p-3 rounded-xl border border-tg-hint/20 text-lg font-bold outline-none focus:border-teal-500"
+                                        className="w-full bg-tg-main text-tg-primary mt-1 p-3 rounded-xl border border-tg-hint/20 text-base font-bold outline-none focus:border-teal-500"
                                     />
                                 </div>
                                 <div>
@@ -106,7 +106,7 @@ export default function MasterDashboard() {
                             </div>
                         ) : (
                             <div className="flex flex-col items-center space-y-4 py-4">
-                                <div className="bg-white p-3 rounded-2xl shadow-lg">
+                                <div className="bg-white p-3 rounded-xl shadow-lg">
                                     <QRCodeSVG value={posQrData} size={200} bgColor="#ffffff" fgColor="#000000" level="H" />
                                 </div>
                                 <p className="text-xs text-center text-tg-hint max-w-[200px]">Have the client scan this from their SaraFun app.</p>
@@ -122,7 +122,7 @@ export default function MasterDashboard() {
                 </div>
             )}
 
-            <header className="relative flex justify-between items-center mb-6 pt-2 pl-8">
+            <header className="relative flex justify-between items-center mb-4 pt-2 pl-8">
                 <button
                     onClick={() => navigate(-1)}
                     className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
@@ -130,7 +130,7 @@ export default function MasterDashboard() {
                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Master Console</h1>
+                    <h1 className="text-base font-bold tracking-tight">Master Console</h1>
                     <p className="text-tg-hint text-sm">Your business commands.</p>
                 </div>
                 <div className="flex flex-col items-end">
@@ -145,10 +145,10 @@ export default function MasterDashboard() {
                 </div>
             </header>
 
-            <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-6 flex flex-col items-center justify-center backdrop-blur-md shadow-sm relative overflow-hidden">
+            <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3 flex flex-col items-center justify-center backdrop-blur-md shadow-sm relative overflow-hidden">
                 <div className="absolute w-32 h-32 bg-teal-500/10 blur-3xl rounded-full" />
                 <h2 className="font-bold mb-4 relative z-10">My Connection QR</h2>
-                <div className="bg-white p-3 rounded-2xl shadow-lg relative z-10">
+                <div className="bg-white p-3 rounded-xl shadow-lg relative z-10">
                     <QRCodeSVG
                         value={qrData}
                         size={180}
@@ -162,18 +162,18 @@ export default function MasterDashboard() {
                 </p>
             </section>
 
-            <section className="grid grid-cols-2 gap-4">
-                <div className="bg-tg-secondary rounded-xl p-4 border border-tg-hint/10">
+            <section className="grid grid-cols-2 gap-3">
+                <div className="bg-tg-secondary rounded-xl p-3 border border-tg-hint/10">
                     <div className="text-tg-hint text-xs font-semibold uppercase tracking-wider mb-1">Revenue</div>
-                    <div className="text-2xl font-bold flex items-center gap-1">
+                    <div className="text-base font-bold flex items-center gap-1">
                         ⭐ {stats.totalStars.toLocaleString()}
                     </div>
                     <div className="text-[10px] text-teal-500 mt-1">≈ ${(stats.totalStars / 50).toFixed(2)} USD</div>
                 </div>
 
-                <div className="bg-tg-secondary rounded-xl p-4 border border-tg-hint/10">
+                <div className="bg-tg-secondary rounded-xl p-3 border border-tg-hint/10">
                     <div className="text-tg-hint text-xs font-semibold uppercase tracking-wider mb-1">Trust Index</div>
-                    <div className="text-2xl font-bold">
+                    <div className="text-base font-bold">
                         {stats.top5Connections}
                     </div>
                     <div className="text-[10px] text-tg-primary mt-1">"Top 5" Circles</div>
@@ -188,13 +188,13 @@ export default function MasterDashboard() {
 
             <section className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                    <h2 className="text-lg font-bold">History of Excellence</h2>
+                    <h2 className="text-base font-bold">History of Excellence</h2>
                     <span className="text-[10px] text-tg-hint uppercase font-black">Verified Deals</span>
                 </div>
 
                 <div className="space-y-2">
                     {history.length > 0 ? history.map((tx) => (
-                        <div key={tx.id} className="bg-tg-secondary/70 border border-tg-hint/5 p-4 rounded-xl flex justify-between items-center">
+                        <div key={tx.id} className="bg-tg-secondary/70 border border-tg-hint/5 p-3 rounded-xl flex justify-between items-center">
                             <div>
                                 <div className="text-[13px] font-bold">Service: {tx.serviceType}</div>
                                 <div className="text-[10px] text-tg-hint">
@@ -206,7 +206,7 @@ export default function MasterDashboard() {
                             </div>
                         </div>
                     )) : (
-                        <div className="text-center py-8 bg-tg-secondary/30 rounded-2xl border border-dashed border-tg-hint/20">
+                        <div className="text-center py-8 bg-tg-secondary/30 rounded-xl border border-dashed border-tg-hint/20">
                             <p className="text-tg-hint text-xs">No transactions yet. Start scanning!</p>
                         </div>
                     )}

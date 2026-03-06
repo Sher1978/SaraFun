@@ -21,7 +21,7 @@ export default function BusinessLanding() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl shadow-[0_0_40px_rgba(234,179,8,0.4)] flex items-center justify-center mb-4"
+                    className="w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-xl shadow-[0_0_40px_rgba(234,179,8,0.4)] flex items-center justify-center mb-4"
                 >
                     <span className="text-5xl">💼</span>
                 </motion.div>
@@ -45,9 +45,9 @@ export default function BusinessLanding() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.1 * i }}
-                            className="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl flex items-center gap-4 shadow-xl"
+                            className="bg-white/5 backdrop-blur-md border border-white/10 p-3 rounded-xl flex items-center gap-3 shadow-xl"
                         >
-                            <div className="text-3xl">{feature.icon}</div>
+                            <div className="text-base">{feature.icon}</div>
                             <div>
                                 <h3 className="font-bold text-sm">{feature.title}</h3>
                                 <p className="text-xs text-tg-hint">{feature.desc}</p>
@@ -57,10 +57,10 @@ export default function BusinessLanding() {
                 </div>
             </div>
 
-            <div className="relative z-10 w-full mt-8">
+            <div className="relative z-10 w-full mt-5">
                 <button
                     onClick={handleStartBusiness}
-                    className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black h-14 rounded-2xl font-black text-lg uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.5)] active:scale-95 transition-all"
+                    className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-black h-12 rounded-xl font-black text-base uppercase tracking-widest shadow-[0_0_20px_rgba(234,179,8,0.5)] active:scale-95 transition-all"
                 >
                     Create Business Profile
                 </button>

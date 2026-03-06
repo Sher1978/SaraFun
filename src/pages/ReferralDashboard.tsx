@@ -41,41 +41,41 @@ export default function ReferralDashboard() {
                 >
                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <h1 className="text-3xl font-black tracking-tighter uppercase italic pt-1">Referral Empire</h1>
+                <h1 className="text-base font-black tracking-tighter uppercase italic pt-1">Referral Empire</h1>
                 <p className="text-tg-hint text-sm">Scale your network. Earn together.</p>
             </header>
 
             {/* Invited By Banner */}
             {invitedBy && (
-                <div className="bg-teal-500/10 border border-teal-500/20 rounded-2xl p-3 flex items-center justify-center gap-2 text-sm font-medium">
+                <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-3 flex items-center justify-center gap-2 text-sm font-medium">
                     <span className="text-teal-500 font-bold uppercase tracking-widest text-[10px]">Invited By:</span>
                     <span className="text-tg-primary">{invitedBy.name}</span>
                 </div>
             )}
 
             {/* Stats Cards */}
-            <section className="grid grid-cols-2 gap-4">
-                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-5 rounded-3xl text-center">
+            <section className="grid grid-cols-2 gap-3">
+                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-3 rounded-xl text-center">
                     <div className="text-[10px] uppercase font-black text-tg-hint mb-1">Friends Joined</div>
-                    <div className="text-3xl font-bold text-teal-500">{stats.totalInvited}</div>
+                    <div className="text-base font-bold text-teal-500">{stats.totalInvited}</div>
                 </div>
-                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-5 rounded-3xl text-center">
+                <div className="bg-tg-secondary/50 border border-tg-hint/10 p-3 rounded-xl text-center">
                     <div className="text-[10px] uppercase font-black text-tg-hint mb-1">Stars Earned</div>
-                    <div className="text-3xl font-bold text-yellow-500">⭐ {stats.starsEarned}</div>
+                    <div className="text-base font-bold text-yellow-500">⭐ {stats.starsEarned}</div>
                 </div>
             </section>
 
             {/* Invite Action */}
-            <section className="bg-gradient-to-br from-teal-500/20 to-blue-500/20 border border-teal-500/30 rounded-3xl p-8 text-center space-y-6 relative overflow-hidden">
+            <section className="bg-gradient-to-br from-teal-500/20 to-blue-500/20 border border-teal-500/30 rounded-xl p-3 text-center space-y-6 relative overflow-hidden">
                 <div className="relative z-10 space-y-4">
-                    <h2 className="text-xl font-bold">Your Unique Invite Key</h2>
-                    <div className="bg-tg-main/40 p-4 rounded-xl font-mono text-xs break-all border border-tg-hint/10">
+                    <h2 className="text-base font-bold">Your Unique Invite Key</h2>
+                    <div className="bg-tg-main/40 p-3 rounded-xl font-mono text-xs break-all border border-tg-hint/10">
                         {inviteLink}
                     </div>
 
                     <button
                         onClick={handleCopy}
-                        className="w-full bg-teal-500 text-white h-12 rounded-2xl font-bold text-lg shadow-[0_0_25px_rgba(20,184,166,0.3)] relative"
+                        className="w-full bg-teal-500 text-white h-12 rounded-xl font-bold text-base shadow-[0_0_25px_rgba(20,184,166,0.3)] relative"
                     >
                         {copyFeedback ? 'Link Copied!' : 'Copy Invite Link'}
 

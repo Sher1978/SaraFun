@@ -50,11 +50,11 @@ export default function Profile() {
         <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-10 pb-24 space-y-6">
             {/* Header: Bio & Avatar */}
             <header className="flex flex-col items-center space-y-4">
-                <div className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-3xl font-bold border-4 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                <div className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-base font-bold border-4 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     {WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
                 <div className="text-center">
-                    <h1 className="text-2xl font-black tracking-tight uppercase italic underline decoration-yellow-500 underline-offset-4">
+                    <h1 className="text-base font-black tracking-tight uppercase italic underline decoration-yellow-500 underline-offset-4">
                         {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
                     </h1>
                     <p className="text-xs text-tg-hint mt-1 font-mono uppercase tracking-widest">
@@ -64,7 +64,7 @@ export default function Profile() {
             </header>
 
             {/* Wallet Block */}
-            <section className="bg-gradient-to-br from-tg-secondary to-tg-main border border-tg-hint/10 rounded-3xl p-5 shadow-xl relative overflow-hidden group">
+            <section className="bg-gradient-to-br from-tg-secondary to-tg-main border border-tg-hint/10 rounded-xl p-3 shadow-xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 blur-3xl rounded-full" />
 
                 <div className="flex justify-between items-start mb-4">
@@ -73,16 +73,16 @@ export default function Profile() {
                             Total Assets
                             <InfoTooltip text="Your available balance of ⭐️ used for platform payments." />
                         </div>
-                        <div className="text-3xl font-black text-tg-primary flex items-center gap-2">
+                        <div className="text-base font-black text-tg-primary flex items-center gap-2">
                             {stats.stars.toLocaleString()} <span className="text-yellow-500">⭐</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t border-tg-hint/10 pt-3">
+                <div className="grid grid-cols-2 gap-3 border-t border-tg-hint/10 pt-3">
                     <div>
                         <div className="text-[10px] uppercase font-black text-tg-hint">Value in Ton</div>
-                        <div className="text-lg font-bold">{stats.ton.toFixed(2)} TON</div>
+                        <div className="text-base font-bold">{stats.ton.toFixed(2)} TON</div>
                     </div>
                     <div className="text-right">
                         <div className="text-[10px] uppercase font-black text-tg-hint flex items-center justify-end">
@@ -98,14 +98,14 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-3">
                 <button
                     onClick={() => setShowQRModal(true)}
-                    className="h-12 bg-tg-button text-tg-button-text rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
+                    className="h-12 bg-tg-button text-tg-button-text rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                     My QR Code
                 </button>
                 <button
                     onClick={() => navigate(isMaster ? '/dashboard' : '/business-landing')}
-                    className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-transform"
+                    className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-transform"
                 >
                     <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     {isMaster ? 'Dashboard' : 'Start Biz'}
@@ -113,7 +113,7 @@ export default function Profile() {
             </div>
 
             {/* Referral prominent block */}
-            <section className="bg-tg-secondary/20 p-4 rounded-2xl border border-tg-hint/10 flex flex-col items-center">
+            <section className="bg-tg-secondary/20 p-3 rounded-xl border border-tg-hint/10 flex flex-col items-center">
                 <span className="text-xs uppercase font-bold text-tg-hint tracking-widest mb-2">Invite Friends, Earn 1%</span>
                 <button
                     onClick={handleCopyLink}
@@ -134,10 +134,10 @@ export default function Profile() {
                     <button
                         key={item.label}
                         onClick={() => item.action ? item.action() : navigate(item.path)}
-                        className="w-full h-14 bg-tg-secondary/30 border border-tg-hint/10 rounded-xl px-4 flex items-center justify-between active:bg-tg-secondary/50 transition-colors"
+                        className="w-full h-12 bg-tg-secondary/30 border border-tg-hint/10 rounded-xl px-4 flex items-center justify-between active:bg-tg-secondary/50 transition-colors"
                     >
-                        <div className="flex items-center gap-4">
-                            <span className="text-xl">{item.icon}</span>
+                        <div className="flex items-center gap-3">
+                            <span className="text-base">{item.icon}</span>
                             <span className="text-sm font-bold uppercase tracking-wide">{item.label}</span>
                         </div>
                         <span className="text-tg-hint">→</span>
@@ -152,7 +152,7 @@ export default function Profile() {
                         await runStressTestSeed();
                         WebApp.showPopup({ title: 'Engine Primed', message: 'Stress-test data injected. Audit mode active.' });
                     }}
-                    className="w-full h-10 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors mt-8"
+                    className="w-full h-10 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors mt-5"
                 >
                     System Stress-Test Seeding
                 </button>
@@ -160,14 +160,14 @@ export default function Profile() {
 
             {/* QR Modal */}
             {showQRModal && (
-                <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-6 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
-                    <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center" onClick={e => e.stopPropagation()}>
-                        <h2 className="text-xl font-black text-black mb-6 uppercase tracking-wider">Digital Handshake</h2>
+                <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-3 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
+                    <div className="bg-white p-3 rounded-xl shadow-2xl flex flex-col items-center" onClick={e => e.stopPropagation()}>
+                        <h2 className="text-base font-black text-black mb-4 uppercase tracking-wider">Digital Handshake</h2>
                         <QRCodeSVG value={qrData} size={250} level={"H"} fgColor={"#000000"} bgColor={"#ffffff"} />
-                        <p className="mt-6 text-xs text-gray-500 font-mono tracking-widest uppercase">ID: {currentUserUid}</p>
+                        <p className="mt-4 text-xs text-gray-500 font-mono tracking-widest uppercase">ID: {currentUserUid}</p>
                         <button
                             onClick={() => setShowQRModal(false)}
-                            className="mt-8 px-8 py-3 bg-gray-200 text-black rounded-xl font-bold uppercase tracking-widest text-sm active:bg-gray-300 transition-colors"
+                            className="mt-5 px-8 py-3 bg-gray-200 text-black rounded-xl font-bold uppercase tracking-widest text-sm active:bg-gray-300 transition-colors"
                         >
                             Close
                         </button>

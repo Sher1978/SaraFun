@@ -43,7 +43,7 @@ function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
             {...attributes}
             className="flex flex-col items-center gap-1 snap-start relative touch-none group"
         >
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-sm transition-all ${isDragging ? 'scale-110 opacity-80' : ''} ${statusStyle}`}>
+            <div className={`w-14 h-12 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-sm transition-all ${isDragging ? 'scale-110 opacity-80' : ''} ${statusStyle}`}>
                 {uid.substring(0, 2)}
             </div>
             <span className="text-[10px] text-tg-primary/80 truncate w-14 text-center font-medium group-hover:text-tg-primary">{uid}</span>
@@ -195,7 +195,7 @@ export default function DunbarRadar() {
                         <g onClick={() => navigate('/add-user')} className="cursor-pointer hover:drop-shadow-[0_0_15px_rgba(20,184,166,1)] transition-all">
                             <circle cx="200" cy="200" r="24" className="fill-tg-main pointer-events-none" />
                             <circle cx="200" cy="200" r="20" className="fill-teal-500 drop-shadow-[0_0_12px_rgba(20,184,166,0.9)] pointer-events-none" />
-                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-2xl font-black pointer-events-none">+</text>
+                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-base font-black pointer-events-none">+</text>
                         </g>
                     </svg>
                 </div>
@@ -209,7 +209,7 @@ export default function DunbarRadar() {
                         <span className="text-[10px] text-tg-hint uppercase tracking-wider font-bold">Drag to Rings</span>
                     </div>
 
-                    <div className="flex overflow-x-auto gap-4 px-4 pb-4 snap-x hide-scrollbar h-24 items-center">
+                    <div className="flex overflow-x-auto gap-3 px-4 pb-4 snap-x hide-scrollbar h-24 items-center">
                         {contactsToShow.map(([uid, status]) => (
                             <DraggableAvatar key={uid} uid={uid} status={status} />
                         ))}

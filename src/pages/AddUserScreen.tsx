@@ -28,19 +28,19 @@ export default function AddUserScreen() {
     };
 
     return (
-        <div className="p-6 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
-            <header className="relative pl-8 mb-8">
+        <div className="p-3 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
+            <header className="relative pl-8 mb-5">
                 <button
                     onClick={() => navigate(-1)}
                     className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
                 >
                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <h1 className="text-2xl font-black">Add to Radar</h1>
+                <h1 className="text-base font-black">Add to Radar</h1>
                 <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Grow your network</p>
             </header>
 
-            <section className="bg-tg-secondary/50 rounded-3xl p-6 border border-tg-hint/10 space-y-4">
+            <section className="bg-tg-secondary/50 rounded-xl p-3 border border-tg-hint/10 space-y-4">
                 <p className="text-sm text-tg-hint mb-2">
                     Enter the Telegram UID of the user you wish to track. They will be added to your <span className="text-tg-primary font-bold">Shadow List</span> by default.
                 </p>
@@ -52,7 +52,7 @@ export default function AddUserScreen() {
                         value={uid}
                         onChange={(e) => setUid(e.target.value)}
                         placeholder="e.g. 123456789"
-                        className="w-full bg-tg-main border border-tg-hint/20 rounded-xl p-4 outline-none focus:border-teal-500 font-mono"
+                        className="w-full bg-tg-main border border-tg-hint/20 rounded-xl p-3 outline-none focus:border-teal-500 font-mono"
                     />
                 </div>
 

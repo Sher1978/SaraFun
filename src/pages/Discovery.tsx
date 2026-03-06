@@ -122,7 +122,7 @@ export default function Discovery() {
         <div className="relative min-h-full bg-tg-main text-tg-primary px-4 pt-6 pb-24 space-y-10">
             {/* Review Flow Overlay */}
             {reviewMaster && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-tg-main/80 backdrop-blur-md">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-tg-main/80 backdrop-blur-md">
                     <ReviewFlow
                         masterId={reviewMaster.id}
                         masterName={reviewMaster.name}
@@ -134,7 +134,7 @@ export default function Discovery() {
             {/* Header */}
             <header className="space-y-4">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">Discovery</h1>
+                    <h1 className="text-base font-bold tracking-tight">Discovery</h1>
                     <p className="text-tg-hint text-sm mt-1">Services matched from your trust network</p>
                 </div>
 
@@ -149,7 +149,7 @@ export default function Discovery() {
                 return (
                     <section key={jtbd.id} className="space-y-4">
                         <div className="flex items-center justify-between border-b border-tg-hint/10 pb-2">
-                            <h2 className="text-lg font-black flex items-center gap-2">
+                            <h2 className="text-base font-black flex items-center gap-2">
                                 <span>{jtbd.icon}</span>
                                 {jtbd.title}
                             </h2>
@@ -167,7 +167,7 @@ export default function Discovery() {
                         </div>
 
                         {/* Horizontal Scroll Area */}
-                        <div className="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+                        <div className="flex overflow-x-auto gap-3 pb-4 snap-x hide-scrollbar">
                             {loading ? (
                                 Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
                             ) : (
@@ -180,7 +180,7 @@ export default function Discovery() {
                                         <div
                                             key={`${jtbd.id}-${master.id}`}
                                             onClick={() => navigate(`/master/${master.id}`)}
-                                            className={`relative flex-shrink-0 w-48 p-4 rounded-3xl snap-start bg-tg-secondary/70 backdrop-blur-2xl border border-tg-hint/10 transition-transform active:scale-95 cursor-pointer flex flex-col justify-between ${master.is_sherlock_verified ? 'shadow-[0_0_20px_rgba(234,179,8,0.2)] ring-1 ring-yellow-500/50 bg-gradient-to-b from-yellow-500/5 to-transparent' :
+                                            className={`relative flex-shrink-0 w-48 p-3 rounded-xl snap-start bg-tg-secondary/70 backdrop-blur-2xl border border-tg-hint/10 transition-transform active:scale-95 cursor-pointer flex flex-col justify-between ${master.is_sherlock_verified ? 'shadow-[0_0_20px_rgba(234,179,8,0.2)] ring-1 ring-yellow-500/50 bg-gradient-to-b from-yellow-500/5 to-transparent' :
                                                 isTop5 ? 'shadow-[0_0_15px_rgba(20,184,166,0.15)] ring-1 ring-teal-500/30' : ''
                                                 }`}
                                         >

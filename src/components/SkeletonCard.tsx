@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function SkeletonCard() {
     return (
-        <div className="relative flex-shrink-0 w-44 p-4 rounded-2xl bg-tg-secondary/40 border border-tg-hint/10 animate-pulse">
+        <div className="relative flex-shrink-0 w-44 p-3 rounded-xl bg-tg-secondary/40 border border-tg-hint/10 animate-pulse">
             <div className="flex justify-between items-start mb-4">
                 {/* Avatar Shimmer */}
                 <div className="w-10 h-10 rounded-full bg-tg-hint/20" />

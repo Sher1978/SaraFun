@@ -170,7 +170,7 @@ export default function MapScreen() {
                 {/* Info Sheet */}
                 <div className={`absolute bottom-6 w-full px-4 z-10 transition-transform duration-300 ease-in-out ${selectedMaster ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}>
                     {selectedMaster && (
-                        <div className="bg-tg-secondary/80 backdrop-blur-xl border border-tg-hint/20 rounded-2xl p-4 shadow-xl flex items-center justify-between pointer-events-auto">
+                        <div className="bg-tg-secondary/80 backdrop-blur-xl border border-tg-hint/20 rounded-xl p-3 shadow-xl flex items-center justify-between pointer-events-auto">
                             <div className="flex items-center gap-3">
                                 {selectedMaster.abcd && (
                                     <ABCDChart

@@ -46,7 +46,7 @@ export default function Onboarding({ uid, onComplete }: { uid: string, onComplet
     const step = STEPS[currentStep];
 
     return (
-        <div className="fixed inset-0 z-[100] bg-tg-main flex items-center justify-center p-6 overflow-hidden">
+        <div className="fixed inset-0 z-[100] bg-tg-main flex items-center justify-center p-3 overflow-hidden">
             {/* Skip Button */}
             <motion.button
                 initial={{ opacity: 0 }}
@@ -64,21 +64,21 @@ export default function Onboarding({ uid, onComplete }: { uid: string, onComplet
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className={`w-full max-w-sm aspect-[4/5] bg-gradient-to-br ${step.color} rounded-[40px] border border-tg-hint/10 p-8 flex flex-col items-center text-center backdrop-blur-3xl shadow-2xl relative overflow-hidden`}
+                    className={`w-full max-w-sm aspect-[4/5] bg-gradient-to-br ${step.color} rounded-[40px] border border-tg-hint/10 p-3 flex flex-col items-center text-center backdrop-blur-3xl shadow-2xl relative overflow-hidden`}
                 >
                     {/* Decorative background blobs */}
                     <div className="absolute -top-10 -right-10 w-40 h-40 bg-teal-500/10 blur-3xl rounded-full" />
                     <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-400/5 blur-3xl rounded-full" />
 
-                    <div className="text-7xl mb-8 mt-4 drop-shadow-lg">{step.icon}</div>
-                    <h2 className="text-2xl font-black mb-4 tracking-tight">{step.title}</h2>
+                    <div className="text-7xl mb-5 mt-4 drop-shadow-lg">{step.icon}</div>
+                    <h2 className="text-base font-black mb-4 tracking-tight">{step.title}</h2>
                     <p className="text-tg-hint text-sm leading-relaxed mb-12 px-2">
                         {step.description}
                     </p>
 
                     <div className="mt-auto w-full space-y-4">
                         {/* Progress indicators */}
-                        <div className="flex gap-2 justify-center mb-6">
+                        <div className="flex gap-2 justify-center mb-4">
                             {STEPS.map((_, i) => (
                                 <div
                                     key={i}
@@ -90,7 +90,7 @@ export default function Onboarding({ uid, onComplete }: { uid: string, onComplet
 
                         <button
                             onClick={handleNext}
-                            className="w-full bg-tg-button text-tg-button-text h-12 rounded-2xl font-bold shadow-xl transition-transform active:scale-95"
+                            className="w-full bg-tg-button text-tg-button-text h-12 rounded-xl font-bold shadow-xl transition-transform active:scale-95"
                         >
                             {currentStep === STEPS.length - 1 ? "Enter SaraFun" : "Next"}
                         </button>

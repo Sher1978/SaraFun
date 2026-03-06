@@ -39,9 +39,9 @@ export default function TrustNotifications() {
                         initial={{ opacity: 0, y: -20, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-                        className="w-full max-w-sm mx-auto bg-tg-secondary/80 backdrop-blur-xl border border-teal-500/30 rounded-2xl p-4 shadow-xl flex items-center gap-4"
+                        className="w-full max-w-sm mx-auto bg-tg-secondary/80 backdrop-blur-xl border border-teal-500/30 rounded-xl p-3 shadow-xl flex items-center gap-3"
                     >
-                        <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center text-xl shadow-lg shadow-teal-500/20">
+                        <div className="w-10 h-10 rounded-full bg-teal-500 flex items-center justify-center text-base shadow-lg shadow-teal-500/20">
                             {n.type === 'Top5' ? '💎' : '📢'}
                         </div>
                         <div className="flex-1">

@@ -114,7 +114,7 @@ export default function EditMasterProfile() {
     };
 
     return (
-        <div className="p-6 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
+        <div className="p-3 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
             <header className="relative pl-8">
                 <button
                     onClick={() => navigate(-1)}
@@ -122,21 +122,21 @@ export default function EditMasterProfile() {
                 >
                     <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <h1 className="text-2xl font-black">{t('business_identity')}</h1>
+                <h1 className="text-base font-black">{t('business_identity')}</h1>
                 <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Master Profile Edit</p>
             </header>
 
             <section className="space-y-4">
-                <div className="bg-tg-secondary rounded-2xl overflow-hidden border border-tg-hint/10">
+                <div className="bg-tg-secondary rounded-xl overflow-hidden border border-tg-hint/10">
 
                     {/* Photo Upload Area */}
-                    <div className="p-4 border-b border-tg-hint/10 flex flex-col items-center">
+                    <div className="p-3 border-b border-tg-hint/10 flex flex-col items-center">
                         <label className="text-[10px] font-black text-tg-hint uppercase block w-full mb-4">Business Photo</label>
-                        <div className="relative w-32 h-32 rounded-3xl overflow-hidden bg-tg-main border-2 border-dashed border-tg-hint/30 flex items-center justify-center">
+                        <div className="relative w-32 h-32 rounded-xl overflow-hidden bg-tg-main border-2 border-dashed border-tg-hint/30 flex items-center justify-center">
                             {photoDataUrl ? (
                                 <img src={photoDataUrl} alt="Business" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="text-3xl opacity-50">📸</span>
+                                <span className="text-base opacity-50">📸</span>
                             )}
                             <input
                                 type="file"
@@ -148,7 +148,7 @@ export default function EditMasterProfile() {
                         <p className="text-[10px] text-tg-hint mt-2 text-center uppercase tracking-widest">Tap to Upload Photo</p>
                     </div>
 
-                    <div className="p-4 border-b border-tg-hint/10">
+                    <div className="p-3 border-b border-tg-hint/10">
                         <label className="text-[10px] font-black text-tg-hint uppercase block mb-1">Business Name</label>
                         <input
                             value={name}
@@ -158,7 +158,7 @@ export default function EditMasterProfile() {
                         />
                     </div>
 
-                    <div className="p-4 border-b border-tg-hint/10">
+                    <div className="p-3 border-b border-tg-hint/10">
                         <label className="text-[10px] font-black text-tg-hint uppercase block mb-1">{t('category')}</label>
                         <select
                             value={category}
@@ -169,7 +169,7 @@ export default function EditMasterProfile() {
                         </select>
                     </div>
 
-                    <div className="p-4 border-b border-tg-hint/10">
+                    <div className="p-3 border-b border-tg-hint/10">
                         <label className="text-[10px] font-black text-tg-hint uppercase block mb-1">{t('hourly_rate')} ($)</label>
                         <input
                             type="number"
@@ -179,7 +179,7 @@ export default function EditMasterProfile() {
                         />
                     </div>
 
-                    <div className="p-4">
+                    <div className="p-3">
                         <label className="text-[10px] font-black text-tg-hint uppercase block mb-1">{t('bio')}</label>
                         <textarea
                             value={bio}
@@ -194,7 +194,7 @@ export default function EditMasterProfile() {
             <button
                 onClick={handleSave}
                 disabled={loading}
-                className="w-full bg-tg-button text-tg-button-text py-4 rounded-2xl font-bold shadow-lg shadow-teal-500/10 active:scale-95 transition-transform"
+                className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-bold shadow-lg shadow-teal-500/10 active:scale-95 transition-transform"
             >
                 {loading ? '...' : t('save')}
             </button>
@@ -202,7 +202,7 @@ export default function EditMasterProfile() {
             {/* Crop Modal */}
             {imageSrc && (
                 <div className="fixed inset-0 z-50 bg-black flex flex-col pt-10 pb-6 px-4">
-                    <div className="flex-1 relative mb-6 rounded-2xl overflow-hidden bg-tg-secondary">
+                    <div className="flex-1 relative mb-4 rounded-xl overflow-hidden bg-tg-secondary">
                         <Cropper
                             image={imageSrc}
                             crop={crop}
@@ -213,16 +213,16 @@ export default function EditMasterProfile() {
                             onZoomChange={setZoom}
                         />
                     </div>
-                    <div className="flex justify-between gap-4">
+                    <div className="flex justify-between gap-3">
                         <button
                             onClick={() => setImageSrc(null)}
-                            className="flex-1 py-4 bg-gray-800 text-white rounded-2xl font-bold active:scale-95"
+                            className="flex-1 py-4 bg-gray-800 text-white rounded-xl font-bold active:scale-95"
                         >
                             Cancel
                         </button>
                         <button
                             onClick={showCroppedImage}
-                            className="flex-1 py-4 bg-yellow-500 text-black rounded-2xl font-bold active:scale-95"
+                            className="flex-1 py-4 bg-yellow-500 text-black rounded-xl font-bold active:scale-95"
                         >
                             Crop Image
                         </button>

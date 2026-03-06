@@ -25,7 +25,7 @@ export default function TabBar() {
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full h-16 bg-tg-secondary border-t border-tg-hint/20 flex items-center justify-around px-2 pb-safe z-50">
+        <nav className="fixed bottom-0 w-full h-12 bg-tg-secondary border-t border-tg-hint/20 flex items-center justify-around px-2 pb-safe z-50">
             {tabs.map((tab) => {
                 const isActive = tab.path !== '#' && location.pathname.startsWith(tab.path);
 
@@ -33,7 +33,7 @@ export default function TabBar() {
                     <button
                         key={tab.id}
                         onClick={() => tab.action ? tab.action() : navigate(tab.path)}
-                        className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-200 ${isActive ? 'text-tg-button' : 'text-tg-hint hover:text-tg-primary'
+                        className={`flex flex-col items-center justify-center w-14 h-full transition-colors duration-200 ${isActive ? 'text-tg-button' : 'text-tg-hint hover:text-tg-primary'
                             }`}
                     >
                         <tab.icon />
