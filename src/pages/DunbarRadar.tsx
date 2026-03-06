@@ -5,15 +5,14 @@ import WebApp from '@twa-dev/sdk';
 import { db } from '../firebase';
 import { updateSocialGraph, CircleId } from '../services/userService';
 import { notifyGoldenFive } from '../services/RealTimeNotifications';
-import { DndContext, useDraggable, useDroppable, DragOverlay, useSensors, useSensor, PointerSensor, TouchSensor } from '@dnd-kit/core';
+import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
 // Radar Rings Configuration - Optimized spacing
-// Radar Rings Configuration - Normalized equal spacing
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 195, color: '#f43f5e', opacity: 0.15, delay: '0.8s' },
-    { id: '50', max: 50, radius: 155, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },
-    { id: '15', max: 15, radius: 115, color: '#d4af37', opacity: 0.35, delay: '0.4s' },
-    { id: 'Top5', max: 5, radius: 75, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },
+    { id: '150', max: 150, radius: 180, color: '#f43f5e', opacity: 0.15, delay: '0.8s' }, // Reddish-Rose
+    { id: '50', max: 50, radius: 135, color: '#0ea5e9', opacity: 0.25, delay: '0.6s' },  // Blue
+    { id: '15', max: 15, radius: 95, color: '#d4af37', opacity: 0.35, delay: '0.4s' },   // Gold
+    { id: 'Top5', max: 5, radius: 55, color: '#14b8a6', opacity: 0.55, delay: '0.2s' },   // Teal
 ];
 
 function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: string, status: string, photo?: string, isOverlay?: boolean }) {
@@ -79,7 +78,7 @@ function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: strin
     );
 }
 
-function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny, shouldAnimate }: any) {
+function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: any) {
     const { setNodeRef, isOver } = useDroppable({
         id: ring.id,
         data: { maxContent: ring.max, currentContent: currentCount }
@@ -119,7 +118,7 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny, sh
 
             {/* Background Arch Shadow */}
             <path
-                d={`M ${200 - ring.radius} 210 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 210`}
+                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke="rgba(0,0,0,0.5)"
                 strokeWidth="48"
@@ -127,25 +126,25 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny, sh
             />
             {/* Main Volumetric Arch */}
             <path
-                d={`M ${200 - ring.radius} 210 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 210`}
+                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke={`url(#${gradId})`}
                 strokeWidth="42"
                 strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
                 filter={`url(#${glintId})`}
-                className={`transition-all duration-500 origin-bottom ${(shouldAnimate || isOver) ? 'animate-radar-pulse' : ''} ${isActive || isOver ? 'scale-[1.02]' : ''}`}
+                className={`transition-all duration-500 origin-bottom animate-radar-pulse ${isActive || isOver ? 'scale-[1.02]' : ''}`}
                 style={{
                     animationDelay: ring.delay,
                     // @ts-ignore
                     '--pulse-color': strokeColor,
-                    '--base-opacity': (isDraggingAny || (activeRing && !isActive)) ? 0.2 : ring.opacity,
+                    '--base-opacity': isDraggingAny ? 0.3 : ring.opacity,
                     strokeDasharray: '2000',
                     strokeDashoffset: (isActive || isOver) ? '0' : '0'
                 } as any}
             />
             <text
                 x="200"
-                y={210 - ring.radius}
+                y={200 - ring.radius}
                 textAnchor="middle"
                 alignmentBaseline="middle"
                 className={`fill-white text-[12px] font-black pointer-events-none transition-all ${isOver ? 'scale-125' : ''}`}
@@ -235,35 +234,46 @@ export default function DunbarRadar() {
     const [activeRing, setActiveRing] = useState<string | null>(null);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activeId, setActiveId] = useState<string | null>(null);
-    const [pendingPromotion, setPendingPromotion] = useState<string | null>(null);
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(TouchSensor, { activationConstraint: { distance: 5 } })
-    );
 
     // Real-time DB State
     const [socialGraph, setSocialGraph] = useState<Record<string, string>>({});
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
 
     useEffect(() => {
+        // First Load Sync Check
+        const hasRequestedSync = localStorage.getItem('sarafun_contact_sync_requested');
+        if (!hasRequestedSync) {
+            WebApp.showConfirm(
+                "Sync Contacts? \n\nSaraFun needs access to your contacts to help you build your trust network efficiently.",
+                (ok) => {
+                    if (ok) {
+                        WebApp.showAlert("Syncing... (Demo Mode: Contacts added to Shadow List)");
+                        // In real production, we would call a backend service here
+                    }
+                    localStorage.setItem('sarafun_contact_sync_requested', 'true');
+                }
+            );
+        }
+
         const userRef = doc(db, 'Users', currentUserUid);
         const unsubscribe = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 setSocialGraph(data.social_graph || {});
             } else {
+                // Dev mock
                 setSocialGraph({ 'john': 'Shadow', 'alex': 'Top5' });
             }
         });
+
         return () => unsubscribe();
     }, [currentUserUid]);
 
     const getRingCount = (ringId: string) => {
         return Object.values(socialGraph).filter((status) => status === ringId).length;
     };
+
+    const [activeId, setActiveId] = useState<string | null>(null);
 
     const handleDragStart = (event: any) => {
         setActiveId(event.active.id);
@@ -273,7 +283,6 @@ export default function DunbarRadar() {
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
         setActiveId(null);
-        setPendingPromotion(null);
 
         if (over && active.id) {
             const targetRing = over.id as CircleId;
@@ -282,10 +291,14 @@ export default function DunbarRadar() {
             const maxCount = over.data.current?.maxContent;
 
             if (currentCount < maxCount) {
+                // Perform DB Update
                 await updateSocialGraph(currentUserUid, uidDragged, targetRing);
+
+                // Dopamine Trigger: Notify Master if promoted to Top 5
                 if (targetRing === 'Top5') {
                     notifyGoldenFive(uidDragged, WebApp.initDataUnsafe?.user?.first_name || 'A user');
                 }
+
                 WebApp.HapticFeedback.notificationOccurred('success');
             } else {
                 WebApp.HapticFeedback.notificationOccurred('error');
@@ -295,14 +308,14 @@ export default function DunbarRadar() {
     };
 
     const handleCreateContact = async (data: any) => {
-        const id = data.name.toLowerCase().replace(/\s+/g, '_');
         const fakeUid = data.telegram ? data.telegram.replace('@', '') : `user_${Date.now()}`;
-
         await updateSocialGraph(currentUserUid, fakeUid, 'Shadow');
-        setPendingPromotion(fakeUid);
         setIsCreateModalOpen(false);
         WebApp.HapticFeedback.notificationOccurred('success');
+        WebApp.showAlert(`${data.name} added to Shadow List!`);
     };
+
+    const [searchQuery, setSearchQuery] = useState('');
 
     // ... (rest of the state)
 
@@ -331,48 +344,30 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[90px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
-                    <div className="relative w-full max-w-[500px]">
-                        <svg viewBox="0 0 400 240" className="w-full overflow-visible">
-                            {RINGS_CONFIG.map((ring) => {
-                                const isActive = activeRing === ring.id;
-                                const currentCount = getRingCount(ring.id);
+                <div className="absolute bottom-[20%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                    <svg viewBox="0 0 400 200" className="w-full max-w-[500px] overflow-visible">
+                        {RINGS_CONFIG.map((ring) => {
+                            const isActive = activeRing === ring.id;
+                            const currentCount = getRingCount(ring.id);
 
-                                return (
-                                    <DroppableArc
-                                        key={ring.id}
-                                        ring={ring}
-                                        currentCount={currentCount}
-                                        shouldAnimate={activeRing ? activeRing === ring.id : true}
-                                        isActive={isActive}
-                                        isDraggingAny={!!activeId}
-                                        onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
-                                    />
-                                );
-                            })}
-                        </svg>
-
-                        {/* Center "+" Button Overlay - Center aligned to contact block top edge */}
-                        <div
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 w-16 h-16 bg-teal-500 rounded-full border-[3px] border-[#1a1c1e] shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
-                        >
-                            <span className="text-black text-3xl font-black mb-1">+</span>
-                        </div>
-
-                        {/* Pending Promotion Overlay */}
-                        {pendingPromotion && (
-                            <div className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 z-[12] animate-vibrate pointer-events-none">
-                                <DraggableAvatar
-                                    uid={pendingPromotion}
-                                    status="Shadow"
+                            return (
+                                <DroppableArc
+                                    key={ring.id}
+                                    ring={ring}
+                                    currentCount={currentCount}
+                                    isActive={isActive}
+                                    isDraggingAny={!!activeId}
+                                    onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
                                 />
-                                <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-teal-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full whitespace-nowrap animate-bounce shadow-lg">
-                                    DRAG TO RING
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                            );
+                        })}
+
+                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group">
+                            <circle cx="200" cy="195" r="32" className="fill-tg-bg" />
+                            <circle cx="200" cy="195" r="28" className="fill-tg-primary" />
+                            <text x="200" y="195" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
+                        </g>
+                    </svg>
                 </div>
 
                 <CreateContactModal
