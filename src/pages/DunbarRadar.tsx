@@ -7,11 +7,11 @@ import { updateSocialGraph, CircleId } from '../services/userService';
 import { notifyGoldenFive } from '../services/RealTimeNotifications';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
-// Radar Rings Configuration - Wider spacing & specific pulse sequence
+// Radar Rings Configuration - Tight spacing
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 320, color: '#f43f5e', opacity: 0.25, delay: '0.8s' }, // Reddish-Rose (Overflows)
-    { id: '50', max: 50, radius: 240, color: '#0ea5e9', opacity: 0.35, delay: '0.6s' },  // Blue
-    { id: '15', max: 15, radius: 160, color: '#f5deb3', opacity: 0.45, delay: '0.4s' },   // Sand
+    { id: '150', max: 150, radius: 170, color: '#f43f5e', opacity: 0.25, delay: '0.8s' }, // Reddish-Rose
+    { id: '50', max: 50, radius: 140, color: '#0ea5e9', opacity: 0.35, delay: '0.6s' },  // Blue
+    { id: '15', max: 15, radius: 110, color: '#d4af37', opacity: 0.45, delay: '0.4s' },   // Gold (Rolled back)
     { id: 'Top5', max: 5, radius: 80, color: '#14b8a6', opacity: 0.65, delay: '0.2s' },    // Teal
 ];
 
@@ -30,7 +30,7 @@ function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, stat
     // determine styling based on ring status
     let statusStyle = 'bg-slate-800/40 border-slate-700/50 text-slate-400 grayscale';
     if (status === 'Top5') statusStyle = 'bg-teal-900/40 border-teal-500 text-teal-100 shadow-[0_2px_8px_rgba(20,184,166,0.3)]';
-    if (status === '15') statusStyle = 'bg-[#f5deb3]/20 border-[#f5deb3]/80 text-[#f5deb3]';
+    if (status === '15') statusStyle = 'bg-amber-900/20 border-[#d4af37]/80 text-[#d4af37]';
     if (status === '50') statusStyle = 'bg-blue-900/20 border-[#0ea5e9]/80 text-blue-100';
     if (status === '150') statusStyle = 'bg-amber-900/20 border-[#cd7f32]/80 text-amber-100';
 
@@ -316,32 +316,6 @@ export default function DunbarRadar() {
 
                 {/* Z-Index 1: The Dunbar Radar */}
                 <div className="absolute bottom-[30%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
-                    {/* Ring Stats Overlay - Positioned specifically left/right of arcs */}
-                    <div className="absolute inset-0 flex justify-between items-center px-4 pointer-events-none z-10">
-                        {/* Left Column: Top5 & 15 */}
-                        <div className="flex flex-col gap-6 text-[10px] font-black uppercase tracking-tighter">
-                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
-                                <span className="text-teal-500">Top 5</span>
-                                <span className="text-white text-base leading-none">{getRingCount('Top5')}</span>
-                            </div>
-                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
-                                <span className="text-[#f5deb3]">15 Group</span>
-                                <span className="text-white text-base leading-none">{getRingCount('15')}</span>
-                            </div>
-                        </div>
-                        {/* Right Column: 50 & 150 */}
-                        <div className="flex flex-col gap-6 text-[10px] font-black uppercase tracking-tighter text-right">
-                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
-                                <span className="text-[#0ea5e9]">50 Circle</span>
-                                <span className="text-white text-base leading-none">{getRingCount('50')}</span>
-                            </div>
-                            <div className="flex flex-col bg-black/20 backdrop-blur-sm p-2 rounded-lg border border-white/5">
-                                <span className="text-[#cd7f32]">150 World</span>
-                                <span className="text-white text-base leading-none">{getRingCount('150')}</span>
-                            </div>
-                        </div>
-                    </div>
-
                     <svg viewBox="0 0 400 200" className="w-full max-w-[500px] overflow-visible">
                         {RINGS_CONFIG.map((ring) => {
                             const isActive = activeRing === ring.id;
@@ -359,10 +333,10 @@ export default function DunbarRadar() {
                             );
                         })}
 
-                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group animate-radar-pulse" style={{ '--pulse-color': '#14b8a6', '--base-opacity': 1 } as any}>
+                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group">
                             <circle cx="200" cy="200" r="32" className="fill-tg-bg" />
-                            <circle cx="200" cy="200" r="28" className="fill-tg-primary shadow-lg transition-transform group-active:scale-90" />
-                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black transition-transform group-active:scale-90">+</text>
+                            <circle cx="200" cy="200" r="28" className="fill-tg-primary" />
+                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
                         </g>
                     </svg>
                 </div>

@@ -7,24 +7,16 @@ import ABCDChart from '../components/ABCDChart';
 import WebApp from '@twa-dev/sdk';
 
 const MapStyleDark = [
-    { "elementType": "geometry", "stylers": [{ "color": "#0B1118" }] },
+    { "elementType": "all", "stylers": [{ "color": "#0B1118" }] },
+    { "elementType": "labels", "stylers": [{ "visibility": "off" }] },
     { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-    { "elementType": "labels.text.fill", "stylers": [{ "color": "#757b82" }] },
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#0B1118" }] },
-    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#1F2937" }] },
-    { "featureType": "administrative.country", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca3af" }] },
+    { "featureType": "administrative", "stylers": [{ "visibility": "off" }] },
     { "featureType": "landscape", "stylers": [{ "color": "#0B1118" }] },
     { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
     { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1C252E" }] },
     { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#14b8a6", "weight": 1 }] },
     { "featureType": "transit", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] },
-    { "featureType": "poi.business", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "poi.medical", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "poi.park", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "poi.place_of_worship", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "poi.school", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "poi.sports_complex", "stylers": [{ "visibility": "off" }] }
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] }
 ];
 
 const MapStyleLight = [
@@ -146,7 +138,7 @@ export default function MapScreen() {
                         disableDefaultUI={true}
                         styles={isDarkMode ? MapStyleDark : MapStyleLight}
                         onCameraChanged={onCameraChanged}
-                        mapId={isDarkMode ? 'bf18563c7b399120' : 'light_map_id'}
+                    // Removed mapId to prioritize local styles property
                     >
                         {/* Current User Marker */}
                         {userLocation && (
