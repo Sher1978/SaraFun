@@ -215,7 +215,7 @@ export default function DunbarRadar() {
                         placeholder="Search semantic network..."
                         onFocus={() => setIsSearchActive(true)}
                         onBlur={() => setIsSearchActive(false)}
-                        className="w-full bg-tg-secondary/80 backdrop-blur-xl border border-tg-hint/30 text-tg-primary rounded-xl px-4 py-3 placeholder:text-tg-hint/60 outline-none shadow-lg"
+                        className="w-full bg-[#2a2d31] backdrop-blur-xl border border-white/10 text-white rounded-xl px-4 py-3 placeholder:text-slate-500 outline-none shadow-lg focus:border-teal-500/50 transition-colors"
                     />
                 </div>
 

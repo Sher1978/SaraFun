@@ -18,7 +18,7 @@ export default function Profile() {
 
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
     const referralLink = `https://t.me/sarafun_bot/app?startapp=${currentUserUid}`;
-    const qrData = `sarafun://user/${currentUserUid}`; // SaraFun QR spec
+    const qrData = referralLink; // User specifically asked for this bot link in handshake
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -71,107 +71,110 @@ export default function Profile() {
     };
 
     return (
-        <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-10 pb-24 space-y-6">
+        <div className="min-h-full bg-[#1a1c1e] text-[#f8fafc] px-4 pt-10 pb-24 space-y-6">
             {/* Header: Bio & Avatar */}
             <header className="flex flex-col items-center space-y-4">
                 <div
                     onClick={handleAvatarClick}
-                    className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-base font-bold border-4 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.3)] cursor-pointer active:scale-95 transition-transform select-none"
+                    className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-base font-bold border-4 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.2)] cursor-pointer active:scale-95 transition-transform select-none"
                 >
                     {WebApp.initDataUnsafe?.user?.last_name?.charAt(0) || WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
                 <div className="text-center">
-                    <h1 className="text-base font-black tracking-tight uppercase italic underline decoration-yellow-500 underline-offset-4">
+                    <h1 className="text-base font-black tracking-tight uppercase italic underline decoration-[#14b8a6] underline-offset-4 text-white">
                         {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
                     </h1>
-                    <p className="text-xs text-tg-hint mt-1 font-mono uppercase tracking-widest">
+                    <p className="text-xs text-slate-400 mt-1 font-mono uppercase tracking-widest">
                         Reputation: Elite
+                    </p>
+                    <p className="text-[10px] text-teal-500/80 font-mono mt-1 tracking-wider">
+                        UID: {currentUserUid}
                     </p>
                 </div>
             </header>
 
             {/* Wallet Block */}
-            <section className="bg-gradient-to-br from-tg-secondary to-tg-main border border-tg-hint/10 rounded-xl p-3 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 blur-3xl rounded-full" />
+            <section className="glass-photo p-4 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 blur-3xl rounded-full" />
 
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <div className="text-[10px] uppercase font-black text-tg-hint tracking-[0.2em] mb-1 flex items-center">
+                        <div className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-1 flex items-center">
                             Total Assets
                             <InfoTooltip text="Your available balance of ⭐️ used for platform payments." />
                         </div>
-                        <div className="text-base font-black text-tg-primary flex items-center gap-2">
-                            {stats.stars.toLocaleString()} <span className="text-yellow-500">⭐</span>
+                        <div className="text-xl font-black text-white flex items-center gap-2">
+                            {stats.stars.toLocaleString()} <span className="text-[#d4af37]">⭐</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 border-t border-tg-hint/10 pt-3">
+                <div className="grid grid-cols-2 gap-3 border-t border-white/5 pt-4">
                     <div>
-                        <div className="text-[10px] uppercase font-black text-tg-hint">Value in Ton</div>
-                        <div className="text-base font-bold">{stats.ton.toFixed(2)} TON</div>
+                        <div className="text-[10px] uppercase font-black text-slate-400">Value in Ton</div>
+                        <div className="text-base font-bold text-white tracking-widest">{stats.ton.toFixed(2)} TON</div>
                     </div>
                     <div className="text-right">
-                        <div className="text-[10px] uppercase font-black text-tg-hint flex items-center justify-end">
+                        <div className="text-[10px] uppercase font-black text-slate-400 flex items-center justify-end">
                             Oracle Rate
                             <InfoTooltip text="Platform's internal exchange rate pegged to TON/USD." />
                         </div>
-                        <div className="text-xs font-mono opacity-80">50 ⭐️ / $1</div>
+                        <div className="text-[11px] font-mono text-[#14b8a6]">50 ⭐️ / $1</div>
                     </div>
                 </div>
             </section>
 
-            {/* Main Action Buttons: QR & Business */}
             <div className="grid grid-cols-2 gap-3">
                 <button
                     onClick={() => setShowQRModal(true)}
-                    className="h-12 bg-tg-button text-tg-button-text rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
+                    className="h-12 bg-[#14b8a6] text-white rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#14b8a6]/20 active:scale-[0.98] transition-transform"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
                     My QR Code
                 </button>
                 <button
                     onClick={() => navigate(isMaster ? '/dashboard' : '/business-landing')}
-                    className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-transform"
+                    className="h-12 bg-white/5 border border-white/10 text-white rounded-xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-white/10 transition-transform"
                 >
-                    <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <svg className="w-5 h-5 text-[#14b8a6]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                     {isMaster ? 'Dashboard' : 'Start Biz'}
                 </button>
             </div>
-
-            {/* Referral prominent block */}
-            <section className="bg-tg-secondary/20 p-3 rounded-xl border border-tg-hint/10 flex flex-col items-center">
-                <span className="text-xs uppercase font-bold text-tg-hint tracking-widest mb-2">Invite Friends, Earn 1%</span>
-                <button
-                    onClick={handleCopyLink}
-                    className="w-full h-12 bg-white/5 text-tg-primary rounded-xl font-mono text-xs border border-white/10 flex items-center justify-between px-4 active:bg-white/10"
-                >
-                    <span className="truncate mr-4 opacity-80">{referralLink}</span>
-                    <svg className="w-5 h-5 flex-shrink-0 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                </button>
-            </section>
-
-            {/* List Menu */}
-            <section className="space-y-2">
-                {[
-                    { label: 'Referral Empire', path: '/referrals', icon: '🎁' },
-                    { label: 'Community Rules', path: '/rules', icon: '📜' },
-                    { label: 'System Settings', path: '#', icon: '⚙️', action: () => WebApp.showAlert("System Settings coming soon.") },
-                ].map((item) => (
+            {/* Lower Actions & Menu */}
+            <div className="grid grid-cols-1 gap-4">
+                {/* Referral prominent block */}
+                <section className="bg-white/5 p-4 rounded-2xl border border-white/10 flex flex-col items-center">
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-[0.2em] mb-3">Invite Friends, Earn 1%</span>
                     <button
-                        key={item.label}
-                        onClick={() => item.action ? item.action() : navigate(item.path)}
-                        className="w-full h-12 bg-tg-secondary/30 border border-tg-hint/10 rounded-xl px-4 flex items-center justify-between active:bg-tg-secondary/50 transition-colors"
+                        onClick={handleCopyLink}
+                        className="w-full h-12 bg-white/5 text-white rounded-xl font-mono text-[11px] border border-white/5 flex items-center justify-between px-4 active:bg-white/10 transition-colors"
                     >
-                        <div className="flex items-center gap-3">
-                            <span className="text-base">{item.icon}</span>
-                            <span className="text-sm font-bold uppercase tracking-wide">{item.label}</span>
-                        </div>
-                        <span className="text-tg-hint">→</span>
+                        <span className="truncate mr-4 opacity-60">{referralLink}</span>
+                        <svg className="w-5 h-5 flex-shrink-0 text-[#14b8a6]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                     </button>
-                ))}
-            </section>
+                </section>
 
+                {/* List Menu */}
+                <section className="space-y-2">
+                    {[
+                        { label: 'Referral Empire', path: '/referrals', icon: '🎁' },
+                        { label: 'Community Rules', path: '/rules', icon: '📜' },
+                        { label: 'System Settings', path: '#', icon: '⚙️', action: () => WebApp.showAlert("System Settings coming soon.") },
+                    ].map((item) => (
+                        <button
+                            key={item.label}
+                            onClick={() => item.action ? item.action() : navigate(item.path)}
+                            className="w-full h-14 bg-white/5 border border-white/5 rounded-2xl px-5 flex items-center justify-between active:bg-white/10 transition-all active:scale-[0.99]"
+                        >
+                            <div className="flex items-center gap-4">
+                                <span className="text-xl">{item.icon}</span>
+                                <span className="text-xs font-black uppercase tracking-widest text-white">{item.label}</span>
+                            </div>
+                            <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        </button>
+                    ))}
+                </section>
+            </div>
             {/* Admin Audit Tool (Dev Only) */}
             {currentUserUid === '8524844089' && (
                 <button

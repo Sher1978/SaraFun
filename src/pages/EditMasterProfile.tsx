@@ -99,18 +99,24 @@ export default function EditMasterProfile() {
     }, [imageSrc, croppedAreaPixels]);
 
     const handleSave = async () => {
-        setLoading(true);
-        WebApp.HapticFeedback.impactOccurred('medium');
-        await updateMasterProfile(uid, {
-            business_name: name,
-            bio,
-            category,
-            hourly_rate: rate,
-            photo_url: photoDataUrl || ''
-        });
-        setLoading(false);
-        WebApp.showAlert(t('save') + "!");
-        navigate(-1);
+        try {
+            setLoading(true);
+            WebApp.HapticFeedback.impactOccurred('medium');
+            await updateMasterProfile(uid, {
+                business_name: name,
+                bio,
+                category,
+                hourly_rate: rate,
+                photo_url: photoDataUrl || ''
+            });
+            WebApp.showAlert(t('save') + "!");
+            navigate(-1);
+        } catch (err: any) {
+            console.error("Save error:", err);
+            WebApp.showAlert("Failed to save: " + (err.message || "Unknown error"));
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (

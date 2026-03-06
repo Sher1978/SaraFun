@@ -16,9 +16,15 @@ const MapStyleDark = [
     { "featureType": "landscape", "stylers": [{ "color": "#0B1118" }] },
     { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
     { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1C252E" }] },
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#0d9488", "weight": 1 }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#14b8a6", "weight": 1 }] },
     { "featureType": "transit", "stylers": [{ "visibility": "off" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] }
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] },
+    { "featureType": "poi.business", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "poi.medical", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "poi.park", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "poi.place_of_worship", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "poi.school", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "poi.sports_complex", "stylers": [{ "visibility": "off" }] }
 ];
 
 const MapStyleLight = [
@@ -121,9 +127,9 @@ export default function MapScreen() {
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold shadow-md transition-colors snap-start backdrop-blur-md ${activeCategory === cat
-                                ? 'bg-teal-500 text-white'
-                                : 'bg-tg-secondary/70 border border-tg-hint/20 text-tg-primary'
+                            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-black shadow-lg transition-all snap-start backdrop-blur-md border ${activeCategory === cat
+                                ? 'bg-teal-500 text-white border-teal-400'
+                                : 'bg-[#2a2d31]/80 border-white/10 text-slate-300 hover:text-white hover:bg-[#32363b]'
                                 }`}
                         >
                             {cat}
@@ -146,9 +152,9 @@ export default function MapScreen() {
                         {userLocation && (
                             <AdvancedMarker position={userLocation}>
                                 <div className="relative flex items-center justify-center">
-                                    <div className="absolute w-12 h-12 bg-teal-500/20 rounded-full animate-ping" />
-                                    <div className="absolute w-6 h-6 bg-teal-500/40 rounded-full animate-pulse blur-sm" />
-                                    <div className="w-3 h-3 bg-teal-400 rounded-full border-2 border-white shadow-lg" />
+                                    <div className="absolute w-24 h-24 bg-teal-500/20 rounded-full animate-ping" />
+                                    <div className="absolute w-12 h-12 bg-teal-500/40 rounded-full animate-pulse blur-md" />
+                                    <div className="w-6 h-6 bg-teal-400 rounded-full border-4 border-white shadow-2xl" />
                                 </div>
                             </AdvancedMarker>
                         )}
