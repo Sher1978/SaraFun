@@ -3,13 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import WebApp from '@twa-dev/sdk';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { ReferralService } from '../services/ReferralService';
+import { QRCodeSVG } from 'qrcode.react';
 import { runStressTestSeed } from '../services/AdminStressTestSeed';
+import { ReferralService } from '../services/ReferralService';
 
 export default function Profile() {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ stars: 0, ton: 0 });
+    const [isMaster, setIsMaster] = useState(false);
+    const [showQRModal, setShowQRModal] = useState(false);
+
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
+    const referralLink = `https://t.me/sarafun_bot/app?startapp=${currentUserUid}`;
+    const qrData = `sarafun://user/${currentUserUid}`; // SaraFun QR spec
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -22,19 +28,28 @@ export default function Profile() {
                         stars: data.stars_balance || 0,
                         ton: (data.stars_balance || 0) / 50 // Bible: 50 Stars = 1 USD/TON
                     });
+                    setIsMaster(data.is_master || false);
                 }
             } catch (err) {
-                setStats({ stars: 14500, ton: 290 });
+                console.error("Failed to load user data:", err);
+                // We don't set mock 14500 anymore.
+                setStats({ stars: 0, ton: 0 });
             }
         };
         fetchUser();
     }, [currentUserUid]);
 
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(referralLink);
+        WebApp.HapticFeedback.notificationOccurred('success');
+        WebApp.showAlert('Referral link copied to clipboard!');
+    };
+
     return (
-        <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-10 pb-24 space-y-8">
-            {/* 1. Header: Bio & Avatar */}
+        <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-10 pb-24 space-y-6">
+            {/* Header: Bio & Avatar */}
             <header className="flex flex-col items-center space-y-4">
-                <div className="w-24 h-24 bg-tg-secondary rounded-full flex items-center justify-center text-3xl font-bold border-4 border-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.3)]">
+                <div className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-3xl font-bold border-4 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                     {WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
                 <div className="text-center">
@@ -42,28 +57,28 @@ export default function Profile() {
                         {WebApp.initDataUnsafe?.user?.first_name || 'SaraFun User'}
                     </h1>
                     <p className="text-xs text-tg-hint mt-1 font-mono uppercase tracking-widest">
-                        Reputation: Elite Master
+                        Reputation: Elite
                     </p>
                 </div>
             </header>
 
-            {/* 2. Wallet Block (Stars/TON) */}
-            <section className="bg-gradient-to-br from-tg-secondary to-tg-main border border-tg-hint/10 rounded-[32px] p-6 shadow-xl relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 blur-3xl rounded-full group-hover:bg-yellow-500/10 transition-colors" />
+            {/* Wallet Block */}
+            <section className="bg-gradient-to-br from-tg-secondary to-tg-main border border-tg-hint/10 rounded-3xl p-5 shadow-xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 blur-3xl rounded-full" />
 
-                <div className="flex justify-between items-start mb-6">
+                <div className="flex justify-between items-start mb-4">
                     <div>
                         <div className="text-[10px] uppercase font-black text-tg-hint tracking-[0.2em] mb-1">Total Assets</div>
-                        <div className="text-4xl font-black text-tg-primary flex items-center gap-2">
+                        <div className="text-3xl font-black text-tg-primary flex items-center gap-2">
                             {stats.stars.toLocaleString()} <span className="text-yellow-500">⭐</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t border-tg-hint/10 pt-4">
+                <div className="grid grid-cols-2 gap-4 border-t border-tg-hint/10 pt-3">
                     <div>
                         <div className="text-[10px] uppercase font-black text-tg-hint">Value in Ton</div>
-                        <div className="text-xl font-bold">{stats.ton.toFixed(2)} TON</div>
+                        <div className="text-lg font-bold">{stats.ton.toFixed(2)} TON</div>
                     </div>
                     <div className="text-right">
                         <div className="text-[10px] uppercase font-black text-tg-hint">Oracle Rate</div>
@@ -72,31 +87,51 @@ export default function Profile() {
                 </div>
             </section>
 
-            {/* 3. My QR Code (Digital Handshake) */}
-            <button
-                onClick={() => WebApp.showPopup({ title: 'My Handshake', message: 'Show this QR to establish a social deal session.' })}
-                className="w-full h-12 bg-tg-button text-tg-button-text rounded-2xl font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-lg active:scale-95 transition-transform"
-            >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
-                My QR Code
-            </button>
+            {/* Main Action Buttons: QR & Business */}
+            <div className="grid grid-cols-2 gap-3">
+                <button
+                    onClick={() => setShowQRModal(true)}
+                    className="h-12 bg-tg-button text-tg-button-text rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-transform"
+                >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>
+                    My QR Code
+                </button>
+                <button
+                    onClick={() => navigate(isMaster ? '/dashboard' : '/edit-master')}
+                    className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-2xl font-black uppercase text-[11px] tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-transform"
+                >
+                    <svg className="w-5 h-5 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    {isMaster ? 'Dashboard' : 'Start Biz'}
+                </button>
+            </div>
 
-            {/* 4. List Menu */}
-            <section className="space-y-3">
+            {/* Referral prominent block */}
+            <section className="bg-tg-secondary/20 p-4 rounded-2xl border border-tg-hint/10 flex flex-col items-center">
+                <span className="text-xs uppercase font-bold text-tg-hint tracking-widest mb-2">Invite Friends, Earn 1%</span>
+                <button
+                    onClick={handleCopyLink}
+                    className="w-full h-12 bg-white/5 text-tg-primary rounded-xl font-mono text-xs border border-white/10 flex items-center justify-between px-4 active:bg-white/10"
+                >
+                    <span className="truncate mr-4 opacity-80">{referralLink}</span>
+                    <svg className="w-5 h-5 flex-shrink-0 text-teal-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                </button>
+            </section>
+
+            {/* List Menu */}
+            <section className="space-y-2">
                 {[
                     { label: 'Referral Empire', path: '/referrals', icon: '🎁' },
-                    { label: 'Arbitration Center', path: '/master_dashboard', icon: '⚖️' }, // Using dash for logic for now
                     { label: 'Community Rules', path: '/rules', icon: '📜' },
-                    { label: 'System Settings', path: '#', icon: '⚙️' },
+                    { label: 'System Settings', path: '#', icon: '⚙️', action: () => WebApp.showAlert("System Settings coming soon.") },
                 ].map((item) => (
                     <button
                         key={item.label}
-                        onClick={() => item.path !== '#' && navigate(item.path)}
-                        className="w-full h-12 bg-tg-secondary/30 border border-tg-hint/10 rounded-xl px-4 flex items-center justify-between active:bg-tg-secondary/50 transition-colors"
+                        onClick={() => item.action ? item.action() : navigate(item.path)}
+                        className="w-full h-14 bg-tg-secondary/30 border border-tg-hint/10 rounded-xl px-4 flex items-center justify-between active:bg-tg-secondary/50 transition-colors"
                     >
-                        <div className="flex items-center gap-3">
-                            <span className="text-lg">{item.icon}</span>
-                            <span className="text-sm font-bold uppercase tracking-tight">{item.label}</span>
+                        <div className="flex items-center gap-4">
+                            <span className="text-xl">{item.icon}</span>
+                            <span className="text-sm font-bold uppercase tracking-wide">{item.label}</span>
                         </div>
                         <span className="text-tg-hint">→</span>
                     </button>
@@ -110,10 +145,27 @@ export default function Profile() {
                         await runStressTestSeed();
                         WebApp.showPopup({ title: 'Engine Primed', message: 'Stress-test data injected. Audit mode active.' });
                     }}
-                    className="w-full h-10 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors"
+                    className="w-full h-10 border border-yellow-500/30 text-yellow-500/50 text-[10px] font-black uppercase tracking-[0.3em] rounded-xl active:bg-yellow-500/10 transition-colors mt-8"
                 >
                     System Stress-Test Seeding
                 </button>
+            )}
+
+            {/* QR Modal */}
+            {showQRModal && (
+                <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-6 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
+                    <div className="bg-white p-8 rounded-3xl shadow-2xl flex flex-col items-center" onClick={e => e.stopPropagation()}>
+                        <h2 className="text-xl font-black text-black mb-6 uppercase tracking-wider">Digital Handshake</h2>
+                        <QRCodeSVG value={qrData} size={250} level={"H"} fgColor={"#000000"} bgColor={"#ffffff"} />
+                        <p className="mt-6 text-xs text-gray-500 font-mono tracking-widest uppercase">ID: {currentUserUid}</p>
+                        <button
+                            onClick={() => setShowQRModal(false)}
+                            className="mt-8 px-8 py-3 bg-gray-200 text-black rounded-xl font-bold uppercase tracking-widest text-sm active:bg-gray-300 transition-colors"
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
             )}
         </div>
     );

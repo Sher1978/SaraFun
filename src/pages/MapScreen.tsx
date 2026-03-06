@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import TrustMarker, { TrustMarkerProps } from '../components/TrustMarker';
 import ABCDChart from '../components/ABCDChart';
+import WebApp from '@twa-dev/sdk';
 
 const MapStyleDark = [
     { "elementType": "geometry", "stylers": [{ "color": "#0B1118" }] },
@@ -47,9 +48,13 @@ export default function MapScreen() {
     const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
-        // Detect theme from Telegram WebApp
-        const theme = (window as any).Telegram?.WebApp?.colorScheme || 'light';
-        setIsDarkMode(theme === 'dark');
+        // Detect theme from Telegram WebApp dynamically
+        const updateTheme = () => {
+            const theme = WebApp.colorScheme || 'light';
+            setIsDarkMode(theme === 'dark');
+        };
+        updateTheme();
+        WebApp.onEvent('themeChanged', updateTheme);
 
         // Geolocation
         if ("geolocation" in navigator) {
@@ -62,6 +67,10 @@ export default function MapScreen() {
                 setUserLocation(loc);
             });
         }
+
+        return () => {
+            WebApp.offEvent('themeChanged', updateTheme);
+        };
     }, []);
 
     useEffect(() => {
@@ -82,8 +91,12 @@ export default function MapScreen() {
         ? masters
         : masters.filter(m => m.master_profile?.category === activeCategory);
 
+    const [zoom, setZoom] = useState(14); // Increased default zoom level for a more local view
+
     const onCameraChanged = (ev: MapCameraChangedEvent) => {
         setBounds(ev.detail.bounds);
+        setCenter(ev.detail.center); // Update center state so it doesn't snap back
+        setZoom(ev.detail.zoom);     // Keep track of zoom level
     };
 
     const isInside = (lat: number, lng: number) => {
@@ -121,9 +134,8 @@ export default function MapScreen() {
                 {/* Map Layer */}
                 <div className="flex-1 w-full h-full">
                     <Map
-                        defaultCenter={center}
                         center={center}
-                        defaultZoom={13}
+                        zoom={zoom}
                         gestureHandling={'greedy'}
                         disableDefaultUI={true}
                         styles={isDarkMode ? MapStyleDark : MapStyleLight}

@@ -2,17 +2,28 @@ import React, { useState, useEffect } from 'react';
 import WebApp from '@twa-dev/sdk';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ReferralService } from '../services/ReferralService';
+import { useNavigate } from 'react-router-dom';
 
 export default function ReferralDashboard() {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({ totalInvited: 0, starsEarned: 0 });
+    const [invitedBy, setInvitedBy] = useState<{ uid: string, name: string } | null>(null);
+    const [invitees, setInvitees] = useState<{ uid: string, name: string, joinedAt: any }[]>([]);
     const [copyFeedback, setCopyFeedback] = useState(false);
-    const user = WebApp.initDataUnsafe?.user;
-    const inviteLink = ReferralService.generateInviteLink(user?.id?.toString() || 'dev_user');
+
+    // Fallback ID to test easily in browser if user isn't available
+    const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user';
+    const inviteLink = ReferralService.generateInviteLink(currentUserUid);
 
     useEffect(() => {
-        // Mock fetching referral stats
-        setStats({ totalInvited: 12, starsEarned: 1250 });
-    }, []);
+        const fetchStats = async () => {
+            const data = await ReferralService.getReferralStats(currentUserUid);
+            setStats({ totalInvited: data.totalInvited, starsEarned: Number(data.starsEarned) || 0 });
+            setInvitedBy(data.invitedBy);
+            setInvitees(data.invitees);
+        };
+        fetchStats();
+    }, [currentUserUid]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(inviteLink);
@@ -23,10 +34,24 @@ export default function ReferralDashboard() {
 
     return (
         <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-6 pb-24 space-y-8">
-            <header className="text-center space-y-2">
-                <h1 className="text-3xl font-black tracking-tighter uppercase italic">Referral Empire</h1>
+            <header className="relative text-center space-y-2">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute left-0 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
+                >
+                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 className="text-3xl font-black tracking-tighter uppercase italic pt-1">Referral Empire</h1>
                 <p className="text-tg-hint text-sm">Scale your network. Earn together.</p>
             </header>
+
+            {/* Invited By Banner */}
+            {invitedBy && (
+                <div className="bg-teal-500/10 border border-teal-500/20 rounded-2xl p-3 flex items-center justify-center gap-2 text-sm font-medium">
+                    <span className="text-teal-500 font-bold uppercase tracking-widest text-[10px]">Invited By:</span>
+                    <span className="text-tg-primary">{invitedBy.name}</span>
+                </div>
+            )}
 
             {/* Stats Cards */}
             <section className="grid grid-cols-2 gap-4">
@@ -74,18 +99,33 @@ export default function ReferralDashboard() {
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 blur-3xl rounded-full" />
             </section>
 
+            {/* Invitees List */}
+            {invitees.length > 0 && (
+                <section className="space-y-3 px-2">
+                    <h3 className="text-sm font-black uppercase text-tg-hint tracking-widest leading-none">Your Network Level 1</h3>
+                    <div className="space-y-2">
+                        {invitees.map((invitee, idx) => (
+                            <div key={idx} className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3 flex justify-between items-center">
+                                <span className="font-semibold text-sm">{invitee.name}</span>
+                                <span className="text-xs text-teal-500 font-bold bg-teal-500/10 px-2 py-0.5 rounded-full">Active</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {/* Rules/Info */}
             <section className="space-y-4 px-2">
-                <h3 className="text-sm font-black uppercase text-tg-hint tracking-widest leading-none">The Bonus Protocol</h3>
+                <h3 className="text-sm font-black uppercase text-tg-hint tracking-widest leading-none">The Network Protocol</h3>
                 <div className="space-y-3">
                     {[
-                        "Earn 1% of every transaction in your 3-level network.",
-                        "Building a web of trust increases your Reputation.",
-                        "Direct rewards credited instantly to your Stars balance."
+                        "Earn a % from transactions in your 3-level network (1% default).",
+                        "Building a web of trust increases your Dunbar Reputation.",
+                        "Rewards flow via smart contracts instantly to your balance."
                     ].map((text, i) => (
-                        <div key={i} className="flex items-center gap-3 text-sm opacity-80">
-                            <span className="w-1.5 h-1.5 bg-teal-500 rounded-full flex-shrink-0" />
-                            <p>{text}</p>
+                        <div key={i} className="flex items-start gap-3 text-sm opacity-80">
+                            <span className="w-1.5 h-1.5 bg-teal-500 rounded-full flex-shrink-0 mt-1.5" />
+                            <p className="leading-tight">{text}</p>
                         </div>
                     ))}
                 </div>

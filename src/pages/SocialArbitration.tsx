@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import WebApp from '@twa-dev/sdk';
 import { ArbitrationService } from '../services/ArbitrationService';
 
-export default function SocialArbitration({ masterUid, reviewId, reviewText }: { masterUid: string, reviewId: string, reviewText: string }) {
+export default function SocialArbitration() {
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Read from route state or use defaults
+    const state = location.state || {};
+    const masterUid = state.masterUid || 'unknown';
+    const reviewId = state.reviewId || 'unknown';
+    const reviewText = state.reviewText || 'MOCK REVIEW FOR DISPUTE';
+
     const [evidence, setEvidence] = useState('');
     const [response, setResponse] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);

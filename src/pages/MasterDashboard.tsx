@@ -41,10 +41,10 @@ export default function MasterDashboard() {
                 if (userSnap.exists()) {
                     const data = userSnap.data();
                     setStats({
-                        views: data.masters?.views_count || 342,
-                        leads: 14,
-                        top5Connections: 24, // High Trust Index
-                        totalStars: data.stars_balance || 14500
+                        views: data.views || 0,
+                        leads: data.leads || 0,
+                        top5Connections: data.top5Connections || 0, // High Trust Index
+                        totalStars: data.stars_balance || 0
                     });
                 }
 
@@ -52,7 +52,7 @@ export default function MasterDashboard() {
                 setHistory(txs as Transaction[]);
             } catch (err) {
                 console.warn("DB read skipped in MVP");
-                setStats({ views: 342, leads: 14, top5Connections: 24, totalStars: 14500 });
+                setStats({ views: 0, leads: 0, top5Connections: 0, totalStars: 0 });
             }
         };
         fetchMasterData();
@@ -122,7 +122,13 @@ export default function MasterDashboard() {
                 </div>
             )}
 
-            <header className="flex justify-between items-center mb-6">
+            <header className="relative flex justify-between items-center mb-6 pt-2 pl-8">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
+                >
+                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight">Master Console</h1>
                     <p className="text-tg-hint text-sm">Your business commands.</p>

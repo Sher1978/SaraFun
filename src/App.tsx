@@ -72,6 +72,7 @@ export default function App() {
                         <Route path="master/:uid" element={<MasterProfile />} />
                         <Route path="referrals" element={<ReferralDashboard />} />
                         <Route path="admin" element={<SherlockAdminConsole />} />
+                        <Route path="arbitration" element={<SocialArbitration />} />
                         <Route path="edit-master" element={<EditMasterProfile />} />
                         <Route path="rules" element={<RulesScreen />} />
                         <Route path="*" element={<Navigate to="/discovery" replace />} />

@@ -1,15 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ABCDChart from '../components/ABCDChart';
+import WebApp from '@twa-dev/sdk';
 
 // MOCK DATA matching Discovery
 const MASTER_DB = {
     'master_1': {
         name: 'Alex Minov',
+        category: 'Auto Detailer',
         bio: 'Professional Car Detailer. Ceramic coatings, interior deep cleaning, and paint correction.',
-        rating: 4.88,
+        ratingGlobal: 4.88,
+        ratingDunbar: 4.95,
         reviewsCount: 124,
         abcd: { a: 4.8, b: 3.5, c: 5.0, d: 4.2 },
+        services: [
+            { id: 1, name: 'Premium Wash', price: '$50', time: '1h' },
+            { id: 2, name: 'Ceramic Coating', price: '$350', time: '4h' },
+            { id: 3, name: 'Interior Detail', price: '$120', time: '2h' },
+            { id: 4, name: 'Engine Bay Wash', price: '$60', time: '1h' },
+            { id: 5, name: 'Headlight Restoration', price: '$65', time: '45m' }
+        ],
         trustedReviews: [
             { id: 1, author: 'Ivan D.', text: 'Best service in town! Highly recommend.', circle: 'Top5' },
             { id: 2, author: 'Maria K.', text: 'Very detailed and fast.', circle: '15' }
@@ -20,93 +30,154 @@ const MASTER_DB = {
 export default function MasterProfile() {
     const { uid } = useParams();
     const navigate = useNavigate();
+    const [isFavorite, setIsFavorite] = useState(false);
 
     // Load master data or fallback
     const master = MASTER_DB[uid as keyof typeof MASTER_DB] || {
         name: 'Unknown Master',
+        category: 'Service Provider',
         bio: 'No data available.',
-        rating: 0,
+        ratingGlobal: 0,
+        ratingDunbar: 0,
         reviewsCount: 0,
         abcd: { a: 0, b: 0, c: 0, d: 0 },
+        services: [],
         trustedReviews: []
+    };
+
+    const handleAction = (msg: string) => {
+        WebApp.HapticFeedback.impactOccurred('medium');
+        WebApp.showAlert(msg);
     };
 
     return (
         <div className="min-h-full bg-tg-main text-tg-primary pb-28">
-            {/* Back Header Nav */}
-            <div className="sticky top-0 z-10 bg-tg-main/80 backdrop-blur-xl border-b border-tg-hint/10 flex items-center justify-between p-4">
-                <button onClick={() => navigate(-1)} className="text-tg-button font-medium flex items-center gap-1 group">
-                    <svg className="w-5 h-5 transition-transform group-active:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                    Back
+            {/* Header Nav */}
+            <div className="sticky top-0 z-50 bg-tg-main/80 backdrop-blur-xl border-b border-tg-hint/10 flex items-center justify-between p-4">
+                <button onClick={() => navigate(-1)} className="text-tg-hint active:text-tg-primary transition-colors p-1">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <span className="font-semibold">{master.name}</span>
-                <div className="w-16" /> {/* Spacer */}
+                <span className="font-bold text-sm tracking-widest uppercase">{master.category}</span>
+                <button onClick={() => { setIsFavorite(!isFavorite); WebApp.HapticFeedback.impactOccurred('light'); }} className={`p-1 transition-colors ${isFavorite ? 'text-red-500' : 'text-tg-hint'}`}>
+                    <svg className="w-6 h-6" fill={isFavorite ? 'currentColor' : 'none'} viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                </button>
             </div>
 
-            <div className="p-4 space-y-6">
+            <div className="px-5 pt-4 space-y-6">
 
-                {/* Core Profile Info */}
-                <div className="flex flex-col items-center justify-center pt-4">
-                    <div className="relative">
-                        {/* Massive ABCD Chart background */}
-                        <div className="absolute inset-0 flex items-center justify-center opacity-30 blur-2xl z-0 scale-150">
-                            <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={150} />
+                {/* Hero / Identity Box */}
+                <div className="bg-tg-secondary/40 border border-tg-hint/10 rounded-3xl p-5 relative overflow-hidden backdrop-blur-sm">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/10 blur-3xl rounded-full" />
+
+                    <div className="flex gap-4 items-center">
+                        <div className="relative">
+                            <div className="w-20 h-20 rounded-2xl bg-teal-500/20 text-teal-500 flex items-center justify-center font-black text-2xl shadow-inner border border-teal-500/20 z-10 relative">
+                                {master.name.charAt(0)}
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 bg-var(--tg-theme-button-color, #2481cc) rounded-lg p-1 border border-tg-main text-white shadow-sm z-20">
+                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                            </div>
                         </div>
-                        {/* Avatar inside */}
-                        <div className="w-24 h-24 rounded-full bg-teal-500/20 text-teal-600 flex items-center justify-center font-bold text-3xl shadow-lg border-2 border-tg-main relative z-10">
-                            {master.name.charAt(0)}
-                        </div>
-                        {/* Trusted Badge overlaid on avatar */}
-                        <div className="absolute -bottom-2 -right-2 bg-var(--tg-theme-button-color, #2481cc) rounded-full p-1.5 border-2 border-tg-main text-white shadow-sm z-20">
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                        </div>
-                    </div>
 
-                    <h1 className="text-2xl font-bold mt-4">{master.name}</h1>
-                    <p className="text-center text-tg-hint mt-2 text-sm leading-relaxed px-4">{master.bio}</p>
-                </div>
-
-                {/* Global Stats bar */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-4 flex flex-col items-center justify-center backdrop-blur-md">
-                        <span className="text-3xl font-extrabold text-teal-600">★ {master.rating}</span>
-                        <span className="text-xs text-tg-hint mt-1 uppercase tracking-wider font-semibold">Dunbar Score</span>
-                    </div>
-
-                    <div className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-4 flex items-center justify-center backdrop-blur-md">
-                        {/* Explicitly large ABCD radar for analytics view */}
-                        <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={70} />
-                    </div>
-                </div>
-
-                {/* Trusted Reviews Section */}
-                <div className="mt-8">
-                    <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                        Trusted Network Reviews
-                        <span className="bg-teal-500/20 text-teal-600 text-[10px] px-2 py-0.5 rounded-full uppercase font-bold tracking-widest">
-                            VERIFIED
-                        </span>
-                    </h3>
-
-                    <div className="space-y-3">
-                        {master.trustedReviews.map(r => (
-                            <div key={r.id} className="bg-tg-secondary border border-tg-hint/10 rounded-xl p-4">
-                                <div className="flex items-center justify-between mb-2">
-                                    <div className="font-semibold text-sm">{r.author}</div>
-                                    {/* Blue Check or Ring Badge */}
-                                    <span className={`text-[10px] font-bold px-2 py-1 rounded-md border ${r.circle === 'Top5' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/30' : 'bg-teal-500/10 text-teal-600 border-teal-500/30'
-                                        }`}>
-                                        {r.circle === 'Top5' ? '★ Top 5 Friend' : 'Network Friend'}
-                                    </span>
+                        <div className="flex-1">
+                            <h1 className="text-xl font-black leading-tight">{master.name}</h1>
+                            {/* Premium Double Circle Rating */}
+                            <div className="flex items-center gap-3 mt-2">
+                                <div className="flex items-center gap-1.5">
+                                    <div className="relative w-8 h-8 flex items-center justify-center">
+                                        <svg className="absolute inset-0 w-8 h-8 transform -rotate-90">
+                                            <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" className="text-tg-hint/20" />
+                                            <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="88" strokeDashoffset={`${88 - (88 * master.ratingDunbar / 5)}`} className="text-teal-500" />
+                                        </svg>
+                                        <span className="text-[10px] font-black">{master.ratingDunbar.toFixed(1)}</span>
+                                    </div>
+                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight">Dunbar<br />Trust</span>
                                 </div>
-                                <p className="text-sm text-tg-hint">{r.text}</p>
+                                <div className="h-6 w-px bg-tg-hint/20" />
+                                <div className="flex items-center gap-1.5">
+                                    <div className="relative w-7 h-7 flex items-center justify-center">
+                                        <svg className="absolute inset-0 w-7 h-7 transform -rotate-90">
+                                            <circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-tg-hint/20" />
+                                            <circle cx="14" cy="14" r="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="75" strokeDashoffset={`${75 - (75 * master.ratingGlobal / 5)}`} className="text-yellow-500" />
+                                        </svg>
+                                        <span className="text-[9px] font-black">{master.ratingGlobal.toFixed(1)}</span>
+                                    </div>
+                                    <span className="text-[9px] uppercase font-bold text-tg-hint tracking-widest leading-tight">Global<br />Rank</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p className="mt-4 text-[13px] text-tg-hint leading-relaxed font-medium">
+                        {master.bio}
+                    </p>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 gap-3">
+                    <button
+                        onClick={() => handleAction('Review Flow Opening...')}
+                        className="h-11 bg-tg-secondary border border-tg-hint/10 rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 active:bg-tg-secondary/70 transition-colors"
+                    >
+                        <svg className="w-4 h-4 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>
+                        Review
+                    </button>
+                    <button
+                        onClick={() => handleAction('Lead Form Generated!')}
+                        className="h-11 bg-tg-button text-tg-button-text rounded-xl text-[11px] font-black uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-teal-500/20 active:scale-95 transition-transform"
+                    >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        Contact
+                    </button>
+                </div>
+
+                {/* Services Grid up to 20 */}
+                <div className="space-y-3">
+                    <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Services Portfolio</h3>
+                    <div className="grid gap-2">
+                        {master.services.map(srv => (
+                            <div key={srv.id} className="bg-tg-main border border-tg-hint/10 rounded-xl px-4 py-3 flex items-center justify-between">
+                                <div className="flex flex-col">
+                                    <span className="text-[13px] font-bold">{srv.name}</span>
+                                    <span className="text-[10px] text-tg-hint uppercase font-bold tracking-wider">{srv.time}</span>
+                                </div>
+                                <span className="font-mono font-bold text-teal-400">{srv.price}</span>
                             </div>
                         ))}
-                        {master.trustedReviews.length === 0 && (
-                            <p className="text-sm text-tg-hint italic">No reviews found from your trusted circles yet.</p>
-                        )}
                     </div>
                 </div>
+
+                {/* Visual ABCD Radar */}
+                <div className="bg-tg-secondary/30 rounded-3xl p-6 border border-tg-hint/5 flex flex-col items-center">
+                    <h3 className="text-[10px] font-black uppercase text-tg-hint tracking-[0.2em] mb-4">ABCD Reliability Index</h3>
+                    <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={100} />
+                </div>
+
+                {/* Trusted Reviews */}
+                <div className="space-y-3">
+                    <div className="flex justify-between items-end mb-2">
+                        <h3 className="text-xs font-black uppercase text-tg-hint tracking-widest">Network Reviews</h3>
+                        <span className="text-[10px] font-bold text-teal-500 bg-teal-500/10 px-2 py-0.5 rounded-md">VERIFIED</span>
+                    </div>
+                    {master.trustedReviews.map(r => (
+                        <div key={r.id} className="bg-tg-secondary/50 border border-tg-hint/10 rounded-2xl p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="font-bold text-sm">{r.author}</div>
+                                <span className={`text-[9px] uppercase font-black tracking-widest px-2 py-1 rounded border ${r.circle === 'Top5' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20' : 'bg-teal-500/10 text-teal-500 border-teal-500/20'}`}>
+                                    {r.circle === 'Top5' ? 'Inner Circle' : 'Node'}
+                                </span>
+                            </div>
+                            <p className="text-[13px] text-tg-primary/80 leading-relaxed font-medium">{r.text}</p>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Justice & Arbitration */}
+                <button
+                    onClick={() => navigate('/arbitration')}
+                    className="w-full h-12 mt-8 border border-red-500/30 bg-red-500/5 text-red-500 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] active:bg-red-500/20 transition-colors"
+                >
+                    Open Dispute / Arbitration
+                </button>
 
             </div>
         </div>

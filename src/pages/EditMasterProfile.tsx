@@ -4,10 +4,12 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { updateMasterProfile } from '../services/userService';
 import { t } from '../i18n';
+import { useNavigate } from 'react-router-dom';
 
 const SECTORS = ['Auto', 'Health', 'Beauty', 'Tech', 'Legal', 'Home', 'Pets', 'Other'];
 
 export default function EditMasterProfile() {
+    const navigate = useNavigate();
     const [name, setName] = useState('');
     const [bio, setBio] = useState('');
     const [category, setCategory] = useState('Other');
@@ -41,11 +43,18 @@ export default function EditMasterProfile() {
         });
         setLoading(false);
         WebApp.showAlert(t('save') + "!");
+        navigate(-1); // Go back after edit
     };
 
     return (
-        <div className="p-6 bg-tg-main text-tg-primary min-h-screen space-y-6">
-            <header>
+        <div className="p-6 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
+            <header className="relative pl-8">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
+                >
+                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                </button>
                 <h1 className="text-2xl font-black">{t('business_identity')}</h1>
                 <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Master Profile Edit</p>
             </header>
