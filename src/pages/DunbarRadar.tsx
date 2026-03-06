@@ -62,17 +62,18 @@ function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: strin
             className="flex flex-col items-center gap-1 snap-start relative touch-none group"
         >
             <div
-                className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border border-white/10 backdrop-blur-md transition-all overflow-hidden ${isDragging ? 'opacity-0' : 'hover:scale-105'}`}
+                className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-md transition-all overflow-hidden ${isDragging ? 'opacity-0' : 'hover:scale-105'}`}
                 style={{
-                    borderColor: status !== 'Shadow' ? activeColor : 'rgba(255,255,255,0.1)',
-                    boxShadow: status !== 'Shadow' ? `0 0 12px ${activeColor}40` : 'none',
+                    borderColor: activeColor,
+                    backgroundColor: `${activeColor}10`,
+                    boxShadow: status !== 'Shadow' ? `0 0 10px ${activeColor}20` : 'none'
                 }}
             >
                 {photo ? (
                     <img src={photo} alt="" className="w-full h-full object-cover" />
-                ) : <span className="text-white opacity-80">{uid.substring(0, 2).toUpperCase()}</span>}
+                ) : uid.substring(0, 2).toUpperCase()}
             </div>
-            <span className="text-[10px] text-slate-500 truncate w-14 text-center font-bold tracking-tight">{uid}</span>
+            <span className="text-[10px] text-tg-hint truncate w-14 text-center font-bold">{uid}</span>
         </div>
     );
 }
@@ -84,59 +85,69 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
     });
 
     const gradId = `grad-${ring.id}`;
-    const strokeColor = ring.color;
+    const glintId = `glint-${ring.id}`;
 
-    // determine side label
-    const sideLabelMap: Record<string, string> = {
-        'Top5': 'TOP 5 ARC',
-        '15': '15 GROUP',
-        '50': '50 CIRCLE',
-        '150': '150 WORLD'
-    };
-    const side = (ring.id === 'Top5' || ring.id === '15') ? 'left' : 'right';
+    const isFull = currentCount >= ring.max;
+    const isNinetyPercent = currentCount >= ring.max * 0.9 && !isFull;
+
+    let strokeColor = ring.color;
+    if (isOver) strokeColor = isFull ? '#ef4444' : '#22c55e';
 
     return (
         <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer group">
             <defs>
-                <radialGradient id={gradId} cx="50%" cy="100%" r="100%" fx="50%" fy="100%">
-                    <stop offset="0%" stopColor={strokeColor} stopOpacity="0.8" />
-                    <stop offset="60%" stopColor={strokeColor} stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="transparent" stopOpacity="0" />
-                </radialGradient>
+                {/* Volumetric Gradient */}
+                <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.4" />
+                    <stop offset="50%" stopColor={strokeColor} stopOpacity="1" />
+                    <stop offset="100%" stopColor="black" stopOpacity="0.3" />
+                </linearGradient>
+                {/* Glint Filter for volume effect */}
+                <filter id={glintId}>
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+                    <feSpecularLighting in="blur" surfaceScale="5" specularConstant="1" specularExponent="20" lightingColor="#ffffff" result="specular">
+                        <fePointLight x="200" y="50" z="100" />
+                    </feSpecularLighting>
+                    <feComposite in="specular" in2="SourceAlpha" operator="in" result="composite" />
+                    <feMerge>
+                        <feMergeNode in="SourceGraphic" />
+                        <feMergeNode in="composite" />
+                    </feMerge>
+                </filter>
             </defs>
 
-            {/* Side Label */}
-            <text
-                x={side === 'left' ? 200 - ring.radius - 40 : 200 + ring.radius + 40}
-                y={200 - ring.radius / 2}
-                textAnchor={side === 'left' ? 'end' : 'start'}
-                className="font-black italic text-[11px] opacity-80"
-                style={{ fill: strokeColor }}
-            >
-                {sideLabelMap[ring.id]}
-            </text>
-
-            {/* Main Arch with volumetric feel */}
+            {/* Background Arch Shadow */}
+            <path
+                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
+                fill="none"
+                stroke="rgba(0,0,0,0.5)"
+                strokeWidth="48"
+                className="transition-all duration-300 pointer-events-none"
+            />
+            {/* Main Volumetric Arch */}
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke={`url(#${gradId})`}
-                strokeWidth="48"
-                strokeLinecap="round"
-                className={`transition-all duration-500 animate-radar-pulse ${isActive || isOver ? 'opacity-100' : 'opacity-60'}`}
+                strokeWidth="42"
+                strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
+                filter={`url(#${glintId})`}
+                className={`transition-all duration-500 origin-bottom animate-radar-pulse ${isActive || isOver ? 'scale-[1.02]' : ''}`}
                 style={{
+                    animationDelay: ring.delay,
                     // @ts-ignore
                     '--pulse-color': strokeColor,
-                    '--base-opacity': ring.opacity,
+                    '--base-opacity': isDraggingAny ? 0.3 : ring.opacity,
+                    strokeDasharray: '2000',
+                    strokeDashoffset: (isActive || isOver) ? '0' : '0'
                 } as any}
             />
-
-            {/* Count Label centered on Arc */}
             <text
                 x="200"
-                y={200 - ring.radius - 10}
+                y={200 - ring.radius}
                 textAnchor="middle"
-                className="fill-white text-[12px] font-black pointer-events-none drop-shadow-md"
+                alignmentBaseline="middle"
+                className={`fill-white text-[12px] font-black pointer-events-none transition-all ${isOver ? 'scale-125' : ''}`}
             >
                 {currentCount}/{ring.max}
             </text>
@@ -371,9 +382,9 @@ export default function DunbarRadar() {
                         {/* Center "+" Button Overlay - Positioned exactly on the contact block top edge */}
                         <div
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 w-16 h-16 bg-[#14b8a6] rounded-full border-[6px] border-[#0a0c0e] shadow-[0_0_25px_rgba(20,184,166,0.3)] flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
+                            className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 w-16 h-16 bg-[#14b8a6] rounded-full border-[3px] border-[#1a1c1e] shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
                         >
-                            <span className="text-white text-3xl font-black mb-1">+</span>
+                            <span className="text-black text-3xl font-black mb-1">+</span>
                         </div>
                     </div>
                 </div>
@@ -384,14 +395,14 @@ export default function DunbarRadar() {
                     onSave={handleCreateContact}
                 />
 
-                {/* Z-Index 9: Shadow List or Active Ring Contacts */}
-                <div className="absolute bottom-0 w-full bg-[#0a0c0e]/95 backdrop-blur-2xl z-[9] pb-8 pt-6 rounded-t-[32px] border-t border-white/10 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-                    <div className="px-6 mb-4 flex justify-between items-end">
-                        <h3 className="font-black text-[14px] text-white tracking-wider">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
-                        <span className="text-[10px] text-slate-500 font-black tracking-widest uppercase">DRAG TO RINGS</span>
+                {/* Z-Index 9: Shadow List or Active Ring Contacts - Increased height, removed divider, button overlap */}
+                <div className="absolute bottom-0 w-full bg-tg-secondary/90 backdrop-blur-2xl z-[9] pb-4 pt-4 rounded-t-3xl shadow-2xl border-t border-white/5">
+                    <div className="px-4 mb-3 flex justify-between items-center">
+                        <h3 className="font-bold text-[11px] text-tg-hint uppercase tracking-widest">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
+                        <span className="text-[10px] text-tg-hint font-medium">Drag to promote</span>
                     </div>
 
-                    <div className="flex overflow-x-auto gap-5 px-6 pb-2 snap-x hide-scrollbar h-[6rem] items-center">
+                    <div className="flex overflow-x-auto gap-4 px-4 pb-2 snap-x hide-scrollbar h-[5.5rem] items-center">
                         {contactsToShow.map(([uid, status]) => (
                             <DraggableAvatar
                                 key={uid}
@@ -401,7 +412,7 @@ export default function DunbarRadar() {
                             />
                         ))}
                         {contactsToShow.length === 0 && (
-                            <div className="text-slate-500 text-[11px] italic w-full text-center py-6">No contacts matching filter</div>
+                            <div className="text-tg-hint text-[11px] italic w-full text-center py-6">No contacts matching filter</div>
                         )}
                     </div>
                 </div>

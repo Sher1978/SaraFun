@@ -4,33 +4,11 @@ import WebApp from '@twa-dev/sdk';
 import { openQRScanner } from '../services/QRScannerService';
 
 const Icons = {
-    Discovery: () => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-        </svg>
-    ),
-    Map: () => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-11.25V18.75m-9-13.5L3.75 6v11.25l4.5-2.25M9 6.75l4.5 2.25m0 0l4.5-2.25m-4.5 2.25v11.25m4.5-13.5V17.25L15 18.75m-6-13.5L3.75 6v11.25l4.5-2.25" />
-        </svg>
-    ),
-    Scanner: () => (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-8 h-8 text-black">
-            <path d="M3 3h6v6H3V3zm2 2v2h2V5H5zm8-2h6v6h-6V3zm2 2v2h2V5h-2zM3 13h6v6H3v-6zm2 2v2h2v-2H5zm13-2h1v1h-1v-1zm0 2h1v1h-1v-1zm-2-2h1v1h-1v-1zm0 2h1v1h-1v-1zm-2 0h1v1h-1v-1zm0-2h1v1h-1v-1zm4 4h1v1h-1v-1zm-2 2h1v1h-1v-1zm-2 0h1v1h-1v-1zm4 0h1v1h-1v-1zm-6 0h1v1h-1v-1zm0-2h1v1h-1v-1z" />
-        </svg>
-    ),
-    Radar: () => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
-            <circle cx="12" cy="12" r="2" fill="currentColor" />
-            <circle cx="12" cy="12" r="5" />
-            <circle cx="12" cy="12" r="9" />
-        </svg>
-    ),
-    Profile: () => (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-        </svg>
-    ),
+    Discovery: () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>,
+    Map: () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>,
+    Scanner: () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" /></svg>,
+    Radar: () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm-7 4c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7-7-3.13-7-7z" /></svg>,
+    Profile: () => <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>,
 };
 
 export default function TabBar() {
@@ -39,44 +17,39 @@ export default function TabBar() {
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
 
     const tabs = [
-        { id: 'discovery', path: '/discovery', icon: Icons.Discovery, label: 'EXPLORE' },
-        { id: 'map', path: '/map', icon: Icons.Map, label: 'MAP' },
-        { id: 'scanner', path: '#', icon: Icons.Scanner, label: '', action: () => openQRScanner(currentUserUid) },
-        { id: 'radar', path: '/radar', icon: Icons.Radar, label: 'RADAR' },
-        { id: 'profile', path: '/profile', icon: Icons.Profile, label: 'PROFILE' },
+        { id: 'discovery', path: '/discovery', icon: Icons.Discovery, label: 'Explore' },
+        { id: 'map', path: '/map', icon: Icons.Map, label: 'Map' },
+        { id: 'scanner', path: '#', icon: Icons.Scanner, label: 'Scanner', action: () => openQRScanner(currentUserUid) },
+        { id: 'radar', path: '/radar', icon: Icons.Radar, label: 'Radar' },
+        { id: 'profile', path: '/profile', icon: Icons.Profile, label: 'Profile' },
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full h-[65px] bg-[#000000e6] backdrop-blur-xl border-t border-white/5 flex items-end justify-around pb-2 z-50">
+        <nav className="fixed bottom-0 w-full h-[50px] bg-tg-secondary border-t border-tg-hint/10 flex items-center justify-around pb-safe z-50">
             {tabs.map((tab) => {
                 const isActive = tab.path !== '#' && location.pathname.startsWith(tab.path);
-
-                if (tab.id === 'scanner') {
-                    return (
-                        <div key={tab.id} className="relative w-[20%] h-full flex justify-center">
-                            <button
-                                onClick={tab.action}
-                                className="absolute -top-10 w-20 h-20 bg-[#14b8a6] rounded-full border-[6px] border-[#0a0c0e] shadow-[0_0_25px_rgba(20,184,166,0.4)] flex items-center justify-center transition-transform active:scale-95"
-                            >
-                                {React.createElement(tab.icon)}
-                            </button>
-                        </div>
-                    );
-                }
 
                 return (
                     <button
                         key={tab.id}
-                        onClick={() => navigate(tab.path)}
-                        className={`flex flex-col items-center justify-center w-[20%] h-full gap-1 transition-all duration-200 ${isActive ? 'text-[#14b8a6]' : 'text-slate-500'}`}
+                        onClick={() => {
+                            if (tab.id === 'scanner' && tab.action) {
+                                tab.action();
+                            } else {
+                                navigate(tab.path);
+                            }
+                        }}
+                        className={`flex flex-col items-center justify-center w-[20%] h-full transition-all duration-200 ${tab.id === 'scanner'
+                            ? 'bg-teal-500/20 rounded-2xl mx-1'
+                            : isActive ? 'text-teal-500' : 'text-tg-hint'
+                            }`}
                     >
-                        <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                            {React.createElement(tab.icon)}
+                        <div className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'scale-100'} ${tab.id === 'scanner' ? 'text-teal-400' : ''}`}>
+                            {React.createElement(tab.icon, { size: 26, strokeWidth: (isActive || tab.id === 'scanner') ? 2.5 : 2 })}
                         </div>
-                        <span className={`text-[9px] font-black tracking-[0.1em] ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                        <span className={`text-[10px] mt-[2px] font-medium leading-none tracking-tight ${(isActive || tab.id === 'scanner') ? 'font-semibold' : 'opacity-80'}`}>
                             {tab.label}
                         </span>
-                        {isActive && <div className="absolute bottom-[2px] w-1 h-1 bg-[#14b8a6] rounded-full shadow-[0_0_8px_#14b8a6]" />}
                     </button>
                 );
             })}
