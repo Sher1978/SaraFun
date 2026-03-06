@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import TrustMarker, { TrustMarkerProps } from '../components/TrustMarker';
 import ABCDChart from '../components/ABCDChart';
 
-const MapStyle = [
+const MapStyleDark = [
     { "elementType": "geometry", "stylers": [{ "color": "#0B1118" }] },
     { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
     { "elementType": "labels.text.fill", "stylers": [{ "color": "#757b82" }] },
@@ -20,6 +20,21 @@ const MapStyle = [
     { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] }
 ];
 
+const MapStyleLight = [
+    { "elementType": "geometry", "stylers": [{ "color": "#F3F4F6" }] },
+    { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+    { "elementType": "labels.text.fill", "stylers": [{ "color": "#4B5563" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#F3F4F6" }] },
+    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#D1D5DB" }] },
+    { "featureType": "administrative.country", "elementType": "labels.text.fill", "stylers": [{ "color": "#374151" }] },
+    { "featureType": "landscape", "stylers": [{ "color": "#F3F4F6" }] },
+    { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#E5E7EB" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#14b8a6", "weight": 1 }] },
+    { "featureType": "transit", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#BFDBFE" }] }
+];
+
 const CATEGORIES = ['All', 'Auto', 'Health', 'Beauty', 'Home', 'Education', 'Events'];
 
 export default function MapScreen() {
@@ -29,8 +44,13 @@ export default function MapScreen() {
     const [masters, setMasters] = useState<any[]>([]);
     const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
     const [center, setCenter] = useState({ lat: 12.238, lng: 109.196 }); // Default Nha Trang
+    const [isDarkMode, setIsDarkMode] = useState(false);
 
     useEffect(() => {
+        // Detect theme from Telegram WebApp
+        const theme = (window as any).Telegram?.WebApp?.colorScheme || 'light';
+        setIsDarkMode(theme === 'dark');
+
         // Geolocation
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
@@ -78,11 +98,9 @@ export default function MapScreen() {
 
     const visibleMasters = filteredMasters.filter(m => m.lat && m.lng && isInside(m.lat, m.lng));
 
-    console.log(`[MapScreen] Using API Key starting with: ${import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.substring(0, 4)}...`);
-
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-            <div className="relative w-full h-[calc(100vh-64px)] bg-[#0B1118] text-tg-primary flex flex-col">
+            <div className="relative w-full h-[calc(100vh-64px)] bg-tg-main text-tg-primary flex flex-col">
 
                 {/* Category Chips */}
                 <div className="absolute top-4 w-full z-10 px-4 flex overflow-x-auto gap-2 snap-x hide-scrollbar pointer-events-auto">
@@ -108,9 +126,9 @@ export default function MapScreen() {
                         defaultZoom={13}
                         gestureHandling={'greedy'}
                         disableDefaultUI={true}
-                        styles={MapStyle}
+                        styles={isDarkMode ? MapStyleDark : MapStyleLight}
                         onCameraChanged={onCameraChanged}
-                        mapId={'bf18563c7b399120'} // Added a generic map ID for advanced feature support
+                        mapId={isDarkMode ? 'bf18563c7b399120' : 'light_map_id'}
                     >
                         {/* Current User Marker */}
                         {userLocation && (
