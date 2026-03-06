@@ -6,17 +6,18 @@ import TrustMarker, { TrustMarkerProps } from '../components/TrustMarker';
 import ABCDChart from '../components/ABCDChart';
 
 const MapStyle = [
-    { "elementType": "geometry", "stylers": [{ "color": "#1a222c" }] },
+    { "elementType": "geometry", "stylers": [{ "color": "#0B1118" }] },
     { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
     { "elementType": "labels.text.fill", "stylers": [{ "color": "#757b82" }] },
-    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#121b22" }] },
+    { "elementType": "labels.text.stroke", "stylers": [{ "color": "#0B1118" }] },
+    { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#1F2937" }] },
     { "featureType": "administrative.country", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca3af" }] },
-    { "featureType": "landscape.man_made", "elementType": "geometry", "stylers": [{ "color": "#212d3b" }] },
-    { "featureType": "landscape.natural", "elementType": "geometry", "stylers": [{ "color": "#212d3b" }] },
-    { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#1e2a33" }] },
-    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#2c3e50" }] },
-    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#0d9488" }] },
-    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#1a222c" }] }
+    { "featureType": "landscape", "stylers": [{ "color": "#0B1118" }] },
+    { "featureType": "poi", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#1C252E" }] },
+    { "featureType": "road.highway", "elementType": "geometry", "stylers": [{ "color": "#0d9488", "weight": 1 }] },
+    { "featureType": "transit", "stylers": [{ "visibility": "off" }] },
+    { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#070C12" }] }
 ];
 
 const CATEGORIES = ['All', 'Auto', 'Health', 'Beauty', 'Home', 'Education', 'Events'];
@@ -26,16 +27,19 @@ export default function MapScreen() {
     const [selectedMaster, setSelectedMaster] = useState<any | null>(null);
     const [bounds, setBounds] = useState<google.maps.LatLngBoundsLiteral | null>(null);
     const [masters, setMasters] = useState<any[]>([]);
+    const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null);
     const [center, setCenter] = useState({ lat: 12.238, lng: 109.196 }); // Default Nha Trang
 
     useEffect(() => {
         // Geolocation
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition((position) => {
-                setCenter({
+                const loc = {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude
-                });
+                };
+                setCenter(loc);
+                setUserLocation(loc);
             });
         }
     }, []);
@@ -72,11 +76,11 @@ export default function MapScreen() {
         );
     };
 
-    const visibleMasters = filteredMasters.filter(m => isInside(m.lat, m.lng));
+    const visibleMasters = filteredMasters.filter(m => m.lat && m.lng && isInside(m.lat, m.lng));
 
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-            <div className="relative w-full h-[calc(100vh-64px)] bg-tg-main text-tg-primary flex flex-col">
+            <div className="relative w-full h-[calc(100vh-64px)] bg-[#0B1118] text-tg-primary flex flex-col">
 
                 {/* Category Chips */}
                 <div className="absolute top-4 w-full z-10 px-4 flex overflow-x-auto gap-2 snap-x hide-scrollbar pointer-events-auto">
@@ -100,11 +104,22 @@ export default function MapScreen() {
                         defaultCenter={center}
                         center={center}
                         defaultZoom={13}
+                        gestureHandling={'greedy'}
                         disableDefaultUI={true}
                         styles={MapStyle}
-                        mapId={"sarafun-map-id"}
                         onCameraChanged={onCameraChanged}
                     >
+                        {/* Current User Marker */}
+                        {userLocation && (
+                            <AdvancedMarker position={userLocation}>
+                                <div className="relative flex items-center justify-center">
+                                    <div className="absolute w-12 h-12 bg-teal-500/20 rounded-full animate-ping" />
+                                    <div className="absolute w-6 h-6 bg-teal-500/40 rounded-full animate-pulse blur-sm" />
+                                    <div className="w-3 h-3 bg-teal-400 rounded-full border-2 border-white shadow-lg" />
+                                </div>
+                            </AdvancedMarker>
+                        )}
+
                         {visibleMasters.map(m => (
                             <TrustMarker
                                 key={m.id}
