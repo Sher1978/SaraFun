@@ -1,0 +1,91 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "is_master",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "visibility_status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "masterUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "clientUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "commissionStatus",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "masterUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "clientUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "masterUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "clientUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "timestamp",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Transactions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "masterUid",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

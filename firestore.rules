@@ -1,40 +1,20 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper functions
-    function isSignedIn() {
-      return request.auth != null;
-    }
-    
-    function isAdmin() {
-      // Hardcoded Admin ID for God Mode
-      return request.auth.uid == '8524844089';
-    }
-
-    // User Records
     match /Users/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isSignedIn() && request.auth.uid == userId 
-                    && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['is_sherlock_verified']))
-                    && (request.resource.data.social_graph.size() <= 220); // Dunbar Rule
-      
-      // Admin special overwrite for Golden Seal
-      allow update: if isAdmin();
+      allow read, write: if true; // Temporary open for dev, adjust later
+      match /Masters/{masterId} {
+        allow read, write: if true;
+        match /Services/{serviceId} {
+          allow read, write: if true;
+        }
+      }
     }
-    
-    // Transactions
-    match /Transactions/{txId} {
-      allow read: if isSignedIn() && (request.auth.uid == resource.data.clientUid || request.auth.uid == resource.data.masterUid || isAdmin());
-      allow create: if isSignedIn() && request.auth.uid == request.resource.data.clientUid;
-      allow update: if isSignedIn(); // Gated by app logic, but generally masters can complete tx
+    match /Transactions/{transactionId} {
+      allow read, write: if true;
     }
-    
-    // Masters Collection (if separate)
-    match /Masters/{masterId} {
-      allow read: if true;
-      allow write: if isAdmin();
+    match /Reviews/{reviewId} {
+      allow read, write: if true;
     }
   }
 }

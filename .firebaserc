@@ -1,5 +1,7 @@
 {
   "projects": {
     "default": "sarafun-777"
-  }
+  },
+  "targets": {},
+  "etags": {}
 }
