@@ -13,6 +13,8 @@ export default function Profile() {
     const [stats, setStats] = useState({ stars: 0, ton: 0 });
     const [isMaster, setIsMaster] = useState(false);
     const [showQRModal, setShowQRModal] = useState(false);
+    const [avatarClickCount, setAvatarClickCount] = useState(0);
+    const [lastClickTime, setLastClickTime] = useState(0);
 
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
     const referralLink = `https://t.me/sarafun_bot/app?startapp=${currentUserUid}`;
@@ -40,6 +42,28 @@ export default function Profile() {
         fetchUser();
     }, [currentUserUid]);
 
+    const handleAvatarClick = () => {
+        const now = Date.now();
+        if (now - lastClickTime < 2000) {
+            const newCount = avatarClickCount + 1;
+            setAvatarClickCount(newCount);
+            if (newCount >= 5) {
+                // Check if user is authorized (Superadmin UID)
+                if (currentUserUid === '8524844089') {
+                    WebApp.HapticFeedback.notificationOccurred('success');
+                    navigate('/superadmin');
+                } else {
+                    WebApp.HapticFeedback.notificationOccurred('error');
+                    WebApp.showAlert('Access Denied: You are not a Superadmin.');
+                }
+                setAvatarClickCount(0);
+            }
+        } else {
+            setAvatarClickCount(1);
+        }
+        setLastClickTime(now);
+    };
+
     const handleCopyLink = () => {
         navigator.clipboard.writeText(referralLink);
         WebApp.HapticFeedback.notificationOccurred('success');
@@ -50,8 +74,11 @@ export default function Profile() {
         <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-10 pb-24 space-y-6">
             {/* Header: Bio & Avatar */}
             <header className="flex flex-col items-center space-y-4">
-                <div className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-base font-bold border-4 border-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-                    {WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
+                <div
+                    onClick={handleAvatarClick}
+                    className="w-20 h-20 bg-tg-secondary rounded-full flex items-center justify-center text-base font-bold border-4 border-[#d4af37] shadow-[0_0_15px_rgba(212,175,55,0.3)] cursor-pointer active:scale-95 transition-transform select-none"
+                >
+                    {WebApp.initDataUnsafe?.user?.last_name?.charAt(0) || WebApp.initDataUnsafe?.user?.first_name?.charAt(0) || 'U'}
                 </div>
                 <div className="text-center">
                     <h1 className="text-base font-black tracking-tight uppercase italic underline decoration-yellow-500 underline-offset-4">

@@ -25,7 +25,7 @@ export default function ABCDChart({ a, b, c, d, size = 48 }: ABCDChartProps) {
   `.trim();
 
     return (
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="overflow-visible inline-block">
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="overflow-visible inline-block drop-shadow-lg">
             {/* Background Diamond (Value = 5 reference edge) */}
             <polygon
                 points={`
@@ -36,19 +36,19 @@ export default function ABCDChart({ a, b, c, d, size = 48 }: ABCDChartProps) {
         `}
                 fill="none"
                 stroke="var(--tg-theme-hint-color, #999)"
-                strokeOpacity={0.2}
-                strokeWidth={1}
+                strokeOpacity={0.3}
+                strokeWidth={1.5}
             />
             {/* 4 Axes Lines */}
-            <line x1={center} y1={center - maxRadius} x2={center} y2={center + maxRadius} stroke="var(--tg-theme-hint-color, #999)" strokeOpacity={0.2} strokeWidth={1} />
-            <line x1={center - maxRadius} y1={center} x2={center + maxRadius} y2={center} stroke="var(--tg-theme-hint-color, #999)" strokeOpacity={0.2} strokeWidth={1} />
+            <line x1={center} y1={center - maxRadius} x2={center} y2={center + maxRadius} stroke="var(--tg-theme-hint-color, #999)" strokeOpacity={0.3} strokeWidth={1} />
+            <line x1={center - maxRadius} y1={center} x2={center + maxRadius} y2={center} stroke="var(--tg-theme-hint-color, #999)" strokeOpacity={0.3} strokeWidth={1} />
 
-            {/* Active Data Area */}
+            {/* Active Data Area - Higher Contrast */}
             <polygon
                 points={points}
-                fill="rgba(20, 184, 166, 0.4)" // Teal glow
-                stroke="rgba(13, 148, 136, 1)"
-                strokeWidth={1.5}
+                fill="rgba(20, 184, 166, 0.6)" // Increased opacity for better contrast
+                stroke="#14b8a6" // Solid matte teal
+                strokeWidth={2}
                 className="transition-all duration-300 ease-in-out"
             />
         </svg>

@@ -73,7 +73,7 @@ export default function App() {
                         {/* Secondary Routes */}
                         <Route path="master/:uid" element={<MasterProfile />} />
                         <Route path="referrals" element={<ReferralDashboard />} />
-                        <Route path="admin" element={<SherlockAdminConsole />} />
+                        <Route path="superadmin" element={<SherlockAdminConsole />} />
                         <Route path="arbitration" element={<SocialArbitration />} />
                         <Route path="edit-master" element={<EditMasterProfile />} />
                         <Route path="business-landing" element={<BusinessLanding />} />

@@ -44,32 +44,116 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
 :root {
   --tg-viewport-height: 100vh;
   --tg-viewport-stable-height: 100vh;
+
+  /* Matte Premium Palette */
+  --color-matte-bg: #1a1c1e;
+  --color-matte-surface: #2c2e30;
+  --color-matte-teal: #14b8a6;
+  --color-matte-gold: #d4af37;
+  --color-matte-silver: #a0a0a0;
+  --color-matte-bronze: #cd7f32;
+  --color-matte-text: #e2e8f0;
+  --color-matte-hint: #94a3b8;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 14px;
-  /* Standard Telegram size */
   line-height: 1.4;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior: none;
+  background-color: var(--color-matte-bg);
+  color: var(--color-matte-text);
 }
 
 h1 {
   font-size: 20px;
   font-weight: 800;
+  color: #ffffff;
 }
 
 h2 {
   font-size: 17px;
   font-weight: 700;
+  color: #ffffff;
 }
 
 h3 {
   font-size: 15px;
   font-weight: 700;
+  color: #ffffff;
 }
 
 p {
   font-size: 13px;
+  color: var(--color-matte-hint);
+}
+
+/* Photorealistic Glassmorphism */
+.glass-photo {
+  background: rgba(44, 46, 48, 0.4);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 4px 24px -1px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Shimmering Animations for Radar */
+@keyframes shimmer-green {
+  0% {
+    stroke-opacity: 0.3;
+  }
+
+  50% {
+    stroke-opacity: 0.7;
+    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.5));
+  }
+
+  100% {
+    stroke-opacity: 0.3;
+  }
+}
+
+@keyframes shimmer-red {
+  0% {
+    stroke-opacity: 0.3;
+  }
+
+  50% {
+    stroke-opacity: 0.7;
+    filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.5));
+  }
+
+  100% {
+    stroke-opacity: 0.3;
+  }
+}
+
+@keyframes shimmer-yellow {
+  0% {
+    stroke-opacity: 0.3;
+  }
+
+  50% {
+    stroke-opacity: 0.7;
+    filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.5));
+  }
+
+  100% {
+    stroke-opacity: 0.3;
+  }
+}
+
+.animate-shimmer-green {
+  animation: shimmer-green 1.5s infinite;
+}
+
+.animate-shimmer-red {
+  animation: shimmer-red 1s infinite;
+}
+
+.animate-shimmer-yellow {
+  animation: shimmer-yellow 1.2s infinite;
 }

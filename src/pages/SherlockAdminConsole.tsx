@@ -19,7 +19,30 @@ export default function SherlockAdminConsole() {
     }, [currentUserUid]);
 
     if (currentUserUid !== ADMIN_UID && currentUserUid !== 'dev_user_uid') {
-        return <div className="p-10 text-center font-black uppercase text-red-500">Access Denied</div>;
+        return (
+            <div className="min-h-screen bg-[#1a1c1e] flex items-center justify-center p-6 text-[#e2e8f0]">
+                <div className="glass-photo max-w-sm w-full p-8 text-center space-y-6 animate-in fade-in zoom-in duration-500">
+                    <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
+                        <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0-8V7m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a9 9 0 1118 0 9 9 0 01-18 0z" />
+                        </svg>
+                    </div>
+                    <div className="space-y-2">
+                        <h1 className="text-xl font-black text-white uppercase tracking-tighter">Access Denied</h1>
+                        <p className="text-slate-400 text-sm">This terminal is restricted to authorized Superadmins only.</p>
+                    </div>
+                    <button
+                        onClick={() => WebApp.close()}
+                        className="w-full py-4 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-all border border-white/10 active:scale-[0.98]"
+                    >
+                        Return to App
+                    </button>
+                    <div className="pt-4">
+                        <p className="text-[10px] text-tg-hint uppercase tracking-[0.2em]">Auth Module: Active</p>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     const tabs: { id: Tab; label: string; icon: string }[] = [
@@ -32,7 +55,7 @@ export default function SherlockAdminConsole() {
     ];
 
     return (
-        <div className="min-h-screen bg-tg-main text-tg-primary flex flex-col md:flex-row pb-20 md:pb-0">
+        <div className="min-h-screen bg-[#1a1c1e] text-[#e2e8f0] flex flex-col md:flex-row pb-20 md:pb-0">
             {/* Sidebar / Topnav */}
             <nav className="bg-tg-secondary/50 border-b md:border-b-0 md:border-r border-tg-hint/10 md:w-64 flex-shrink-0 z-10 sticky top-0 md:h-screen overflow-x-auto hide-scrollbar">
                 <div className="p-3 md:p-3 hidden md:block">
@@ -480,8 +503,8 @@ function RolesTab() {
                                 <td className="p-3 font-mono font-bold text-tg-primary">{adm.id}</td>
                                 <td className="p-3">
                                     <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest ${adm.role === 'Superadmin' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
-                                            adm.role === 'Admin' ? 'bg-teal-500/10 text-teal-500 border border-teal-500/20' :
-                                                'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                                        adm.role === 'Admin' ? 'bg-teal-500/10 text-teal-500 border border-teal-500/20' :
+                                            'bg-blue-500/10 text-blue-500 border border-blue-500/20'
                                         }`}>
                                         {adm.role}
                                     </span>

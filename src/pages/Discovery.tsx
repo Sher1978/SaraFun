@@ -119,10 +119,10 @@ export default function Discovery() {
     };
 
     return (
-        <div className="relative min-h-full bg-tg-main text-tg-primary px-4 pt-6 pb-24 space-y-10">
+        <div className="relative min-h-full bg-[#1a1c1e] text-[#e2e8f0] px-4 pt-6 pb-24 space-y-10">
             {/* Review Flow Overlay */}
             {reviewMaster && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-tg-main/80 backdrop-blur-md">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
                     <ReviewFlow
                         masterId={reviewMaster.id}
                         masterName={reviewMaster.name}
@@ -134,8 +134,8 @@ export default function Discovery() {
             {/* Header */}
             <header className="space-y-4">
                 <div>
-                    <h1 className="text-base font-bold tracking-tight">Discovery</h1>
-                    <p className="text-tg-hint text-sm mt-1">Services matched from your trust network</p>
+                    <h1 className="text-base font-bold tracking-tight text-white">Discovery</h1>
+                    <p className="text-slate-400 text-sm mt-1">Services matched from your trust network</p>
                 </div>
 
                 {/* Social Proof Ticker (NEW) */}
@@ -157,7 +157,7 @@ export default function Discovery() {
                             <select
                                 value={sortOption[jtbd.id]}
                                 onChange={(e) => handleSortChange(jtbd.id, e.target.value)}
-                                className="bg-transparent text-teal-500 font-bold text-xs uppercase tracking-widest outline-none text-right appearance-none"
+                                className="bg-transparent text-[#14b8a6] font-bold text-xs uppercase tracking-widest outline-none text-right appearance-none cursor-pointer hover:opacity-80 transition-opacity"
                             >
                                 <option value="trust" className="text-black">★ Trust First</option>
                                 <option value="priceAsc" className="text-black">Price: Low - High</option>
@@ -180,8 +180,8 @@ export default function Discovery() {
                                         <div
                                             key={`${jtbd.id}-${master.id}`}
                                             onClick={() => navigate(`/master/${master.id}`)}
-                                            className={`relative flex-shrink-0 w-48 p-3 rounded-xl snap-start bg-tg-secondary/70 backdrop-blur-2xl border border-tg-hint/10 transition-transform active:scale-95 cursor-pointer flex flex-col justify-between ${master.is_sherlock_verified ? 'shadow-[0_0_20px_rgba(234,179,8,0.2)] ring-1 ring-yellow-500/50 bg-gradient-to-b from-yellow-500/5 to-transparent' :
-                                                isTop5 ? 'shadow-[0_0_15px_rgba(20,184,166,0.15)] ring-1 ring-teal-500/30' : ''
+                                            className={`relative flex-shrink-0 w-48 p-3 rounded-xl snap-start glass-photo transition-transform active:scale-95 cursor-pointer flex flex-col justify-between ${master.is_sherlock_verified ? 'ring-1 ring-[#d4af37]/50 shadow-[0_0_20px_rgba(212,175,55,0.1)]' :
+                                                isTop5 ? 'ring-1 ring-[#14b8a6]/30 shadow-[0_0_15px_rgba(20,184,166,0.1)]' : ''
                                                 }`}
                                         >
                                             <div className="flex flex-col mb-2 relative group w-full">
@@ -224,10 +224,10 @@ export default function Discovery() {
 
                                             <button
                                                 onClick={(e) => handlePayment(e, master, master.price)}
-                                                className="w-full mt-4 h-12 bg-tg-button text-tg-button-text rounded-lg font-bold text-sm shadow-md transition-opacity active:opacity-80 flex items-center justify-center gap-1"
+                                                className="w-full mt-4 h-12 bg-[#14b8a6] text-white rounded-lg font-bold text-sm shadow-lg transition-all active:scale-[0.98] active:opacity-90 flex items-center justify-center gap-1"
                                             >
                                                 <span>Pay with</span>
-                                                <svg className="w-3.5 h-3.5 fill-yellow-400" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                                                <svg className="w-3.5 h-3.5 fill-[#d4af37]" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                                             </button>
                                         </div>
                                     );

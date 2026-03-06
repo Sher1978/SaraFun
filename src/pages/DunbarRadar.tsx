@@ -5,18 +5,18 @@ import WebApp from '@twa-dev/sdk';
 import { db } from '../firebase';
 import { updateSocialGraph, CircleId } from '../services/userService';
 import { notifyGoldenFive } from '../services/RealTimeNotifications';
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
-// Radar Rings Configuration
-// 15 = Gold, 50 = Silver (light blue), 150 = Bronze, Top5 = Teal/Diamond
+// Radar Rings Configuration - Matte Premium Palette
+// Gold: #d4af37, Silver: #a0a0a0, Bronze: #cd7f32
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 170, color: 'rgba(180, 83, 9, 0.3)' }, // Bronze
-    { id: '50', max: 50, radius: 130, color: 'rgba(125, 211, 252, 0.3)' }, // Silver/Light Blue
-    { id: '15', max: 15, radius: 90, color: 'rgba(234, 179, 8, 0.4)' }, // Gold
-    { id: 'Top5', max: 5, radius: 50, color: 'rgba(20, 184, 166, 0.7)' }, // Teal
+    { id: '150', max: 150, radius: 170, color: '#cd7f32', opacity: 0.25 }, // Matte Bronze
+    { id: '50', max: 50, radius: 130, color: '#a0a0a0', opacity: 0.35 },  // Matte Silver
+    { id: '15', max: 15, radius: 90, color: '#d4af37', opacity: 0.5 },   // Matte Gold
+    { id: 'Top5', max: 5, radius: 50, color: '#14b8a6', opacity: 0.7 },  // Matte Teal
 ];
 
-function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
+function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, status: string, isOverlay?: boolean }) {
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         id: uid,
         data: { currentStatus: status }
@@ -25,15 +25,26 @@ function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
     const style = transform ? {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
         zIndex: isDragging ? 50 : 1,
-        opacity: isDragging ? 0.8 : 1,
+        opacity: (isDragging && !isOverlay) ? 0 : 1, // Hide original if dragging, but overlay is visible
     } : undefined;
 
-    // Determine styling based on ring status
-    let statusStyle = 'bg-tg-hint/10 border-tg-hint/30 text-tg-primary grayscale'; // Default (Shadow)
-    if (status === 'Top5') statusStyle = 'bg-teal-500/10 border-teal-500 text-teal-100 shadow-[0_0_8px_rgba(20,184,166,0.6)]';
-    if (status === '15') statusStyle = 'bg-yellow-500/10 border-yellow-500 text-yellow-100 shadow-[0_0_8px_rgba(234,179,8,0.6)]';
-    if (status === '50') statusStyle = 'bg-sky-300/10 border-sky-300 text-sky-100 shadow-[0_0_8px_rgba(125,211,252,0.4)]';
-    if (status === '150') statusStyle = 'bg-amber-700/10 border-amber-700 text-amber-100 shadow-[0_0_8px_rgba(180,83,9,0.4)]';
+    // Determine styling based on ring status - Photorealistic Matte
+    let statusStyle = 'bg-slate-800/40 border-slate-700/50 text-slate-400 grayscale'; // Default (Shadow)
+    if (status === 'Top5') statusStyle = 'bg-teal-900/40 border-teal-500/80 text-teal-100 shadow-[0_4px_12px_rgba(20,184,166,0.3)]';
+    if (status === '15') statusStyle = 'bg-yellow-900/40 border-[#d4af37]/80 text-yellow-100 shadow-[0_4px_12px_rgba(212,175,55,0.3)]';
+    if (status === '50') statusStyle = 'bg-slate-800/40 border-slate-400/80 text-slate-100 shadow-[0_4px_12px_rgba(160,160,160,0.3)]';
+    if (status === '150') statusStyle = 'bg-amber-900/40 border-[#cd7f32]/80 text-amber-100 shadow-[0_4px_12px_rgba(205,127,50,0.3)]';
+
+    if (isOverlay) {
+        return (
+            <div className="flex flex-col items-center gap-1 z-[100] pointer-events-none scale-110">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-xl ${statusStyle}`}>
+                    {uid.substring(0, 2)}
+                </div>
+                <span className="text-[10px] text-white font-black">{uid}</span>
+            </div>
+        );
+    }
 
     return (
         <div
@@ -43,52 +54,77 @@ function DraggableAvatar({ uid, status }: { uid: string, status: string }) {
             {...attributes}
             className="flex flex-col items-center gap-1 snap-start relative touch-none group"
         >
-            <div className={`w-14 h-12 rounded-full flex items-center justify-center text-sm font-black border-2 backdrop-blur-sm transition-all ${isDragging ? 'scale-110 opacity-80' : ''} ${statusStyle}`}>
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-sm font-black border backdrop-blur-md transition-all ${isDragging ? 'opacity-0' : ''} ${statusStyle}`}>
                 {uid.substring(0, 2)}
             </div>
-            <span className="text-[10px] text-tg-primary/80 truncate w-14 text-center font-medium group-hover:text-tg-primary">{uid}</span>
+            <span className="text-[10px] text-slate-400 truncate w-14 text-center font-medium group-hover:text-white transition-colors">{uid}</span>
         </div>
     );
 }
 
-function DroppableArc({ ring, currentCount, isActive, onClick, children }: any) {
+function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: any) {
     const { setNodeRef, isOver } = useDroppable({
         id: ring.id,
         data: { maxContent: ring.max, currentContent: currentCount }
     });
 
-    // Logic: Glow red if full, green if available
     const isFull = currentCount >= ring.max;
-    const strokeColor = isOver
-        ? (isFull ? 'rgba(239, 68, 68, 0.8)' : 'rgba(34, 197, 94, 0.8)') // Red or Green
-        : ring.color;
+    const isNinetyPercent = currentCount >= ring.max * 0.9 && !isFull;
 
-    // Match glow color to ring color
-    const glowColor = ring.id === '15' ? 'rgba(234,179,8,0.5)' :
-        ring.id === '50' ? 'rgba(125,211,252,0.5)' :
-            ring.id === '150' ? 'rgba(180,83,9,0.5)' :
-                'rgba(20,184,166,0.6)';
+    // Design: Photorealistic Shimmering
+    let shimmerClass = '';
+    let strokeColor = ring.color;
+
+    if (isDraggingAny) {
+        if (isFull) {
+            shimmerClass = 'animate-shimmer-red';
+            strokeColor = '#ef4444';
+        } else if (isNinetyPercent) {
+            shimmerClass = 'animate-shimmer-yellow';
+            strokeColor = '#eab308';
+        } else {
+            shimmerClass = 'animate-shimmer-green';
+            strokeColor = '#22c55e';
+        }
+    }
+
+    if (isOver) {
+        strokeColor = isFull ? '#ef4444' : '#22c55e';
+    }
 
     return (
         <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer group">
+            {/* Background Depth Shadow */}
+            <path
+                d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
+                fill="none"
+                stroke="rgba(0,0,0,0.3)"
+                strokeWidth="42"
+                className="transition-all duration-300 pointer-events-none"
+            />
+            {/* Main Arc */}
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
                 stroke={strokeColor}
                 strokeWidth="38"
-                style={{ filter: isActive || isOver ? `drop-shadow(0 0 12px ${glowColor})` : 'none' }}
-                className={`transition-all duration-300 origin-bottom`}
+                strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
+                className={`transition-all duration-300 origin-bottom ${shimmerClass}`}
+                style={{
+                    filter: (isActive || isOver)
+                        ? `drop-shadow(0 0 15px ${strokeColor})`
+                        : 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))'
+                }}
             />
             <text
                 x="200"
                 y={200 - ring.radius + 4}
                 textAnchor="middle"
                 alignmentBaseline="middle"
-                className={`fill-tg-primary text-[10px] font-bold pointer-events-none ${isOver && isFull ? 'fill-red-500' : ''}`}
+                className={`fill-white text-[10px] font-black pointer-events-none transition-colors ${isOver && isFull ? 'fill-red-500 scale-110' : ''}`}
             >
                 {currentCount}/{ring.max}
             </text>
-            {children}
         </g>
     );
 }
@@ -121,8 +157,17 @@ export default function DunbarRadar() {
         return Object.values(socialGraph).filter((status) => status === ringId).length;
     };
 
+    const [activeId, setActiveId] = useState<string | null>(null);
+
+    const handleDragStart = (event: any) => {
+        setActiveId(event.active.id);
+        WebApp.HapticFeedback.impactOccurred('medium');
+    };
+
     const handleDragEnd = async (event: any) => {
         const { active, over } = event;
+        setActiveId(null);
+
         if (over && active.id) {
             const targetRing = over.id as CircleId;
             const uidDragged = active.id;
@@ -158,8 +203,8 @@ export default function DunbarRadar() {
     });
 
     return (
-        <DndContext onDragEnd={handleDragEnd}>
-            <div className="relative h-full w-full bg-tg-main text-tg-primary overflow-hidden flex flex-col justify-end">
+        <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <div className={`relative h-full w-full bg-[#1a1c1e] text-[#e2e8f0] overflow-hidden flex flex-col justify-end transition-colors duration-500 ${activeId ? 'bg-[#0f1113]' : ''}`}>
 
                 {/* Z-Index 8: Search Bar */}
                 <div className={`absolute w-full px-4 transition-all duration-300 z-[10] top-4`}>
@@ -187,6 +232,7 @@ export default function DunbarRadar() {
                                     ring={ring}
                                     currentCount={currentCount}
                                     isActive={isActive}
+                                    isDraggingAny={!!activeId}
                                     onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
                                 />
                             );
@@ -218,6 +264,17 @@ export default function DunbarRadar() {
                         )}
                     </div>
                 </div>
+
+                {/* DND Overlay Layer */}
+                <DragOverlay dropAnimation={null}>
+                    {activeId ? (
+                        <DraggableAvatar
+                            uid={activeId}
+                            status={socialGraph[activeId] || 'Shadow'}
+                            isOverlay={true}
+                        />
+                    ) : null}
+                </DragOverlay>
             </div>
         </DndContext>
     );
