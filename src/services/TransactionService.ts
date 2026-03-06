@@ -54,30 +54,78 @@ export const TransactionService = {
         const docRef = await addDoc(transactionsRef, {
             masterUid,
             clientUid,
-            status: 'pending',
+            status: 'pending_undo', // Sprint 2: 60-sec buffer
             serviceType,
             timestamp: serverTimestamp()
         });
+
+        // Sprint 2: 60-sec Undo Buffer
+        // In production, a Cloud Function with Cloud Tasks would be ideal here.
+        // For the TMA, we simulate the server-side delay.
+        setTimeout(async () => {
+            const currentTxSnap = await getDocs(query(collection(db, 'Transactions'), where('__name__', '==', docRef.id)));
+            if (!currentTxSnap.empty) {
+                const txData = currentTxSnap.docs[0].data();
+                if (txData.status === 'pending_undo') {
+                    console.log(`[TransactionService] 60s passed. Auto-confirming TX: ${docRef.id}`);
+                    await TransactionService.completeTransaction(docRef.id, masterUid, clientUid, 100); // Default amount 100 for simulation
+                }
+            }
+        }, 60000);
 
         return docRef.id;
     },
 
     /**
-     * Completes a transaction.
-     * This is required to unlock the Review Flow and triggers referral bonuses.
+     * Cancel an undoable transaction within the 60 second window.
      */
-    completeTransaction: async (transactionId: string) => {
+    cancelTransaction: async (transactionId: string) => {
         const txRef = doc(db, 'Transactions', transactionId);
         await updateDoc(txRef, {
+            status: 'cancelled',
+            cancelledAt: serverTimestamp()
+        });
+        console.log(`[TransactionService] TX ${transactionId} cancelled by Master.`);
+        return true;
+    },
+
+    /**
+     * Completes a transaction after the 60s buffer.
+     * Applies the 20% Split Logic: Cashback (10%), MLM L1-L3 (3%), B2B (2%), Platform (5%).
+     */
+    completeTransaction: async (transactionId: string, masterUid: string, clientUid: string, amountStars: number) => {
+        const txRef = doc(db, 'Transactions', transactionId);
+
+        // 1. Calculate the 20% split
+        const commission = amountStars * 0.20;
+        const masterReceives = amountStars - commission;
+        const cashback = commission * 0.50; // 10% of total (50% of commission)
+        const mlmLevel = commission * 0.05; // 1% per level (5% of commission)
+        const b2bRev = commission * 0.10; // 2% of total
+        const platformRev = commission * 0.25; // 5% of total
+
+        // 2. Perform Batch Write for atomicity
+        const { writeBatch } = await import('firebase/firestore');
+        const batch = writeBatch(db);
+
+        // Update TX Status
+        batch.update(txRef, {
             status: 'completed',
             commissionStatus: 'frozen', // Anti-Fraud: Frozen until ABCD review
+            amountStars,
+            split: { commission, cashback, mlmLevel, b2bRev, platformRev },
             completedAt: serverTimestamp()
         });
 
-        // Handle Referral Rewards (Social Growth Hook)
-        // In production, this would be a backend trigger. 
-        // Here we demonstrate the logic:
-        // await TransactionService.checkAndCreditReferralBonus(transactionId);
+        // 3. In a fully implemented backend, we would use the MLMs from User Profiles.
+        // For the TMA MVP, we mock the master balance update.
+        // The Client's Cashback is frozen, so it's NOT added to their balance yet.
+        const masterRef = doc(db, 'Users', masterUid);
+        // Assuming we would use FieldValue.increment(masterReceives) here
+        // batch.update(masterRef, { stars_balance: increment(masterReceives) });
+
+        await batch.commit();
+        console.log(`[TransactionService] TX ${transactionId} confirmed. Split applied & frozen.`);
 
         return true;
     },
