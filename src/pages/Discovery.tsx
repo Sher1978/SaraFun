@@ -1,143 +1,467 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ABCDChart from '../components/ABCDChart';
-import SkeletonCard from '../components/SkeletonCard';
 import { calculateDunbarScore, RatingData } from '../utils/math';
 import { createInvoice } from '../services/paymentService';
 import { SemanticSearch } from '../services/SemanticSearch';
 import ReviewFlow from '../components/ReviewFlow';
-import TrustStream from '../components/TrustStream';
 import WebApp from '@twa-dev/sdk';
 
-// Jobs To Be Done (JTBD) Categories
-const JTBD_CATEGORIES = [
-    { id: 'auto', title: 'Fix my transport', icon: '🚗' },
-    { id: 'health', title: 'Boost my health', icon: '❤️' },
-    { id: 'home', title: 'Improve my home', icon: '🏠' },
-    { id: 'learn', title: 'Learn a new skill', icon: '🧠' },
-    { id: 'events', title: 'Plan an event', icon: '🎉' },
-    { id: 'other', title: 'Solve another problem', icon: '✨' },
+// ─── Inline Styles ──────────────────────────────────────────────────────────
+const NEON = '#00E5CC';
+const NEON_DIM = 'rgba(0,229,204,0.15)';
+const NEON_BORDER = `1px solid ${NEON}`;
+const BG = '#0d0f14';
+const CARD_BG = 'rgba(18,22,32,0.85)';
+
+// ─── Category Data ───────────────────────────────────────────────────────────
+const CATEGORIES = [
+    { id: 'restaurants', label: 'Restaurants', icon: CategoryRestaurantIcon },
+    { id: 'cafes', label: 'Cafes', icon: CategoryCafeIcon },
+    { id: 'shops', label: 'Shops', icon: CategoryShopIcon },
+    { id: 'nightlife', label: 'Nightlife', icon: CategoryNightlifeIcon },
+    { id: 'gyms', label: 'Gyms', icon: CategoryGymIcon },
+    { id: 'art', label: 'Art', icon: CategoryArtIcon },
+    { id: 'events', label: 'Events', icon: CategoryEventsIcon },
 ];
 
-// MOCK MASTERS with ABCD ratings matching the new chart
-const MOCK_MASTERS = [
+// ─── Mock Data ───────────────────────────────────────────────────────────────
+const TRUST_CARDS = [
     {
-        id: 'master_1',
-        name: 'Alex Minov',
-        service: 'Car Detailing',
-        avatar: 'https://avatar.iran.liara.run/public/boy?username=Alex',
-        price: 50,
-        ratings: [
-            { rating: 4.8, ring: 'Top5' as const },
-            { rating: 4.2, ring: '15' as const }
-        ] as RatingData[],
-        abcd: { a: 4.8, b: 3.5, c: 5.0, d: 4.2 },
-        is_sherlock_verified: true, // GOLDEN SEAL
-        distance: 2.4, // km
-        category: 'auto'
+        id: 'p1',
+        name: 'Aurora Dining',
+        rating: 4.8,
+        total: 5,
+        distance: '1.2 km away',
+        count: 15,
+        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
+        category: 'restaurants',
     },
     {
-        id: 'master_2',
-        name: 'Sarah J.',
-        service: 'Yoga Instructor',
-        avatar: 'https://avatar.iran.liara.run/public/girl?username=Sarah',
-        price: 30,
-        ratings: [
-            { rating: 5.0, ring: '15' as const },
-            { rating: 4.5, ring: '50' as const }
-        ] as RatingData[],
-        abcd: { a: 5.0, b: 4.8, c: 4.5, d: 3.9 },
-        distance: 1.2,
-        category: 'health'
+        id: 'p2',
+        name: 'Neon Lounge',
+        rating: 4.5,
+        total: 5,
+        distance: '0.8 km away',
+        count: 15,
+        image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80',
+        category: 'nightlife',
     },
     {
-        id: 'master_3',
-        name: 'Mike Tkach',
-        service: 'Plumbing',
-        avatar: 'https://avatar.iran.liara.run/public/boy?username=Mike',
-        price: 80,
-        ratings: [
-            { rating: 3.8, ring: '50' as const },
-            { rating: 4.0, ring: '150' as const }
-        ] as RatingData[],
-        abcd: { a: 4.2, b: 3.8, c: 4.0, d: 4.5 },
-        distance: 5.8,
-        category: 'home'
+        id: 'p3',
+        name: 'Skyline Café',
+        rating: 4.7,
+        total: 5,
+        distance: '2.1 km away',
+        count: 15,
+        image: 'https://images.unsplash.com/photo-1559925393-1d6d879e60e5?w=600&q=80',
+        category: 'cafes',
     },
 ];
 
+const NEARBY_CARDS = [
+    {
+        id: 'n1',
+        name: 'The Brewloft',
+        rating: 4.3,
+        total: 5,
+        distance: '0.4 km',
+        count: 20,
+        image: 'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=600&q=80',
+    },
+    {
+        id: 'n2',
+        name: 'Urban Bites',
+        rating: 4.1,
+        total: 5,
+        distance: '1.0 km',
+        count: 20,
+        image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80',
+    },
+    {
+        id: 'n3',
+        name: 'Zen Garden',
+        rating: 4.6,
+        total: 5,
+        distance: '3.2 km',
+        count: 20,
+        image: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=600&q=80',
+    },
+];
+
+const DISCOVERY_CARDS = [
+    {
+        id: 'd1',
+        name: 'Galerie Noire',
+        rating: 4.9,
+        total: 5,
+        distance: '1.5 km',
+        count: 10,
+        image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80',
+    },
+    {
+        id: 'd2',
+        name: 'Sky Gym Alpha',
+        rating: 4.4,
+        total: 5,
+        distance: '0.9 km',
+        count: 10,
+        image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80',
+    },
+];
+
+// ─── SVG Icon Components ─────────────────────────────────────────────────────
+function CategoryRestaurantIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M3 2v7c0 1.66 1.34 3 3 3h0c1.66 0 3-1.34 3-3V2" />
+            <line x1="6" y1="5" x2="6" y2="2" />
+            <path d="M16 2v4a4 4 0 00-4 4v0a4 4 0 004 4h0V2" />
+            <line x1="3" y1="22" x2="21" y2="22" />
+            <line x1="3" y1="11" x2="21" y2="11" />
+        </svg>
+    );
+}
+function CategoryCafeIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M18 8h1a4 4 0 010 8h-1" />
+            <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+            <line x1="6" y1="1" x2="6" y2="4" />
+            <line x1="10" y1="1" x2="10" y2="4" />
+            <line x1="14" y1="1" x2="14" y2="4" />
+        </svg>
+    );
+}
+function CategoryShopIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 01-8 0" />
+        </svg>
+    );
+}
+function CategoryNightlifeIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M8 22V12l-6-6h20L16 12v10" />
+            <line x1="8" y1="22" x2="16" y2="22" />
+        </svg>
+    );
+}
+function CategoryGymIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <path d="M6.5 6.5h11M6.5 17.5h11" />
+            <path d="M3 9.5v5M21 9.5v5M6.5 6.5v11M17.5 6.5v11" />
+        </svg>
+    );
+}
+function CategoryArtIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <circle cx="8.5" cy="8.5" r="1.5" />
+            <polyline points="21 15 16 10 5 21" />
+        </svg>
+    );
+}
+function CategoryEventsIcon() {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+    );
+}
+
+// ─── Star Row ────────────────────────────────────────────────────────────────
+function Stars({ rating, total }: { rating: number; total: number }) {
+    return (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {Array.from({ length: total }).map((_, i) => {
+                const filled = i < Math.floor(rating);
+                const half = !filled && i < rating;
+                return (
+                    <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={filled ? NEON : half ? 'url(#half)' : 'none'} stroke={NEON} strokeWidth={1.5}>
+                        {half && (
+                            <defs>
+                                <linearGradient id="half">
+                                    <stop offset="50%" stopColor={NEON} />
+                                    <stop offset="50%" stopColor="transparent" />
+                                </linearGradient>
+                            </defs>
+                        )}
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                );
+            })}
+            <span style={{ color: NEON, fontSize: 12, fontWeight: 700, marginLeft: 4 }}>{rating}/{total}</span>
+        </span>
+    );
+}
+
+// ─── Place Card (wide, for Circles Trust) ───────────────────────────────────
+function PlaceCardWide({ card, active }: { card: typeof TRUST_CARDS[0]; active: boolean }) {
+    return (
+        <div
+            style={{
+                position: 'relative',
+                width: active ? 260 : 210,
+                height: active ? 200 : 170,
+                borderRadius: 18,
+                overflow: 'hidden',
+                border: active ? `2px solid ${NEON}` : '2px solid rgba(255,255,255,0.1)',
+                boxShadow: active ? `0 0 24px ${NEON}55, 0 8px 32px rgba(0,0,0,0.8)` : '0 4px 20px rgba(0,0,0,0.6)',
+                flexShrink: 0,
+                transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)',
+                cursor: 'pointer',
+            }}
+        >
+            <img
+                src={card.image}
+                alt={card.name}
+                style={{
+                    width: '100%', height: '100%', objectFit: 'cover',
+                    filter: active ? 'brightness(0.85)' : 'brightness(0.5) saturate(0.6)',
+                    transition: 'filter 0.35s ease',
+                }}
+            />
+            {/* Counter badge */}
+            <div style={{
+                position: 'absolute', top: 10, right: 10,
+                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 8, padding: '2px 8px',
+                color: '#fff', fontSize: 11, fontWeight: 700,
+            }}>
+                1/{card.count}
+            </div>
+            {/* Info overlay – only on active */}
+            {active && (
+                <div style={{
+                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)',
+                    padding: '14px 14px 14px',
+                }}>
+                    <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>{card.name}</div>
+                    <div style={{ marginTop: 4 }}><Stars rating={card.rating} total={card.total} /></div>
+                    <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>{card.distance}</div>
+                </div>
+            )}
+            {/* Blurred name for non-active */}
+            {!active && (
+                <div style={{
+                    position: 'absolute', bottom: 10, left: 10,
+                    color: '#fff', fontSize: 14, fontWeight: 700,
+                    textShadow: '0 2px 8px rgba(0,0,0,0.8)',
+                }}>
+                    {card.name.slice(0, 4)}…
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ─── Place Card (compact, for Popular / Discovery rows) ──────────────────────
+function PlaceCardCompact({ card }: { card: typeof NEARBY_CARDS[0] }) {
+    return (
+        <div style={{
+            position: 'relative', width: 180, height: 120,
+            borderRadius: 14, overflow: 'hidden',
+            border: '1.5px solid rgba(255,255,255,0.12)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+            flexShrink: 0, cursor: 'pointer',
+        }}>
+            <img src={card.image} alt={card.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.65)' }} />
+            <div style={{
+                position: 'absolute', top: 8, right: 8,
+                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                borderRadius: 6, padding: '1px 6px',
+                color: '#fff', fontSize: 10, fontWeight: 700,
+            }}>
+                1/{card.count}
+            </div>
+            <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
+                padding: '8px 10px 8px',
+            }}>
+                <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, lineHeight: 1.2 }}>{card.name}</div>
+            </div>
+        </div>
+    );
+}
+
+// ─── Bottom Navigation ───────────────────────────────────────────────────────
+function BottomNav({ active }: { active: string }) {
+    const navigate = useNavigate();
+    const items = [
+        { id: 'explore', label: 'EXPLORE', path: '/discovery', icon: ExploreIcon },
+        { id: 'map', label: 'MAP', path: '/map', icon: MapIcon },
+        { id: 'qr', label: '', path: '/radar', icon: QrIcon, center: true },
+        { id: 'radar', label: 'RADAR', path: '/radar', icon: RadarIcon },
+        { id: 'profile', label: 'PROFILE', path: '/profile', icon: ProfileIcon },
+    ];
+    return (
+        <nav style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0,
+            background: 'rgba(10,14,22,0.97)',
+            backdropFilter: 'blur(20px)',
+            borderTop: `1px solid rgba(0,229,204,0.2)`,
+            height: 72,
+            display: 'flex', alignItems: 'center', justifyContent: 'space-around',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            zIndex: 100,
+        }}>
+            {items.map((item) => {
+                const Icon = item.icon;
+                if (item.center) {
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => navigate(item.path)}
+                            style={{
+                                width: 58, height: 58,
+                                borderRadius: '50%',
+                                background: `radial-gradient(circle at 40% 35%, #00E5CC, #009980)`,
+                                boxShadow: `0 0 28px ${NEON}88, 0 4px 16px rgba(0,0,0,0.6)`,
+                                border: 'none', cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                marginTop: -18,
+                                flexShrink: 0,
+                            }}
+                        >
+                            <Icon />
+                        </button>
+                    );
+                }
+                const isActive = item.id === active;
+                return (
+                    <button
+                        key={item.id}
+                        onClick={() => navigate(item.path)}
+                        style={{
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+                            background: 'none', border: 'none', cursor: 'pointer',
+                            color: isActive ? NEON : 'rgba(255,255,255,0.4)',
+                            transition: 'color 0.2s',
+                            minWidth: 48,
+                        }}
+                    >
+                        <Icon />
+                        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em' }}>{item.label}</span>
+                    </button>
+                );
+            })}
+        </nav>
+    );
+}
+
+function ExploreIcon() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+    );
+}
+function MapIcon() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+            <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
+        </svg>
+    );
+}
+function QrIcon() {
+    return (
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d0f14" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="3" height="3" />
+            <rect x="18" y="14" width="3" height="3" /><rect x="14" y="18" width="3" height="3" />
+            <rect x="18" y="18" width="3" height="3" />
+            <line x1="5" y1="5" x2="5" y2="7" /><line x1="16" y1="5" x2="16" y2="7" /><line x1="5" y1="16" x2="5" y2="18" />
+        </svg>
+    );
+}
+function RadarIcon() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="2" />
+            <path d="M16.24 7.76a6 6 0 010 8.49" /><path d="M7.76 16.24a6 6 0 010-8.49" />
+            <path d="M20.07 3.93a10 10 0 010 16.14" /><path d="M3.93 20.07a10 10 0 010-16.14" />
+        </svg>
+    );
+}
+function ProfileIcon() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
+        </svg>
+    );
+}
+
+// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
 export default function Discovery() {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [reviewMaster, setReviewMaster] = useState<{ id: string, name: string } | null>(null);
-    const [socialGraph, setSocialGraph] = useState<Record<string, string>>({});
-    const [isSearchExpanded, setIsSearchExpanded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [activeCategory, setActiveCategory] = useState<string | null>(null);
+    const [activeTrustIdx, setActiveTrustIdx] = useState(0);
+    const [reviewMaster, setReviewMaster] = useState<{ id: string; name: string } | null>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        // Mock social graph for sorting demo
-        setSocialGraph({ 'master_1': 'Top5', 'master_2': '15' });
-
-        const timer = setTimeout(() => setLoading(false), 1500);
-        return () => clearTimeout(timer);
-    }, []);
-
-    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-    const [deckOrder, setDeckOrder] = useState(JTBD_CATEGORIES.map(c => c.id));
-    const [expandedDeck, setExpandedDeck] = useState<string | null>(null);
-
-    const filterOptions = [
-        { id: 'auto', label: 'Auto', icon: '🚗' },
-        { id: 'health', label: 'Health', icon: '❤️' },
-        { id: 'home', label: 'Home', icon: '🏠' },
-        { id: 'learn', label: 'Learn', icon: '🧠' },
-        { id: 'events', label: 'Events', icon: '🎉' },
-        { id: 'shopping', label: 'Shopping', icon: '🛍️' },
-        { id: 'services', label: 'Services', icon: '🛠️' },
-    ];
-
-    const toggleFilter = (id: string) => {
-        WebApp.HapticFeedback.impactOccurred('light');
-        setSelectedFilters(prev =>
-            prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-        );
+    const handleCategoryTap = (id: string) => {
+        try { WebApp.HapticFeedback.impactOccurred('light'); } catch (e) { }
+        setActiveCategory(prev => (prev === id ? null : id));
     };
 
-    const handleSearchToggle = () => {
-        WebApp.HapticFeedback.impactOccurred('medium');
-        setIsSearchExpanded(!isSearchExpanded);
+    const handleTrustScroll = (dir: 1 | -1) => {
+        setActiveTrustIdx(prev => Math.max(0, Math.min(TRUST_CARDS.length - 1, prev + dir)));
     };
 
-    const toggleDeck = (id: string) => {
-        WebApp.HapticFeedback.impactOccurred('light');
-        setExpandedDeck(expandedDeck === id ? null : id);
+    // Touch swipe for trust carousel
+    const trustTouchStart = useRef(0);
+    const onTrustTouchStart = (e: React.TouchEvent) => { trustTouchStart.current = e.touches[0].clientX; };
+    const onTrustTouchEnd = (e: React.TouchEvent) => {
+        const delta = e.changedTouches[0].clientX - trustTouchStart.current;
+        if (Math.abs(delta) > 50) handleTrustScroll(delta < 0 ? 1 : -1);
     };
 
-    const handlePayment = async (e: React.MouseEvent, master: any, priceUsd: number) => {
-        e.stopPropagation();
-        const success = await createInvoice(`${master.id}_mainService`, priceUsd);
-        if (success) {
-            setReviewMaster({ id: master.id, name: master.name });
-        }
-    };
-
-    // Base Trust Network sorting
-    const trustSortedMasters = SemanticSearch.filterByTrust(MOCK_MASTERS, socialGraph);
-
-    const getSortedCategory = (categoryId: string) => {
-        let filtered = trustSortedMasters.filter(m => m.category === categoryId);
-        if (filtered.length === 0) filtered = [...trustSortedMasters];
-        return filtered;
-    };
-
-    // Decks data: First is always 'Trust Circles'
-    const trustCircleMasters = trustSortedMasters.filter(m => socialGraph[m.id]);
+    const css = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    .disc-root * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; }
+    .disc-root { background: #0d0f14; min-height: 100vh; overflow-x: hidden; }
+    .disc-search:focus { border-color: ${NEON} !important; box-shadow: 0 0 0 2px ${NEON}33; outline: none; }
+    .disc-cat-btn { transition: all 0.2s; }
+    .disc-cat-btn:active { transform: scale(0.92); }
+    .disc-cat-btn.active { border-color: ${NEON} !important; background: ${NEON_DIM} !important; box-shadow: 0 0 16px ${NEON}55; }
+    .disc-cat-btn svg { transition: color 0.2s; }
+    .disc-section-card { transition: transform 0.15s; }
+    .disc-section-card:active { transform: scale(0.97); }
+    .disc-scroll-row { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+    .disc-scroll-row::-webkit-scrollbar { display: none; }
+    .disc-scroll-row { -ms-overflow-style: none; scrollbar-width: none; }
+    .disc-neon-text { color: ${NEON}; }
+    @keyframes neon-pulse { 0%,100% { text-shadow: 0 0 8px ${NEON}; } 50% { text-shadow: 0 0 18px ${NEON}, 0 0 4px #fff; } }
+    .disc-neon-pulse { animation: neon-pulse 2.8s ease-in-out infinite; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .disc-fadein { animation: fadeInUp 0.4s ease forwards; }
+  `;
 
     return (
-        <div className="relative min-h-full bg-tg-bg px-4 pt-6 pb-24 space-y-6 overflow-x-hidden">
+        <div className="disc-root" style={{ paddingBottom: 90 }}>
+            <style dangerouslySetInnerHTML={{ __html: css }} />
+
             {/* Review Flow Overlay */}
             {reviewMaster && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
+                <div style={{
+                    position: 'fixed', inset: 0, zIndex: 200,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)',
+                }}>
                     <ReviewFlow
                         masterId={reviewMaster.id}
                         masterName={reviewMaster.name}
@@ -146,223 +470,188 @@ export default function Discovery() {
                 </div>
             )}
 
-            {/* Smart Header with Search and Scrollable Filters */}
-            <header className="flex items-center gap-3 px-1 overflow-hidden sticky top-0 z-50 bg-tg-bg/80 backdrop-blur-xl py-2">
-                <div className={`flex items-center transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isSearchExpanded ? '-translate-x-full opacity-0 absolute pointer-events-none' : 'translate-x-0 opacity-100 relative'}`}>
-                    <h1 className="text-xl font-bold text-white mr-4">Discovery</h1>
+            {/* ── Header ── */}
+            <header style={{
+                position: 'sticky', top: 0, zIndex: 50,
+                background: 'rgba(10,14,22,0.96)', backdropFilter: 'blur(20px)',
+                borderBottom: '1px solid rgba(0,229,204,0.12)',
+                padding: '14px 16px 10px',
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <button
-                        onClick={handleSearchToggle}
-                        className="p-2.5 bg-tg-secondary/50 rounded-full border border-white/10 active:scale-90 transition-transform flex-shrink-0"
+                        onClick={() => navigate(-1)}
+                        style={{ background: 'none', border: 'none', color: NEON, fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                     >
-                        <svg className="w-5 h-5 text-tg-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                        Back
+                    </button>
+                    <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Discovery</h1>
+                    <button
+                        style={{
+                            width: 34, height: 34, borderRadius: '50%',
+                            background: `linear-gradient(135deg, #2a3050, #1a2240)`,
+                            border: `1.5px solid ${NEON}55`,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                        }}
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={NEON} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
                         </svg>
                     </button>
-
-                    <div className="flex gap-2 ml-4 overflow-x-auto hide-scrollbar pr-4">
-                        {filterOptions.map(f => (
-                            <button
-                                key={f.id}
-                                onClick={() => toggleFilter(f.id)}
-                                className={`flex-shrink-0 px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest transition-all ${selectedFilters.includes(f.id)
-                                    ? 'bg-tg-primary border-tg-primary text-black'
-                                    : 'bg-white/5 border-white/10 text-tg-hint'
-                                    }`}
-                            >
-                                {f.label}
-                            </button>
-                        ))}
-                    </div>
                 </div>
 
-                {isSearchExpanded && (
-                    <div className="flex-1 flex gap-3 animate-slide-in-right">
-                        <div className="flex-1 relative">
-                            <input
-                                autoFocus
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                placeholder="Search intent..."
-                                className="w-full h-10 bg-[#2a2d31] border border-white/10 rounded-xl px-4 text-white outline-none focus:border-tg-primary/50 text-sm"
-                            />
-                        </div>
-                        <button
-                            onClick={handleSearchToggle}
-                            className="h-10 px-4 bg-tg-secondary/50 rounded-xl border border-white/10 text-tg-hint text-xs font-bold active:scale-95 transition-transform"
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                )}
+                {/* Search Bar */}
+                <div style={{ position: 'relative' }}>
+                    <svg
+                        style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"
+                    >
+                        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <input
+                        className="disc-search"
+                        type="text"
+                        placeholder="Search by name..."
+                        value={searchQuery}
+                        onChange={e => setSearchQuery(e.target.value)}
+                        style={{
+                            width: '100%', height: 44,
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1.5px solid rgba(255,255,255,0.1)',
+                            borderRadius: 14,
+                            paddingLeft: 42, paddingRight: 14,
+                            color: '#fff', fontSize: 14,
+                            transition: 'border-color 0.2s, box-shadow 0.2s',
+                        }}
+                    />
+                </div>
             </header>
 
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .perspective-1000 { perspective: 1000px; }
-                @keyframes slide-in-right {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                .animate-slide-in-right { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            `}} />
-
-            {/* FIXED DECK: Your Trust Circles */}
-            <section className="space-y-4">
-                <div className="flex items-center justify-between px-1">
-                    <h2 className="text-xs font-black uppercase tracking-[0.2em] text-tg-primary">
-                        Your Trust Circles
-                    </h2>
-                    <span className="text-[10px] font-bold text-tg-hint bg-white/5 px-2 py-0.5 rounded-full uppercase">
-                        Fixed
-                    </span>
+            {/* ── Category Icons Row ── */}
+            <div style={{ padding: '16px 0 8px', overflowX: 'auto' }} className="disc-scroll-row">
+                <div style={{ display: 'flex', gap: 10, padding: '0 16px', flexShrink: 0 }}>
+                    {CATEGORIES.map(cat => {
+                        const Icon = cat.icon;
+                        const isActive = activeCategory === cat.id;
+                        return (
+                            <button
+                                key={cat.id}
+                                className={`disc-cat-btn${isActive ? ' active' : ''}`}
+                                onClick={() => handleCategoryTap(cat.id)}
+                                style={{
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                                    padding: '10px 12px',
+                                    background: 'rgba(255,255,255,0.04)',
+                                    border: '1.5px solid rgba(255,255,255,0.12)',
+                                    borderRadius: 14,
+                                    minWidth: 64, cursor: 'pointer',
+                                    flexShrink: 0,
+                                }}
+                            >
+                                <span style={{ color: isActive ? NEON : 'rgba(255,255,255,0.75)' }}>
+                                    <Icon />
+                                </span>
+                                <span style={{
+                                    fontSize: 9.5, fontWeight: 700,
+                                    color: isActive ? NEON : 'rgba(255,255,255,0.5)',
+                                    letterSpacing: '0.02em',
+                                    textAlign: 'center', lineHeight: 1.2,
+                                }}>
+                                    {cat.label}
+                                </span>
+                            </button>
+                        );
+                    })}
                 </div>
-                <DeckView masters={trustCircleMasters} id="trust_circles" loading={loading} onPay={handlePayment} />
+            </div>
+
+            {/* ── Circles Trust ── */}
+            <section style={{ padding: '18px 0 8px' }}>
+                <h2 className="disc-neon-pulse disc-neon-text" style={{
+                    margin: '0 0 14px 16px', fontSize: 22, fontWeight: 800,
+                    letterSpacing: '-0.02em',
+                }}>
+                    Circles Trust
+                </h2>
+
+                {/* Trust Carousel */}
+                <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 16, paddingRight: 16, overflowX: 'hidden' }}
+                    onTouchStart={onTrustTouchStart}
+                    onTouchEnd={onTrustTouchEnd}
+                >
+                    {TRUST_CARDS.map((card, idx) => {
+                        const diff = idx - activeTrustIdx;
+                        const visible = Math.abs(diff) <= 1;
+                        return (
+                            <div
+                                key={card.id}
+                                style={{
+                                    display: visible ? 'block' : 'none',
+                                    transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)',
+                                }}
+                            >
+                                <PlaceCardWide card={card} active={idx === activeTrustIdx} />
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Dot indicators */}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
+                    {TRUST_CARDS.map((_, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setActiveTrustIdx(i)}
+                            style={{
+                                width: i === activeTrustIdx ? 18 : 6, height: 6,
+                                borderRadius: 3, border: 'none', cursor: 'pointer',
+                                background: i === activeTrustIdx ? NEON : 'rgba(255,255,255,0.25)',
+                                transition: 'all 0.3s',
+                            }}
+                        />
+                    ))}
+                </div>
             </section>
 
-            {/* COLLAPSED & REORDERABLE DECKS */}
-            {deckOrder.map((catId) => {
-                const jtbd = JTBD_CATEGORIES.find(c => c.id === catId);
-                if (!jtbd) return null;
-                const masters = getSortedCategory(catId);
-                const isExpanded = expandedDeck === catId;
-
-                return (
-                    <section
-                        key={catId}
-                        className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isExpanded ? 'space-y-4' : 'h-16 overflow-hidden mt-[-20px] active:scale-[0.98]'}`}
-                    >
-                        <div
-                            onClick={() => toggleDeck(catId)}
-                            className={`flex items-center justify-between px-4 py-3 rounded-2xl bg-[#2a2d31] border border-white/10 cursor-pointer transition-colors ${isExpanded ? 'bg-tg-secondary/20 border-tg-primary/30' : 'bg-[#2a2d31]/50 backdrop-blur-sm shadow-xl'}`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-xl opacity-60">{jtbd.icon}</span>
-                                <h2 className={`text-sm font-bold tracking-tight uppercase ${isExpanded ? 'text-tg-primary' : 'text-white/60'}`}>
-                                    {jtbd.title}
-                                </h2>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-[10px] font-black text-tg-hint opacity-40">{masters.length}</span>
-                                <svg className={`w-4 h-4 text-tg-hint transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
+            {/* ── Popular Nearby ── */}
+            <section style={{ padding: '22px 0 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
+                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
+                        Popular Nearby
+                    </h2>
+                    <span style={{ fontSize: 12, color: NEON, fontWeight: 600, cursor: 'pointer' }}>See all →</span>
+                </div>
+                <div className="disc-scroll-row" style={{ paddingLeft: 16, paddingRight: 16 }}>
+                    {NEARBY_CARDS.map(card => (
+                        <div key={card.id} className="disc-section-card">
+                            <PlaceCardCompact card={card} />
                         </div>
+                    ))}
+                </div>
+            </section>
 
-                        {isExpanded && (
-                            <div className="animate-slide-in">
-                                <DeckView masters={masters} id={catId} loading={loading} onPay={handlePayment} />
-                            </div>
-                        )}
-                    </section>
-                );
-            })}
-        </div>
-    );
-}
-
-// Sub-component for the Stacked Deck View
-function DeckView({ masters, id, loading, onPay }: {
-    masters: any[],
-    id: string,
-    loading: boolean,
-    onPay: (e: any, m: any, p: number) => void
-}) {
-    const navigate = useNavigate();
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [dragX, setDragX] = useState(0);
-    const [startX, setStartX] = useState(0);
-
-    const handleTouchStart = (e: React.TouchEvent) => {
-        setStartX(e.touches[0].clientX);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent) => {
-        const currentX = e.touches[0].clientX;
-        setDragX(currentX - startX);
-    };
-
-    const handleTouchEnd = () => {
-        if (dragX < -100) {
-            // Swipe Left -> Next
-            setActiveIndex((prev) => (prev + 1) % masters.length);
-            WebApp.HapticFeedback.impactOccurred('medium');
-        } else if (dragX > 100) {
-            // Swipe Right -> Prev
-            setActiveIndex((prev) => (prev - 1 + masters.length) % masters.length);
-            WebApp.HapticFeedback.impactOccurred('medium');
-        }
-        setDragX(0);
-    };
-
-    if (loading) return (
-        <div className="h-[280px] w-full flex items-center justify-center bg-tg-secondary/10 rounded-3xl border border-white/5">
-            <SkeletonCard />
-        </div>
-    );
-
-    return (
-        <div className="relative h-[280px] w-full mt-2 select-none perspective-1000">
-            {masters.map((master, idx) => {
-                const diff = (idx - activeIndex + masters.length) % masters.length;
-
-                // Only render top 3 for performance
-                if (diff > 2) return null;
-
-                const isTop = diff === 0;
-                const dunkbarScore = calculateDunbarScore(master.ratings);
-
-                return (
-                    <div
-                        key={master.id}
-                        onTouchStart={isTop ? handleTouchStart : undefined}
-                        onTouchMove={isTop ? handleTouchMove : undefined}
-                        onTouchEnd={isTop ? handleTouchEnd : undefined}
-                        onClick={() => navigate(`/master/${master.id}`)}
-                        style={{
-                            zIndex: 10 - diff,
-                            transform: isTop
-                                ? `translateX(${dragX}px) rotate(${dragX / 25}deg) scale(1)`
-                                : `translateY(${diff * 8}px) scale(${1 - diff * 0.04}) translateZ(-${diff * 20}px)`,
-                            opacity: 1 - diff * 0.3,
-                            visibility: diff > 2 ? 'hidden' : 'visible',
-                        }}
-                        className={`absolute inset-0 bg-[#313439] border border-white/10 rounded-3xl p-5 shadow-2xl flex flex-col ${isTop ? 'transition-none' : 'transition-all duration-500'}`}
-                    >
-                        <div className="flex gap-4 items-center">
-                            <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden">
-                                {master.avatar ? (
-                                    <img src={master.avatar} alt={master.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="text-2xl font-black text-white/20">{master.name.charAt(0)}</span>
-                                )}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-lg font-bold text-white leading-tight">{master.name}</h3>
-                                <p className="text-[10px] text-tg-primary font-black uppercase tracking-widest mt-0.5">{master.service}</p>
-                            </div>
+            {/* ── New Discoveries ── */}
+            <section style={{ padding: '22px 0 8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
+                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
+                        New Discoveries
+                    </h2>
+                    <span style={{ fontSize: 12, color: NEON, fontWeight: 600, cursor: 'pointer' }}>See all →</span>
+                </div>
+                <div className="disc-scroll-row" style={{ paddingLeft: 16, paddingRight: 16 }}>
+                    {DISCOVERY_CARDS.map(card => (
+                        <div key={card.id} className="disc-section-card">
+                            <PlaceCardCompact card={card} />
                         </div>
+                    ))}
+                </div>
+            </section>
 
-                        <div className="mt-4 flex items-center justify-between bg-black/20 p-3 rounded-2xl border border-white/5">
-                            <div className="flex items-center gap-2">
-                                <span className="text-yellow-500 text-sm">★</span>
-                                <span className="text-white font-bold text-sm tracking-tight">{dunkbarScore}</span>
-                            </div>
-                            <ABCDChart a={master.abcd.a} b={master.abcd.b} c={master.abcd.c} d={master.abcd.d} size={28} />
-                        </div>
-
-                        <button
-                            onClick={(e) => onPay(e, master, master.price)}
-                            className="mt-auto w-full h-11 bg-tg-primary text-black rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-transform"
-                        >
-                            Instant Book (${master.price})
-                        </button>
-                    </div>
-                );
-            })}
+            {/* ── Bottom Nav ── */}
+            <BottomNav active="explore" />
         </div>
     );
 }

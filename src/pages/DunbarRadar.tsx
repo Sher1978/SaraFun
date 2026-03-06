@@ -312,6 +312,24 @@ export default function DunbarRadar() {
     const handleCreateContact = async (data: any) => {
         const fakeUid = data.telegram ? data.telegram.replace('@', '') : `user_${Date.now()}`;
         await updateSocialGraph(currentUserUid, fakeUid, 'Shadow');
+
+        // Sprint 26: Trigger Social & Email Notifications
+        const { ReferralService } = await import('../services/ReferralService');
+        const { sendEmailInvite, notifyNetworking } = await import('../services/RealTimeNotifications');
+
+        const inviterName = WebApp.initDataUnsafe?.user?.first_name || 'A friend';
+        const refLink = ReferralService.generateInviteLink(currentUserUid);
+
+        // 1. Email Invite (Resend)
+        if (data.email) {
+            sendEmailInvite(data.email, inviterName, refLink);
+        }
+
+        // 2. Anonymous Bot Push
+        if (data.telegram) {
+            notifyNetworking(fakeUid);
+        }
+
         setIsCreateModalOpen(false);
         setPendingPromotion(fakeUid); // Trigger vibration overlay
         WebApp.HapticFeedback.notificationOccurred('success');

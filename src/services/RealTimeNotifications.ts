@@ -5,7 +5,10 @@
 
 // Providing the user-supplied token for the "Live City" phase.
 // NOTE: For production, this should be moved to a secure Cloud Function backend.
+// Providing the user-supplied token for the "Live City" phase.
+// NOTE: For production, this should be moved to a secure Cloud Function backend.
 const BOT_TOKEN = "8524844089:AAE65asUrxrT9ey21HubCE6TvZTdK4NgzAE";
+const RESEND_API_KEY = "re_Ta2TAJZH_QBmnru1zAojNRgobaiBeirzX";
 
 export const sendBotNotification = async (chatId: string, message: string) => {
     console.log(`[BotNotification] To ${chatId}: ${message}`);
@@ -24,6 +27,51 @@ export const sendBotNotification = async (chatId: string, message: string) => {
     } catch (error) {
         console.error(`[BotNotification] Error sending message:`, error);
     }
+};
+
+/**
+ * Sends an email invite via Resend API.
+ */
+export const sendEmailInvite = async (to: string, inviterName: string, referralLink: string) => {
+    console.log(`[EmailInvite] Sending to ${to} from ${inviterName}`);
+
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${RESEND_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                from: 'SaraFun <onboarding@resend.dev>', // Note: This is the default testing sender
+                to: [to],
+                subject: `You've been added to ${inviterName}'s Trust Network!`,
+                html: `
+                    <div style="font-family: sans-serif; padding: 20px; color: #1a1c1e;">
+                        <h2>Hello!</h2>
+                        <p><strong>${inviterName}</strong> has just added you to their private trust circles on <strong>SaraFun</strong>.</p>
+                        <p>Join the network to see your standing and start earning rewards for your reputation:</p>
+                        <div style="margin: 30px 0;">
+                            <a href="${referralLink}" style="background: #14b8a6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">Join SaraFun</a>
+                        </div>
+                        <p style="color: #64748b; font-size: 12px;">This link will open Telegram Mini App.</p>
+                    </div>
+                `
+            })
+        });
+
+        if (!response.ok) {
+            const err = await response.json();
+            console.error(`[Resend] Error:`, err);
+        }
+    } catch (error) {
+        console.error(`[EmailInvite] Error:`, error);
+    }
+};
+
+export const notifyNetworking = async (targetUid: string) => {
+    const msg = `👤 Someone added you to their circles on SaraFun. Add them back?`;
+    return await sendBotNotification(targetUid, msg);
 };
 
 export const notifyGoldenFive = async (targetUid: string, adderName: string) => {
