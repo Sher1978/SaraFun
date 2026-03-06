@@ -365,7 +365,7 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[130px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                <div className="absolute bottom-[180px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
                     <div className="relative w-full max-w-[500px]">
                         <svg viewBox="0 0 400 200" className="w-full overflow-visible">
                             {RINGS_CONFIG.map((ring) => {
@@ -398,16 +398,6 @@ export default function DunbarRadar() {
                             </div>
                         )}
 
-                        {/* Center "+" Button Overlay - Topmost layer (Anchored to ring center) */}
-                        <div
-                            onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-0 -translate-x-1/2 translate-y-1/2 w-[58px] h-[58px] rounded-full border-none shadow-[0_0_28px_rgba(0,229,204,0.53),0_4px_16px_rgba(0,0,0,0.6)] flex items-center justify-center cursor-pointer active:scale-90 transition-all z-[100]"
-                            style={{
-                                background: 'radial-gradient(circle at 40% 35%, #00E5CC, #009980)'
-                            }}
-                        >
-                            <span className="text-[#0d0f14] text-3xl font-black mb-1">+</span>
-                        </div>
                     </div>
                 </div>
 
@@ -417,8 +407,8 @@ export default function DunbarRadar() {
                     onSave={handleCreateContact}
                 />
 
-                {/* Z-Index 9: Shadow List or Active Ring Contacts - Increased height, removed divider, button overlap */}
-                <div className="absolute bottom-0 w-full bg-tg-secondary/90 backdrop-blur-2xl z-[9] pb-4 pt-4 rounded-t-3xl shadow-2xl border-t border-white/5">
+                {/* Z-Index 10: Shadow List or Active Ring Contacts - Fixed height and anchoring */}
+                <div className="absolute bottom-0 w-full h-[180px] bg-tg-secondary/90 backdrop-blur-2xl z-[10] pb-4 pt-4 rounded-t-3xl shadow-2xl border-t border-white/5">
                     <div className="px-4 mb-3 flex justify-between items-center">
                         <h3 className="font-bold text-[11px] text-tg-hint uppercase tracking-widest">{activeRing ? `Ring: ${activeRing}` : 'Shadow List'}</h3>
                         <span className="text-[10px] text-tg-hint font-medium">Drag to promote</span>
@@ -437,6 +427,17 @@ export default function DunbarRadar() {
                             <div className="text-tg-hint text-[11px] italic w-full text-center py-6">No contacts matching filter</div>
                         )}
                     </div>
+                </div>
+
+                {/* Center "+" Button Overlay - Topmost layer, centered on the block's edge */}
+                <div
+                    onClick={() => setIsCreateModalOpen(true)}
+                    className="absolute left-1/2 bottom-[180px] -translate-x-1/2 translate-y-1/2 w-[58px] h-[58px] rounded-full border-none shadow-[0_0_28px_rgba(0, 229, 204, 0.53),0_4px_16px_rgba(0,0,0,0.6)] flex items-center justify-center cursor-pointer active:scale-90 transition-all z-[50]"
+                    style={{
+                        background: 'radial-gradient(circle at 40% 35%, #00E5CC, #009980)'
+                    }}
+                >
+                    <span className="text-[#0d0f14] text-3xl font-black mb-1">+</span>
                 </div>
 
                 {/* DND Overlay Layer */}
