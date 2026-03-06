@@ -78,6 +78,8 @@ export default function MapScreen() {
 
     const visibleMasters = filteredMasters.filter(m => m.lat && m.lng && isInside(m.lat, m.lng));
 
+    console.log(`[MapScreen] Using API Key starting with: ${import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.substring(0, 4)}...`);
+
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <div className="relative w-full h-[calc(100vh-64px)] bg-[#0B1118] text-tg-primary flex flex-col">
@@ -108,6 +110,7 @@ export default function MapScreen() {
                         disableDefaultUI={true}
                         styles={MapStyle}
                         onCameraChanged={onCameraChanged}
+                        mapId={'bf18563c7b399120'} // Added a generic map ID for advanced feature support
                     >
                         {/* Current User Marker */}
                         {userLocation && (
