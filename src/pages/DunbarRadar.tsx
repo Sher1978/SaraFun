@@ -365,7 +365,7 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[112px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                <div className="absolute bottom-[130px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
                     <div className="relative w-full max-w-[500px]">
                         <svg viewBox="0 0 400 200" className="w-full overflow-visible">
                             {RINGS_CONFIG.map((ring) => {
@@ -398,10 +398,10 @@ export default function DunbarRadar() {
                             </div>
                         )}
 
-                        {/* Center "+" Button Overlay - Topmost layer for Sprint 24 */}
+                        {/* Center "+" Button Overlay - Topmost layer (Sprint 24 refinement) */}
                         <div
                             onClick={() => setIsCreateModalOpen(true)}
-                            className="absolute left-1/2 bottom-[-36px] -translate-x-1/2 w-[72px] h-[72px] bg-[#14b8a6] rounded-full border-[3px] border-[#1a1c1e] shadow-[0_0_20px_rgba(20,184,166,0.4)] flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[60]"
+                            className="absolute left-1/2 bottom-[-18px] -translate-x-1/2 w-[72px] h-[72px] bg-[#14b8a6] rounded-full border-[3px] border-[#0d0f14] shadow-[0_0_30px_rgba(20,184,166,0.5),0_10px_40px_rgba(0,0,0,0.8)] flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[100]"
                         >
                             <span className="text-black text-4xl font-black mb-1">+</span>
                         </div>

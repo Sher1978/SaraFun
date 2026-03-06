@@ -341,11 +341,12 @@ export default function Discovery() {
             )}
 
             {/* ── Header ── */}
-            <header style={{
+            <header className="disc-fadein" style={{
                 position: 'sticky', top: 0, zIndex: 50,
                 background: 'rgba(10,14,22,0.96)', backdropFilter: 'blur(20px)',
                 borderBottom: '1px solid rgba(0,229,204,0.12)',
                 padding: '14px 16px 10px',
+                animationDelay: '0s'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <button
@@ -414,7 +415,8 @@ export default function Discovery() {
                                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
                                     padding: '10px 12px',
                                     background: 'rgba(255,255,255,0.04)',
-                                    border: '1.5px solid rgba(255,255,255,0.12)',
+                                    border: isActive ? `1.5px solid ${NEON}` : '1.5px solid rgba(255,255,255,0.12)',
+                                    boxShadow: isActive ? `0 0 12px ${NEON}66` : 'none',
                                     borderRadius: 14,
                                     minWidth: 64, cursor: 'pointer',
                                     flexShrink: 0,
@@ -426,6 +428,7 @@ export default function Discovery() {
                                 <span style={{
                                     fontSize: 9.5, fontWeight: 700,
                                     color: isActive ? NEON : 'rgba(255,255,255,0.5)',
+                                    textShadow: isActive ? `0 0 8px ${NEON}aa` : 'none',
                                     letterSpacing: '0.02em',
                                     textAlign: 'center', lineHeight: 1.2,
                                 }}>
@@ -438,7 +441,7 @@ export default function Discovery() {
             </div>
 
             {/* ── Circles Trust ── */}
-            <section style={{ padding: '18px 0 8px' }}>
+            <section className="disc-fadein" style={{ padding: '18px 0 8px', animationDelay: '0.2s' }}>
                 <h2 className="disc-neon-pulse disc-neon-text" style={{
                     margin: '0 0 14px 16px', fontSize: 22, fontWeight: 800,
                     letterSpacing: '-0.02em',
@@ -487,7 +490,7 @@ export default function Discovery() {
             </section>
 
             {/* ── Popular Nearby ── */}
-            <section style={{ padding: '22px 0 8px' }}>
+            <section className="disc-fadein" style={{ padding: '22px 0 8px', animationDelay: '0.3s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
                         Popular Nearby
@@ -504,7 +507,7 @@ export default function Discovery() {
             </section>
 
             {/* ── New Discoveries ── */}
-            <section style={{ padding: '22px 0 8px' }}>
+            <section className="disc-fadein" style={{ padding: '22px 0 8px', animationDelay: '0.4s' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
                     <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
                         New Discoveries
