@@ -234,6 +234,7 @@ export default function DunbarRadar() {
     const [activeRing, setActiveRing] = useState<string | null>(null);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [pendingPromotion, setPendingPromotion] = useState<string | null>(null);
 
     // Real-time DB State
     const [socialGraph, setSocialGraph] = useState<Record<string, string>>({});
@@ -277,6 +278,7 @@ export default function DunbarRadar() {
 
     const handleDragStart = (event: any) => {
         setActiveId(event.active.id);
+        setPendingPromotion(null); // Clear once moved
         WebApp.HapticFeedback.impactOccurred('medium');
     };
 
@@ -311,8 +313,8 @@ export default function DunbarRadar() {
         const fakeUid = data.telegram ? data.telegram.replace('@', '') : `user_${Date.now()}`;
         await updateSocialGraph(currentUserUid, fakeUid, 'Shadow');
         setIsCreateModalOpen(false);
+        setPendingPromotion(fakeUid); // Trigger vibration overlay
         WebApp.HapticFeedback.notificationOccurred('success');
-        WebApp.showAlert(`${data.name} added to Shadow List!`);
     };
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -344,30 +346,47 @@ export default function DunbarRadar() {
                 </div>
 
                 {/* Z-Index 1: The Dunbar Radar */}
-                <div className="absolute bottom-[20%] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
-                    <svg viewBox="0 0 400 200" className="w-full max-w-[500px] overflow-visible">
-                        {RINGS_CONFIG.map((ring) => {
-                            const isActive = activeRing === ring.id;
-                            const currentCount = getRingCount(ring.id);
+                <div className="absolute bottom-[112px] w-full flex justify-center z-[1] transition-transform duration-500 scale-125 origin-bottom">
+                    <div className="relative w-full max-w-[500px]">
+                        <svg viewBox="0 0 400 200" className="w-full overflow-visible">
+                            {RINGS_CONFIG.map((ring) => {
+                                const isActive = activeRing === ring.id;
+                                const currentCount = getRingCount(ring.id);
 
-                            return (
-                                <DroppableArc
-                                    key={ring.id}
-                                    ring={ring}
-                                    currentCount={currentCount}
-                                    isActive={isActive}
-                                    isDraggingAny={!!activeId}
-                                    onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
+                                return (
+                                    <DroppableArc
+                                        key={ring.id}
+                                        ring={ring}
+                                        currentCount={currentCount}
+                                        isActive={isActive}
+                                        isDraggingAny={!!activeId}
+                                        onClick={() => setActiveRing(activeRing === ring.id ? null : ring.id)}
+                                    />
+                                );
+                            })}
+                        </svg>
+
+                        {/* Pending Promotion Overlay */}
+                        {pendingPromotion && (
+                            <div className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 z-[12] animate-vibrate pointer-events-none">
+                                <DraggableAvatar
+                                    uid={pendingPromotion}
+                                    status="Shadow"
                                 />
-                            );
-                        })}
+                                <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-teal-500 text-black text-[10px] font-black px-3 py-1.5 rounded-full whitespace-nowrap animate-bounce shadow-lg">
+                                    DRAG TO RING
+                                </div>
+                            </div>
+                        )}
 
-                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer group">
-                            <circle cx="200" cy="195" r="32" className="fill-tg-bg" />
-                            <circle cx="200" cy="195" r="28" className="fill-tg-primary" />
-                            <text x="200" y="195" textAnchor="middle" alignmentBaseline="central" className="fill-black text-2xl font-black">+</text>
-                        </g>
-                    </svg>
+                        {/* Center "+" Button Overlay - Positioned exactly on the contact block top edge */}
+                        <div
+                            onClick={() => setIsCreateModalOpen(true)}
+                            className="absolute left-1/2 bottom-[-32px] -translate-x-1/2 w-16 h-16 bg-[#14b8a6] rounded-full border-[3px] border-[#1a1c1e] shadow-2xl flex items-center justify-center cursor-pointer active:scale-95 transition-all z-[11]"
+                        >
+                            <span className="text-black text-3xl font-black mb-1">+</span>
+                        </div>
+                    </div>
                 </div>
 
                 <CreateContactModal
