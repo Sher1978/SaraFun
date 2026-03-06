@@ -10,10 +10,10 @@ import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/co
 // Radar Rings Configuration - Matte Premium Palette
 // Gold: #d4af37, Silver: #a0a0a0, Bronze: #cd7f32
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 170, color: '#cd7f32', opacity: 0.25 }, // Matte Bronze
-    { id: '50', max: 50, radius: 130, color: '#a0a0a0', opacity: 0.35 },  // Matte Silver
-    { id: '15', max: 15, radius: 90, color: '#d4af37', opacity: 0.5 },   // Matte Gold
-    { id: 'Top5', max: 5, radius: 50, color: '#14b8a6', opacity: 0.7 },  // Matte Teal
+    { id: '150', max: 150, radius: 240, color: '#cd7f32', opacity: 0.2, delay: '0.6s' }, // Matte Copper (Overflow)
+    { id: '50', max: 50, radius: 180, color: '#0ea5e9', opacity: 0.3, delay: '0.4s' },  // Matte Blue (Edge)
+    { id: '15', max: 15, radius: 120, color: '#eab308', opacity: 0.4, delay: '0.2s' },   // Matte Sand
+    { id: 'Top5', max: 5, radius: 60, color: '#14b8a6', opacity: 0.6, delay: '0s' },    // Matte Teal
 ];
 
 function DraggableAvatar({ uid, status, isOverlay = false }: { uid: string, status: string, isOverlay?: boolean }) {
@@ -68,6 +68,9 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
         data: { maxContent: ring.max, currentContent: currentCount }
     });
 
+    // Volume Glints Gradient IDs
+    const gradId = `grad-${ring.id}`;
+
     const isFull = currentCount >= ring.max;
     const isNinetyPercent = currentCount >= ring.max * 0.9 && !isFull;
 
@@ -86,6 +89,9 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
             shimmerClass = 'animate-shimmer-green';
             strokeColor = '#22c55e';
         }
+    } else {
+        // Sequential Pulse in idle state
+        shimmerClass = 'animate-pulse-sequential';
     }
 
     if (isOver) {
@@ -94,11 +100,18 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
 
     return (
         <g ref={setNodeRef as any} onClick={onClick} className="cursor-pointer group">
+            <defs>
+                <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="white" stopOpacity="0.3" />
+                    <stop offset="50%" stopColor={strokeColor} stopOpacity="1" />
+                    <stop offset="100%" stopColor="black" stopOpacity="0.4" />
+                </linearGradient>
+            </defs>
             {/* Background Depth Shadow */}
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
-                stroke="rgba(0,0,0,0.3)"
+                stroke="rgba(0,0,0,0.4)"
                 strokeWidth="42"
                 className="transition-all duration-300 pointer-events-none"
             />
@@ -106,15 +119,19 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
             <path
                 d={`M ${200 - ring.radius} 200 A ${ring.radius} ${ring.radius} 0 0 1 ${200 + ring.radius} 200`}
                 fill="none"
-                stroke={strokeColor}
+                stroke={`url(#${gradId})`}
                 strokeWidth="38"
                 strokeOpacity={isDraggingAny ? 0.3 : ring.opacity}
                 className={`transition-all duration-300 origin-bottom ${shimmerClass}`}
                 style={{
+                    animationDelay: ring.delay,
+                    // @ts-ignore
+                    '--pulse-color': strokeColor,
+                    '--base-opacity': ring.opacity,
                     filter: (isActive || isOver)
-                        ? `drop-shadow(0 0 15px ${strokeColor})`
-                        : 'drop-shadow(0 4px 10px rgba(0,0,0,0.5))'
-                }}
+                        ? `drop-shadow(0 0 20px ${strokeColor})`
+                        : 'drop-shadow(0 8px 16px rgba(0,0,0,0.6))'
+                } as any}
             />
             <text
                 x="200"
@@ -129,16 +146,95 @@ function DroppableArc({ ring, currentCount, isActive, onClick, isDraggingAny }: 
     );
 }
 
+function CreateContactModal({ isOpen, onClose, onSave }: any) {
+    const [name, setName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [email, setEmail] = useState('');
+    const [telegram, setTelegram] = useState('');
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
+            <div className="w-full max-w-sm glass-photo p-6 rounded-3xl space-y-6 animate-in fade-in zoom-in duration-300">
+                <div className="flex justify-between items-center">
+                    <h2 className="text-xl font-black">Create Contact</h2>
+                    <button onClick={onClose} className="p-2 text-tg-hint hover:text-white transition-colors">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">First Name</label>
+                            <input
+                                value={name} onChange={(e) => setName(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Last Name</label>
+                            <input
+                                value={lastName} onChange={(e) => setLastName(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Email</label>
+                        <input
+                            value={email} onChange={(e) => setEmail(e.target.value)} type="email"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 ml-1">Telegram @</label>
+                        <input
+                            value={telegram} onChange={(e) => setTelegram(e.target.value)}
+                            placeholder="@username"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl p-3 outline-none focus:border-teal-500/50 transition-colors"
+                        />
+                    </div>
+                </div>
+
+                <button
+                    onClick={() => onSave({ name, lastName, email, telegram })}
+                    className="w-full py-4 bg-teal-500 text-black font-black uppercase tracking-widest rounded-xl shadow-lg shadow-teal-500/20 active:scale-95 transition-all"
+                >
+                    Save to Radar
+                </button>
+            </div>
+        </div>
+    );
+}
+
 export default function DunbarRadar() {
     const navigate = useNavigate();
     const [activeRing, setActiveRing] = useState<string | null>(null);
     const [isSearchActive, setIsSearchActive] = useState(false);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
     // Real-time DB State
     const [socialGraph, setSocialGraph] = useState<Record<string, string>>({});
     const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
 
     useEffect(() => {
+        // First Load Sync Check
+        const hasRequestedSync = localStorage.getItem('sarafun_contact_sync_requested');
+        if (!hasRequestedSync) {
+            WebApp.showConfirm(
+                "Sync Contacts? \n\nSaraFun needs access to your contacts to help you build your trust network efficiently.",
+                (ok) => {
+                    if (ok) {
+                        WebApp.showAlert("Syncing... (Demo Mode: Contacts added to Shadow List)");
+                        // In real production, we would call a backend service here
+                    }
+                    localStorage.setItem('sarafun_contact_sync_requested', 'true');
+                }
+            );
+        }
+
         const userRef = doc(db, 'Users', currentUserUid);
         const unsubscribe = onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
@@ -191,6 +287,14 @@ export default function DunbarRadar() {
         }
     };
 
+    const handleCreateContact = async (data: any) => {
+        const fakeUid = data.telegram ? data.telegram.replace('@', '') : `user_${Date.now()}`;
+        await updateSocialGraph(currentUserUid, fakeUid, 'Shadow');
+        setIsCreateModalOpen(false);
+        WebApp.HapticFeedback.notificationOccurred('success');
+        WebApp.showAlert(`${data.name} added to Shadow List!`);
+    };
+
     const [searchQuery, setSearchQuery] = useState('');
 
     // ... (rest of the state)
@@ -238,13 +342,19 @@ export default function DunbarRadar() {
                             );
                         })}
 
-                        <g onClick={() => navigate('/add-user')} className="cursor-pointer hover:drop-shadow-[0_0_15px_rgba(20,184,166,1)] transition-all">
-                            <circle cx="200" cy="200" r="24" className="fill-tg-main pointer-events-none" />
-                            <circle cx="200" cy="200" r="20" className="fill-teal-500 drop-shadow-[0_0_12px_rgba(20,184,166,0.9)] pointer-events-none" />
-                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-base font-black pointer-events-none">+</text>
+                        <g onClick={() => setIsCreateModalOpen(true)} className="cursor-pointer hover:drop-shadow-[0_0_15px_rgba(20,184,166,1)] transition-all">
+                            <circle cx="200" cy="200" r="28" className="fill-tg-main pointer-events-none" />
+                            <circle cx="200" cy="200" r="24" className="fill-teal-500 drop-shadow-[0_0_16px_rgba(20,184,166,0.9)] pointer-events-none" />
+                            <text x="200" y="200" textAnchor="middle" alignmentBaseline="central" className="fill-white text-xl font-black pointer-events-none">+</text>
                         </g>
                     </svg>
                 </div>
+
+                <CreateContactModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onSave={handleCreateContact}
+                />
 
                 {/* Z-Index 9: Shadow List or Active Ring Contacts */}
                 <div className="absolute bottom-0 w-full bg-tg-secondary/70 backdrop-blur-2xl border-t border-tg-hint/20 z-[9] pb-16 pt-4 rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)]">

@@ -16,6 +16,7 @@
 /* Telegram Native Slider Refinement */
 input[type='range'].custom-slider {
   -webkit-appearance: none;
+  appearance: none;
   background: rgba(var(--tg-theme-hint-color), 0.2);
   height: 4px;
   border-radius: 2px;
@@ -98,6 +99,20 @@ p {
   box-shadow:
     0 4px 24px -1px rgba(0, 0, 0, 0.4),
     inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.glass-button {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px) saturate(150%);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.glass-button:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0.98);
 }
 
 /* Shimmering Animations for Radar */

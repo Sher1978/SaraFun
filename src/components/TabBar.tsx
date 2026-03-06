@@ -25,19 +25,34 @@ export default function TabBar() {
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full h-12 bg-tg-secondary border-t border-tg-hint/20 flex items-center justify-around px-2 pb-safe z-50">
+        <nav className="fixed bottom-0 w-full h-16 bg-tg-secondary border-t border-tg-hint/10 flex items-center justify-around px-2 pb-safe z-50">
             {tabs.map((tab) => {
                 const isActive = tab.path !== '#' && location.pathname.startsWith(tab.path);
+                const isScanner = tab.id === 'scanner';
+
+                if (isScanner) {
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={tab.action}
+                            className="relative -top-6 flex items-center justify-center w-16 h-16 bg-teal-500 text-black rounded-full shadow-[0_8px_20px_rgba(20,184,166,0.4)] border-4 border-tg-secondary active:scale-90 transition-all z-[60]"
+                        >
+                            <tab.icon />
+                        </button>
+                    );
+                }
 
                 return (
                     <button
                         key={tab.id}
-                        onClick={() => tab.action ? tab.action() : navigate(tab.path)}
-                        className={`flex flex-col items-center justify-center w-14 h-full transition-colors duration-200 ${isActive ? 'text-tg-button' : 'text-tg-hint hover:text-tg-primary'
+                        onClick={() => navigate(tab.path)}
+                        className={`flex flex-col items-center justify-center w-14 h-full transition-colors duration-200 ${isActive ? 'text-teal-500' : 'text-tg-hint hover:text-tg-primary'
                             }`}
                     >
-                        <tab.icon />
-                        <span className="text-[10px] mt-1 font-medium">{tab.label}</span>
+                        <div className={isActive ? 'animate-pulse' : ''}>
+                            <tab.icon />
+                        </div>
+                        <span className="text-[10px] mt-1 font-black uppercase tracking-tighter scale-90">{tab.label}</span>
                     </button>
                 );
             })}

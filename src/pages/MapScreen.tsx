@@ -127,9 +127,9 @@ export default function MapScreen() {
                         <button
                             key={cat}
                             onClick={() => setActiveCategory(cat)}
-                            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-black shadow-lg transition-all snap-start backdrop-blur-md border ${activeCategory === cat
-                                ? 'bg-teal-500 text-white border-teal-400'
-                                : 'bg-[#2a2d31]/80 border-white/10 text-slate-300 hover:text-white hover:bg-[#32363b]'
+                            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-black shadow-lg transition-all snap-start backdrop-blur-md border glass-button ${activeCategory === cat
+                                ? 'bg-teal-500 text-white border-teal-400 !bg-opacity-100'
+                                : 'border-white/10 text-slate-300 hover:text-white'
                                 }`}
                         >
                             {cat}
