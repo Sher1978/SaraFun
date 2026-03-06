@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import WebApp from '@twa-dev/sdk';
 import { ArbitrationService } from '../services/ArbitrationService';
 
 export default function SocialArbitration({ masterUid, reviewId, reviewText }: { masterUid: string, reviewId: string, reviewText: string }) {
+    const navigate = useNavigate();
     const [evidence, setEvidence] = useState('');
     const [response, setResponse] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,8 +20,8 @@ export default function SocialArbitration({ masterUid, reviewId, reviewText }: {
         setIsSubmitting(false);
 
         if (success) {
-            // Navigate back or close modal
             WebApp.HapticFeedback.impactOccurred('medium');
+            navigate(-1);
         }
     };
 

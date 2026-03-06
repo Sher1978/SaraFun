@@ -28,6 +28,27 @@ export const sendBotNotification = async (chatId: string, message: string) => {
 
 export const notifyGoldenFive = async (targetUid: string, adderName: string) => {
     const msg = `🌟 Congratulations! You've been promoted to someone's Golden Five on SaraFun. Your reputation is growing!`;
-    // Note: targetUid must be a valid Telegram chat_id (number) for this to work.
+    return await sendBotNotification(targetUid, msg);
+};
+
+export const notifyFinancial = async (targetUid: string, type: 'cashback' | 'mlm' | 'low_balance', amount: number) => {
+    let msg = '';
+    if (type === 'cashback') msg = `💰 Cashback Unlocked: ${amount}⭐️ has been moved to your Available Balance.`;
+    else if (type === 'mlm') msg = `🌳 Split Bonus: You received ${amount}⭐️ from your referral network.`;
+    else if (type === 'low_balance') msg = `⚠️ Yellow Status Warning: Your balance is dropping. Top up to maintain visibility!`;
+    return await sendBotNotification(targetUid, msg);
+};
+
+export const notifyDispute = async (targetUid: string, action: 'opened' | 'verdict', details: string) => {
+    let msg = '';
+    if (action === 'opened') msg = `⚖️ Arbitration Alert: A dispute has been opened against your review. Details: ${details}`;
+    else if (action === 'verdict') msg = `⚖️ Arbitration Verdict: The judges have ruled. ${details}`;
+    return await sendBotNotification(targetUid, msg);
+};
+
+export const notifySubscription = async (targetUid: string, action: 'deducted' | 'shadowed') => {
+    let msg = '';
+    if (action === 'deducted') msg = `🧾 Visibility Fee: 250⭐️ ($5) has been deducted for this month's placement.`;
+    else if (action === 'shadowed') msg = `🌑 Shadowed: Your balance could not cover the Visibility Fee. Your profile is now hidden from Discovery.`;
     return await sendBotNotification(targetUid, msg);
 };
