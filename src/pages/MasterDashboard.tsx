@@ -188,12 +188,12 @@ export default function MasterDashboard() {
                         </h2>
                     </div>
 
-                    <div className="flex flex-wrap gap-4 justify-center">
+                    <div className="grid grid-cols-2 gap-3 justify-items-center mx-auto max-w-[350px]">
                         {/* Render existing services */}
                         {services.map((svc) => (
                             <div
                                 key={svc.id}
-                                className="flex-shrink-0 active-scale group relative overflow-hidden"
+                                className="active-scale group relative overflow-hidden"
                                 style={{
                                     width: 160,
                                     background: 'rgba(14,19,30,0.9)',
@@ -223,13 +223,13 @@ export default function MasterDashboard() {
                             <button
                                 key={`empty-${i}`}
                                 onClick={() => { WebApp.HapticFeedback.impactOccurred('medium'); setIsBuilderOpen(true); }}
-                                className="flex-shrink-0 rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-2 group active:border-[#00E5CC]/30 transition-all active:bg-[#00E5CC]/5"
+                                className="rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center gap-2 group active:border-[#00E5CC]/30 transition-all active:bg-[#00E5CC]/5"
                                 style={{ width: 160, height: 158 }}
                             >
                                 <span className="text-2xl text-white/10 group-active:text-[#00E5CC]/50 transition-colors">+</span>
                                 <span className="text-[9px] font-black uppercase tracking-widest text-white/10 group-active:text-[#00E5CC]/40 transition-colors">Add Slot</span>
                             </button>
-                        )).slice(0, 20 - services.length)}
+                        ))}
                     </div>
                 </section>
             </main>
