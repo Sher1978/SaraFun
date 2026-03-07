@@ -1,252 +1,237 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import WebApp from '@twa-dev/sdk';
-import { QRCodeSVG } from 'qrcode.react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
-import { TransactionService, Transaction } from '../services/TransactionService';
-import MasterAnalytics from '../components/MasterAnalytics';
-import MasterCardBuilder from '../components/MasterCardBuilder';
-
+import ServiceCardBuilder from '../components/ServiceCardBuilder';
 import { useNavigate } from 'react-router-dom';
+
+const SECTORS = ['Auto', 'Beauty', 'Health', 'Events', 'Food', 'Rental', 'SOS', 'Other'];
+
+interface Service {
+    id: string;
+    title: string;
+    price: number;
+    type: string;
+    imageUrl?: string;
+    description: string;
+}
 
 export default function MasterDashboard() {
     const navigate = useNavigate();
-    const [stats, setStats] = useState({ views: 0, leads: 0, top5Connections: 0, totalStars: 0 });
-    const [isBusinessLive, setIsBusinessLive] = useState(true);
-    const [history, setHistory] = useState<Transaction[]>([]);
+    const uid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
+
+    // Profile State
+    const [profile, setProfile] = useState({
+        business_name: '',
+        bio: '',
+        category: 'Other',
+        location: '',
+        photo_url: ''
+    });
+    const [starsBalance, setStarsBalance] = useState(0);
+    const [services, setServices] = useState<Service[]>([]);
     const [isBuilderOpen, setIsBuilderOpen] = useState(false);
-
-    // POS State
-    const [isPosOpen, setIsPosOpen] = useState(false);
-    const [posAmount, setPosAmount] = useState('');
-    const [posMemo, setPosMemo] = useState('');
-    const [posQrData, setPosQrData] = useState<string | null>(null);
-
-    const currentUserUid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
-    const qrData = `sarafun://user/${currentUserUid}`; // SaraFun QR spec
-
-    const handleGeneratePos = () => {
-        if (!posAmount || isNaN(Number(posAmount))) {
-            WebApp.showAlert("Please enter a valid amount");
-            return;
-        }
-        const data = `sarafun://pay?m=${currentUserUid}&usd=${posAmount}&memo=${encodeURIComponent(posMemo)}`;
-        setPosQrData(data);
-        WebApp.HapticFeedback.notificationOccurred('success');
-    };
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        const fetchMasterData = async () => {
-            try {
-                const userRef = doc(db, 'Users', currentUserUid);
-                const userSnap = await getDoc(userRef);
-                if (userSnap.exists()) {
-                    const data = userSnap.data();
-                    setStats({
-                        views: data.views || 0,
-                        leads: data.leads || 0,
-                        top5Connections: data.top5Connections || 0, // High Trust Index
-                        totalStars: data.stars_balance || 0
-                    });
-                }
-
-                const txs = await TransactionService.getMasterHistory(currentUserUid);
-                setHistory(txs as Transaction[]);
-            } catch (err) {
-                console.warn("DB read skipped in MVP");
-                setStats({ views: 0, leads: 0, top5Connections: 0, totalStars: 0 });
+        // 1. Listen to Profile & Balance
+        const userRef = doc(db, 'Users', uid);
+        const unsubUser = onSnapshot(userRef, (snap) => {
+            if (snap.exists()) {
+                const data = snap.data();
+                setStarsBalance(data.stars_balance || 0);
+                setProfile({
+                    business_name: data.master_profile?.business_name || '',
+                    bio: data.master_profile?.bio || '',
+                    category: data.master_profile?.category || 'Other',
+                    location: data.master_profile?.location || '',
+                    photo_url: data.master_profile?.photo_url || ''
+                });
             }
-        };
-        fetchMasterData();
-    }, [currentUserUid]);
+            setLoading(false);
+        });
 
-    const toggleVisibility = () => {
-        setIsBusinessLive(!isBusinessLive);
-        WebApp.HapticFeedback.impactOccurred('light');
+        // 2. Listen to Services
+        const servicesRef = collection(db, 'masters', uid, 'services');
+        const q = query(servicesRef, orderBy('createdAt', 'desc'), limit(20));
+        const unsubServices = onSnapshot(q, (snap) => {
+            const list: Service[] = [];
+            snap.forEach(doc => list.push({ id: doc.id, ...doc.data() } as Service));
+            setServices(list);
+        });
+
+        return () => {
+            unsubUser();
+            unsubServices();
+        };
+    }, [uid]);
+
+    const trafficStatus = useMemo(() => {
+        if (starsBalance > 0) return { color: 'green', text: 'Safe - Visible in Search' };
+        return { color: 'yellow', text: 'Unsafe - Hidden' };
+    }, [starsBalance]);
+
+    const handleSaveProfile = async () => {
+        setSaving(true);
+        try {
+            const userRef = doc(db, 'Users', uid);
+            await updateDoc(userRef, {
+                master_profile: {
+                    ...profile,
+                    updatedAt: new Date().toISOString()
+                }
+            });
+            WebApp.HapticFeedback.notificationOccurred('success');
+            WebApp.showAlert("Profile saved successfully!");
+        } catch (err) {
+            console.error("Save error:", err);
+            WebApp.showAlert("Failed to save profile.");
+        } finally {
+            setSaving(false);
+        }
     };
 
+    if (loading) return <div className="p-10 text-center text-tg-hint">Initializing Dashboard...</div>;
+
     return (
-        <div className="min-h-full bg-tg-main text-tg-primary px-4 pt-6 pb-24 space-y-6 relative">
+        <div className="min-h-screen bg-tg-bg text-tg-text pb-28 px-4 pt-4 space-y-6">
 
-            {/* POS Modal */}
-            {isPosOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-md">
-                    <div className="bg-tg-secondary w-full max-w-sm rounded-xl p-3 space-y-4 border border-tg-hint/20">
-                        <div className="flex justify-between items-center">
-                            <h2 className="text-base font-bold">Quick Checkout POS</h2>
-                            <button onClick={() => { setIsPosOpen(false); setPosQrData(null); }} className="text-tg-hint font-bold text-base">&times;</button>
+            {/* 1. Traffic Light Status */}
+            <section className="bg-tg-secondary/40 backdrop-blur-xl border border-tg-hint/10 p-4 rounded-2xl shadow-lg relative overflow-hidden">
+                <div className="flex justify-between items-center relative z-10">
+                    <div>
+                        <p className="text-[10px] uppercase font-black text-tg-hint tracking-widest mb-1">Star Balance</p>
+                        <h2 className="text-2xl font-black">⭐️ {starsBalance}</h2>
+                    </div>
+                    <div className="flex flex-col items-end gap-1">
+                        <div className="flex items-center gap-2">
+                            <div className={`w-2.5 h-2.5 rounded-full shadow-[0_0_8px_currentColor] ${trafficStatus.color === 'green' ? 'bg-green-500 text-green-500' : 'bg-yellow-500 text-yellow-500'}`} />
+                            <span className={`text-[10px] font-bold uppercase ${trafficStatus.color === 'green' ? 'text-green-500' : 'text-yellow-500'}`}>
+                                {trafficStatus.text}
+                            </span>
                         </div>
-
-                        {!posQrData ? (
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-xs text-tg-hint uppercase font-bold tracking-wider">Amount (USD)</label>
-                                    <input
-                                        type="number"
-                                        placeholder="50"
-                                        value={posAmount}
-                                        onChange={e => setPosAmount(e.target.value)}
-                                        className="w-full bg-tg-main text-tg-primary mt-1 p-3 rounded-xl border border-tg-hint/20 text-base font-bold outline-none focus:border-teal-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs text-tg-hint uppercase font-bold tracking-wider">Memo (Optional)</label>
-                                    <input
-                                        type="text"
-                                        placeholder="Service details..."
-                                        value={posMemo}
-                                        onChange={e => setPosMemo(e.target.value)}
-                                        className="w-full bg-tg-main text-tg-primary mt-1 p-3 rounded-xl border border-tg-hint/20 text-sm outline-none focus:border-teal-500"
-                                    />
-                                </div>
-                                <button
-                                    onClick={handleGeneratePos}
-                                    className="w-full h-12 bg-tg-button text-tg-button-text font-bold rounded-xl mt-2 active:scale-95 transition-transform"
-                                >
-                                    Generate Payment QR
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col items-center space-y-4 py-4">
-                                <div className="bg-white p-3 rounded-xl shadow-lg">
-                                    <QRCodeSVG value={posQrData} size={200} bgColor="#ffffff" fgColor="#000000" level="H" />
-                                </div>
-                                <p className="text-xs text-center text-tg-hint max-w-[200px]">Have the client scan this from their SaraFun app.</p>
-                                <button
-                                    onClick={() => { setIsPosOpen(false); setPosQrData(null); setPosAmount(''); setPosMemo(''); }}
-                                    className="w-full h-10 mt-4 border border-tg-hint/30 text-tg-primary font-bold rounded-xl active:scale-95 transition-transform text-sm"
-                                >
-                                    Close Terminal
-                                </button>
-                            </div>
-                        )}
                     </div>
                 </div>
-            )}
+            </section>
 
-            <header className="relative flex justify-between items-center mb-4 pt-2 pl-8">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
-                >
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                <div>
-                    <h1 className="text-base font-bold tracking-tight">Master Console</h1>
-                    <p className="text-tg-hint text-sm">Your business commands.</p>
-                </div>
-                <div className="flex flex-col items-end">
-                    <span className="text-[10px] uppercase font-bold text-tg-hint mb-1">Status</span>
+            {/* 2. Master Profile Form */}
+            <section className="space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-widest text-tg-hint px-1">Identity & Brand</h3>
+                <div className="bg-tg-secondary/70 rounded-2xl p-4 border border-tg-hint/5 space-y-4">
+                    {/* Avatar preview and input */}
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 rounded-full overflow-hidden bg-tg-bg border-2 border-tg-hint/10 flex-shrink-0">
+                            {profile.photo_url ? <img src={profile.photo_url} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center opacity-20">🏢</div>}
+                        </div>
+                        <div className="flex-1">
+                            <label className="text-[10px] font-bold text-tg-hint uppercase block mb-1">Avatar URL</label>
+                            <input
+                                value={profile.photo_url}
+                                onChange={e => setProfile({ ...profile, photo_url: e.target.value })}
+                                placeholder="https://..."
+                                className="w-full bg-tg-bg/50 border border-tg-hint/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="text-[10px] font-bold text-tg-hint uppercase block mb-1">Business Name</label>
+                            <input
+                                value={profile.business_name}
+                                onChange={e => setProfile({ ...profile, business_name: e.target.value })}
+                                maxLength={40}
+                                placeholder="Your Brand or Name"
+                                className="w-full bg-tg-bg/50 border border-tg-hint/10 rounded-lg px-3 py-2 text-sm focus:outline-none"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="text-[10px] font-bold text-tg-hint uppercase block mb-1">Bio Pitch (Max 200)</label>
+                            <textarea
+                                value={profile.bio}
+                                onChange={e => setProfile({ ...profile, bio: e.target.value })}
+                                maxLength={200}
+                                rows={2}
+                                placeholder="Short pitch for your clients"
+                                className="w-full bg-tg-bg/50 border border-tg-hint/10 rounded-lg px-3 py-2 text-sm focus:outline-none resize-none"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="text-[10px] font-bold text-tg-hint uppercase block mb-1">Sector</label>
+                                <select
+                                    value={profile.category}
+                                    onChange={e => setProfile({ ...profile, category: e.target.value })}
+                                    className="w-full bg-tg-bg/50 border border-tg-hint/10 rounded-lg px-3 py-2 text-sm focus:outline-none appearance-none"
+                                >
+                                    {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-[10px] font-bold text-tg-hint uppercase block mb-1">Base Location</label>
+                                <input
+                                    value={profile.location}
+                                    onChange={e => setProfile({ ...profile, location: e.target.value })}
+                                    placeholder="Address"
+                                    className="w-full bg-tg-bg/50 border border-tg-hint/10 rounded-lg px-3 py-2 text-sm focus:outline-none"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
                     <button
-                        onClick={toggleVisibility}
-                        className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${isBusinessLive ? 'bg-teal-500/20 text-teal-500' : 'bg-red-500/20 text-red-500'
-                            }`}
+                        onClick={handleSaveProfile}
+                        disabled={saving}
+                        className="w-full h-12 bg-teal-500 text-white font-black uppercase tracking-widest rounded-xl shadow-lg active:scale-95 transition-transform"
                     >
-                        {isBusinessLive ? 'LIVE (Safe)' : 'HIDDEN'}
+                        {saving ? 'Saving...' : 'Save Profile'}
                     </button>
                 </div>
-            </header>
-
-            <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3 flex flex-col items-center justify-center backdrop-blur-md shadow-sm relative overflow-hidden">
-                <div className="absolute w-32 h-32 bg-teal-500/10 blur-3xl rounded-full" />
-                <h2 className="font-bold mb-4 relative z-10">My Connection QR</h2>
-                <div className="bg-white p-3 rounded-xl shadow-lg relative z-10">
-                    <QRCodeSVG
-                        value={qrData}
-                        size={180}
-                        bgColor={"#ffffff"}
-                        fgColor={"#000000"}
-                        level={"H"}
-                    />
-                </div>
-                <p className="text-[11px] text-tg-hint mt-4 text-center max-w-[200px] relative z-10">
-                    Have clients scan this code to link with you natively.
-                </p>
             </section>
 
-            <section className="grid grid-cols-2 gap-3">
-                <div className="bg-tg-secondary rounded-xl p-3 border border-tg-hint/10">
-                    <div className="text-tg-hint text-xs font-semibold uppercase tracking-wider mb-1">Revenue</div>
-                    <div className="text-base font-bold flex items-center gap-1">
-                        ⭐ {stats.totalStars.toLocaleString()}
-                    </div>
-                    <div className="text-[10px] text-teal-500 mt-1">≈ ${(stats.totalStars / 50).toFixed(2)} USD</div>
-                </div>
-
-                <div className="bg-tg-secondary rounded-xl p-3 border border-tg-hint/10">
-                    <div className="text-tg-hint text-xs font-semibold uppercase tracking-wider mb-1">Trust Index</div>
-                    <div className="text-base font-bold">
-                        {stats.top5Connections}
-                    </div>
-                    <div className="text-[10px] text-tg-primary mt-1">"Top 5" Circles</div>
-                </div>
-            </section>
-
-            {/* Performance Analytics (Phase 16) */}
+            {/* 3. Services Management Section */}
             <section className="space-y-4">
-                <h2 className="text-xs font-black uppercase text-tg-hint tracking-widest px-2">Master Intelligence</h2>
-                <MasterAnalytics stats={{ scans: 145, reviews: 82, reach: 450, circles: 12 }} />
-            </section>
-
-            <section className="space-y-3">
                 <div className="flex items-center justify-between px-1">
-                    <h2 className="text-base font-bold">History of Excellence</h2>
-                    <span className="text-[10px] text-tg-hint uppercase font-black">Verified Deals</span>
+                    <h3 className="text-xs font-black uppercase tracking-widest text-tg-hint">My Services ({services.length}/20)</h3>
                 </div>
 
-                <div className="space-y-2">
-                    {history.length > 0 ? history.map((tx) => (
-                        <div key={tx.id} className="bg-tg-secondary/70 border border-tg-hint/5 p-3 rounded-xl flex justify-between items-center">
-                            <div>
-                                <div className="text-[13px] font-bold">Service: {tx.serviceType}</div>
-                                <div className="text-[10px] text-tg-hint">
-                                    {tx.timestamp?.seconds ? new Date(tx.timestamp.seconds * 1000).toLocaleDateString() : 'Just now'}
-                                </div>
+                <div className="space-y-3">
+                    {services.map(s => (
+                        <div key={s.id} className="bg-tg-secondary/70 border border-tg-hint/5 p-3 rounded-2xl flex items-center gap-3">
+                            <div className="w-12 h-12 bg-tg-bg rounded-xl overflow-hidden flex-shrink-0">
+                                {s.imageUrl ? <img src={s.imageUrl} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center opacity-10">📄</div>}
                             </div>
-                            <div className="text-teal-500 font-black text-sm">
-                                +{tx.amountStars || 500} ⭐
+                            <div className="flex-1">
+                                <div className="text-sm font-bold truncate">{s.title}</div>
+                                <div className="text-[10px] text-tg-hint uppercase font-black">{s.type} • ${s.price}</div>
                             </div>
+                            <button className="text-tg-hint p-2">
+                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            </button>
                         </div>
-                    )) : (
-                        <div className="text-center py-8 bg-tg-secondary/30 rounded-xl border border-dashed border-tg-hint/20">
-                            <p className="text-tg-hint text-xs">No transactions yet. Start scanning!</p>
-                        </div>
-                    )}
+                    ))}
+
+                    <button
+                        disabled={services.length >= 20}
+                        onClick={() => setIsBuilderOpen(true)}
+                        className={`w-full h-12 flex items-center justify-center gap-2 rounded-xl font-black uppercase tracking-widest border-2 transition-all active:scale-95
+                            ${services.length >= 20 ? 'border-tg-hint/10 text-tg-hint cursor-not-allowed' : 'border-teal-500/30 text-teal-500 hover:bg-teal-500/10'}
+                        `}
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                        Add New Service
+                    </button>
                 </div>
             </section>
 
-            {/* Dashboard Actions */}
-            <div className="grid grid-cols-2 gap-3">
-                <button
-                    onClick={() => setIsPosOpen(true)}
-                    className="h-12 bg-tg-button text-tg-button-text rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition-transform"
-                >
-                    Quick Checkout
-                </button>
-                <button
-                    onClick={() => navigate('/master-editor')}
-                    className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition-transform"
-                >
-                    Edit Profile
-                </button>
-            </div>
-
-            <button
-                onClick={() => setIsBuilderOpen(true)}
-                className="w-full h-12 bg-teal-500 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(20,184,166,0.3)] active:scale-95 transition-transform"
-            >
-                Add Service Card
-            </button>
-
-            <button className="w-full h-12 bg-yellow-500 text-black py-3 rounded-xl font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,179,8,0.3)] active:scale-95 transition-transform">
-                Withdraw Stars to TON
-            </button>
-
+            {/* Builder Modal */}
             {isBuilderOpen && (
-                <MasterCardBuilder
+                <ServiceCardBuilder
                     onClose={() => setIsBuilderOpen(false)}
                     onSuccess={() => {
-                        WebApp.HapticFeedback.notificationOccurred('success');
                         setIsBuilderOpen(false);
                     }}
                 />
