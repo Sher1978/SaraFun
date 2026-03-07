@@ -119,6 +119,7 @@ export default function MasterProfileEditor() {
             WebApp.HapticFeedback.impactOccurred('medium');
 
             await updateDoc(doc(db, 'Users', uid), {
+                is_master: true,
                 'master_profile.business_name': businessName,
                 'master_profile.bio': bio,
                 'master_profile.category': sector,
