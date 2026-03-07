@@ -5,40 +5,35 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 interface ServiceCardBuilderProps {
     onClose: () => void;
-    onSuccess?: () => void;
+    onSuccess: () => void;
 }
 
-type CardType = 'Standard' | 'Event' | 'Dining' | 'Rental' | 'SOS' | 'Custom';
+type ServiceType = 'Standard' | 'Event' | 'Rental' | 'SOS';
 
 export default function ServiceCardBuilder({ onClose, onSuccess }: ServiceCardBuilderProps) {
     const uid = WebApp.initDataUnsafe?.user?.id?.toString() || 'dev_user_uid';
 
-    // Form State
-    const [cardType, setCardType] = useState<CardType>('Standard');
+    // 1. BASIC INFO BLOCK
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
-    const [coverPhoto, setCoverPhoto] = useState('');
-    const [priceUsd, setPriceUsd] = useState('');
+    const [price, setPrice] = useState('');
+    const [imageUrl, setImageUrl] = useState('');
 
-    // Dynamic Fields
+    // 2. SERVICE TYPE SELECTOR
+    const [type, setType] = useState<ServiceType>('Standard');
+
+    // 3. DYNAMIC SETTINGS BLOCK
     const [eventDate, setEventDate] = useState('');
-    const [address, setAddress] = useState('');
-    const [responseTimeMins, setResponseTimeMins] = useState('');
-
-    // Custom Flags
-    const [flags, setFlags] = useState({
-        ask_date: false,
-        ask_quantity: false,
-        ask_location: false,
-        is_urgent: false
-    });
+    const [location, setLocation] = useState('');
+    const [responseTime, setResponseTime] = useState('');
+    const [requireDate, setRequireDate] = useState(false);
+    const [requireAddress, setRequireAddress] = useState(false);
 
     const [saving, setSaving] = useState(false);
 
-    const handleSave = async () => {
-        // Validation
-        if (!title || !description || !priceUsd) {
-            WebApp.showAlert("Please fill in required fields (Title, Description, Price)");
+    const handlePublish = async () => {
+        if (!title || !price) {
+            WebApp.showAlert("Please fill in the title and price.");
             return;
         }
 
@@ -49,180 +44,191 @@ export default function ServiceCardBuilder({ onClose, onSuccess }: ServiceCardBu
             const payload: any = {
                 title,
                 description,
-                imageUrl: coverPhoto,
-                price: parseFloat(priceUsd),
-                type: cardType,
+                price: parseFloat(price),
+                imageUrl,
+                type,
                 createdAt: serverTimestamp(),
             };
 
-            // Dynamic additions
-            if (cardType === 'Event') {
-                payload.event_date = eventDate;
-                payload.address = address;
-                payload.ask_date = true;
-            } else if (cardType === 'SOS') {
-                payload.response_time_mins = parseInt(responseTimeMins);
-                payload.is_urgent = true;
-                payload.ask_location = true;
-            } else if (cardType === 'Custom') {
-                Object.assign(payload, flags);
+            // Dynamic logic based on Type
+            if (type === 'Event') {
+                payload.eventDate = eventDate;
+                payload.location = location;
+            } else if (type === 'SOS') {
+                payload.responseTimeMins = parseInt(responseTime) || 15;
+            } else if (type === 'Standard' || type === 'Rental') {
+                payload.requireDate = requireDate;
+                payload.requireAddress = requireAddress;
             }
 
             await addDoc(servicesRef, payload);
+
             WebApp.HapticFeedback.notificationOccurred('success');
-            if (onSuccess) onSuccess();
-            onClose();
+            onSuccess();
         } catch (err) {
-            console.error("Save error:", err);
-            WebApp.showAlert("Failed to create service card.");
+            console.error("Publish error:", err);
+            WebApp.showAlert("Ошибка при публикации услуги.");
         } finally {
             setSaving(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-md flex flex-col pt-10 px-0 animate-in slide-in-from-bottom duration-300">
-            {/* Header */}
-            <header className="px-4 pb-4 flex items-center justify-between border-b border-tg-hint/10">
-                <button onClick={onClose} className="p-2 -ml-2 text-tg-hint font-bold">Cancel</button>
-                <h2 className="text-base font-black uppercase tracking-tight">Create Service Card</h2>
-                <div className="w-10" /> {/* Spacer */}
+        <div className="fixed inset-0 z-[100] bg-tg-bg flex flex-col animate-in slide-in-from-bottom duration-300">
+            {/* HEADER */}
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg shrink-0">
+                <button
+                    onClick={onClose}
+                    className="text-tg-hint font-medium px-2 py-1 -ml-2 active:opacity-50 transition-opacity"
+                >
+                    Отмена
+                </button>
+                <h2 className="text-base font-bold">New Service</h2>
+                <button
+                    onClick={handlePublish}
+                    disabled={saving}
+                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                >
+                    {saving ? '...' : 'Сохранить'}
+                </button>
             </header>
 
+            {/* MAIN FORM */}
             <main className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
-                {/* Base Fields */}
-                <section className="space-y-4">
-                    <div>
-                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Card Type</label>
-                        <select
-                            value={cardType}
-                            onChange={e => setCardType(e.target.value as CardType)}
-                            className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm font-bold focus:outline-none appearance-none"
-                        >
-                            {['Standard', 'Event', 'Dining', 'Rental', 'SOS', 'Custom'].map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                    </div>
 
+                {/* BASIC INFO BLOCK */}
+                <section className="bg-tg-secondary rounded-xl p-4 space-y-4 border border-tg-hint/5">
                     <div>
-                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Service Title *</label>
                         <input
+                            type="text"
                             value={title}
-                            onChange={e => setTitle(e.target.value)}
-                            maxLength={50}
-                            placeholder="e.g. Master Class, Luxury Wash"
-                            className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm focus:outline-none"
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Service Title (e.g. Haircut)"
+                            className="w-full bg-transparent border-b border-tg-hint/10 py-2 focus:outline-none focus:border-teal-500 transition-colors"
                         />
                     </div>
-
                     <div>
-                        <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Description *</label>
                         <textarea
                             value={description}
-                            onChange={e => setDescription(e.target.value)}
-                            maxLength={200}
-                            rows={3}
-                            placeholder="Describe your service..."
-                            className="w-full bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 py-3 text-sm focus:outline-none resize-none"
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Description"
+                            rows={2}
+                            className="w-full bg-transparent border-b border-tg-hint/10 py-2 focus:outline-none focus:border-teal-500 transition-colors resize-none"
                         />
                     </div>
-
                     <div className="flex gap-4">
                         <div className="flex-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Price (USD) *</label>
                             <input
                                 type="number"
-                                value={priceUsd}
-                                onChange={e => setPriceUsd(e.target.value)}
-                                placeholder="50"
-                                className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm font-bold focus:outline-none"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                placeholder="Price in USD"
+                                className="w-full bg-transparent border-b border-tg-hint/10 py-2 focus:outline-none focus:border-teal-500 transition-colors"
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Cover Photo URL</label>
                             <input
-                                value={coverPhoto}
-                                onChange={e => setCoverPhoto(e.target.value)}
-                                placeholder="https://..."
-                                className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm focus:outline-none"
+                                type="text"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                                placeholder="Cover Photo URL"
+                                className="w-full bg-transparent border-b border-tg-hint/10 py-2 focus:outline-none focus:border-teal-500 transition-colors"
                             />
                         </div>
                     </div>
                 </section>
 
-                {/* Dynamic Fields */}
-                {cardType === 'Event' && (
-                    <section className="p-4 bg-teal-500/5 border border-teal-500/20 rounded-2xl space-y-4">
-                        <h4 className="text-[10px] font-black uppercase text-teal-500 tracking-widest">Event Settings</h4>
-                        <div>
-                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Event Date & Time</label>
+                {/* SERVICE TYPE SELECTOR */}
+                <section className="space-y-2 px-1">
+                    <label className="text-[11px] font-bold text-tg-hint uppercase">Service Type</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {(['Standard', 'Event', 'Rental', 'SOS'] as ServiceType[]).map(t => (
+                            <button
+                                key={t}
+                                onClick={() => setType(t)}
+                                className={`h-11 rounded-xl font-bold text-sm transition-all border ${type === t
+                                        ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20'
+                                        : 'bg-tg-secondary border-tg-hint/10 text-tg-text'
+                                    }`}
+                            >
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* DYNAMIC SETTINGS BLOCK */}
+                {type === 'Event' && (
+                    <section className="bg-tg-secondary rounded-xl p-4 space-y-3 border border-tg-hint/5 animate-in fade-in zoom-in-95 duration-200">
+                        <h4 className="text-[10px] font-bold text-teal-500 uppercase tracking-widest">Event Configuration</h4>
+                        <div className="space-y-3">
                             <input
                                 type="datetime-local"
                                 value={eventDate}
-                                onChange={e => setEventDate(e.target.value)}
-                                className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm focus:outline-none"
+                                onChange={(e) => setEventDate(e.target.value)}
+                                className="w-full bg-tg-bg border border-tg-hint/10 rounded-lg px-3 py-2 text-sm text-tg-text"
                             />
-                        </div>
-                        <div>
-                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Event Address</label>
                             <input
-                                value={address}
-                                onChange={e => setAddress(e.target.value)}
-                                placeholder="Location details..."
-                                className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm focus:outline-none"
+                                type="text"
+                                value={location}
+                                onChange={(e) => setLocation(e.target.value)}
+                                placeholder="Meeting Location / Address"
+                                className="w-full bg-tg-bg border border-tg-hint/10 rounded-lg px-3 py-2 text-sm text-tg-text"
                             />
                         </div>
                     </section>
                 )}
 
-                {cardType === 'SOS' && (
-                    <section className="p-4 bg-red-500/5 border border-red-500/20 rounded-2xl space-y-4">
-                        <h4 className="text-[10px] font-black uppercase text-red-500 tracking-widest">SOS Urgent Settings</h4>
-                        <div>
-                            <label className="text-[10px] font-black text-tg-hint uppercase block mb-1 px-1">Expected Response Time (Mins)</label>
+                {type === 'SOS' && (
+                    <section className="bg-tg-secondary rounded-xl p-4 space-y-1 border border-tg-hint/5 animate-in fade-in zoom-in-95 duration-200">
+                        <label className="text-[10px] font-bold text-red-500 uppercase tracking-widest block mb-2 px-1">SOS Urgent Response</label>
+                        <div className="flex items-center gap-3 bg-tg-bg border border-tg-hint/10 rounded-lg px-3 py-2">
+                            <span className="text-sm">Response Time:</span>
                             <input
                                 type="number"
-                                value={responseTimeMins}
-                                onChange={e => setResponseTimeMins(e.target.value)}
+                                value={responseTime}
+                                onChange={(e) => setResponseTime(e.target.value)}
                                 placeholder="15"
-                                className="w-full h-12 bg-tg-secondary border border-tg-hint/10 rounded-xl px-4 text-sm font-bold focus:outline-none"
+                                className="w-16 bg-transparent text-center font-bold text-sm focus:outline-none"
                             />
+                            <span className="text-xs text-tg-hint">mins</span>
                         </div>
                     </section>
                 )}
 
-                {cardType === 'Custom' && (
-                    <section className="p-4 bg-purple-500/5 border border-purple-500/20 rounded-2xl space-y-3">
-                        <h4 className="text-[10px] font-black uppercase text-purple-500 tracking-widest">Form Logic Settings</h4>
-
-                        {[
-                            { id: 'ask_date', label: 'Require Date & Time' },
-                            { id: 'ask_quantity', label: 'Require Guests/Items count' },
-                            { id: 'ask_location', label: 'Require Address' },
-                            { id: 'is_urgent', label: 'SOS Priority Mode' }
-                        ].map(f => (
+                {(type === 'Standard' || type === 'Rental') && (
+                    <section className="bg-tg-secondary rounded-xl p-2 border border-tg-hint/5 divide-y divide-tg-hint/5 animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-medium">Require Date from Client?</span>
                             <button
-                                key={f.id}
-                                onClick={() => setFlags(prev => ({ ...prev, [f.id]: !prev[f.id as keyof typeof flags] }))}
-                                className={`w-full flex justify-between items-center p-3 rounded-xl transition-colors ${flags[f.id as keyof typeof flags] ? 'bg-purple-500/10' : 'bg-tg-bg/40'}`}
+                                onClick={() => setRequireDate(!requireDate)}
+                                className={`w-11 h-6 rounded-full transition-colors relative ${requireDate ? 'bg-teal-500' : 'bg-tg-hint/20'}`}
                             >
-                                <span className="text-xs font-bold text-tg-text">{f.label}</span>
-                                <div className={`w-10 h-6 rounded-full relative transition-colors ${flags[f.id as keyof typeof flags] ? 'bg-purple-500' : 'bg-tg-hint/20'}`}>
-                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${flags[f.id as keyof typeof flags] ? 'right-1' : 'left-1'}`} />
-                                </div>
+                                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${requireDate ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
                             </button>
-                        ))}
+                        </div>
+                        <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-medium">Require Address?</span>
+                            <button
+                                onClick={() => setRequireAddress(!requireAddress)}
+                                className={`w-11 h-6 rounded-full transition-colors relative ${requireAddress ? 'bg-teal-500' : 'bg-tg-hint/20'}`}
+                            >
+                                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${requireAddress ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
+                            </button>
+                        </div>
                     </section>
                 )}
+
             </main>
 
-            {/* Sticky Footer */}
-            <footer className="p-4 bg-tg-bg border-t border-tg-hint/10">
+            {/* BOTTOM ACTION */}
+            <footer className="p-4 bg-tg-bg border-t border-tg-hint/10 pb-8">
                 <button
-                    onClick={handleSave}
+                    onClick={handlePublish}
                     disabled={saving}
-                    className="w-full h-12 bg-teal-500 text-white font-black uppercase tracking-widest rounded-xl shadow-[0_0_20px_rgba(20,184,166,0.3)] active:scale-95 transition-all"
+                    className="w-full h-12 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-500/30 active:scale-[0.98] transition-all"
                 >
-                    {saving ? 'Saving...' : 'Save Service Card'}
+                    {saving ? 'Публикация...' : 'Опубликовать'}
                 </button>
             </footer>
         </div>
