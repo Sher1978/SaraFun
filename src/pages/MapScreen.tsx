@@ -8,53 +8,24 @@ const GOLD = '#FFD700';
 const GREY_NEUTRAL = '#8896A4';
 
 // ─── Map styles ─────────────────────────────────────────────────────────────
-const HIDE_POI = [
-    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
-    { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-    { featureType: 'transit.station', stylers: [{ visibility: 'off' }] },
+const customMapStyles = [
+    // Hide all default Google markers (POIs, Transit, Businesses)
+    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { featureType: 'poi', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
+    { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+    // Grayscale and dark mode baseline
+    { elementType: 'geometry', stylers: [{ color: '#212121' }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-];
-
-const MapStyleDark = [
-    ...HIDE_POI,
-    { elementType: 'geometry', stylers: [{ color: '#0d111a' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#4a5a7a' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#0d111a' }] },
-    { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#161e2e' }] },
-    { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#3a4a6b' }] },
-    { featureType: 'landscape', stylers: [{ color: '#0d111a' }] },
-    { featureType: 'landscape.man_made', stylers: [{ color: '#111827' }] },
-    { featureType: 'landscape.natural', stylers: [{ color: '#0a0f19' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#1a2236' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#0d111a' }] },
-    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#2a3a5a' }] },
-    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#1e2a40' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#1e2d48' }] },
-    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#00E5CC33' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#00C4AD' }] },
-    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#1a2a48' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#05090f' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#0a1830' }] },
-];
-
-const MapStyleLight = [
-    ...HIDE_POI,
-    { elementType: 'geometry', stylers: [{ color: '#edf2f7' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#5a6a88' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#edf2f7' }] },
-    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#c8d5e8' }] },
-    { featureType: 'landscape', stylers: [{ color: '#e8eff8' }] },
-    { featureType: 'landscape.man_made', stylers: [{ color: '#dde8f5' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#c8d5e8' }] },
-    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#7a8ba8' }] },
-    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#f5f9ff' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#d0e8f5' }] },
-    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#00C4AD' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#007a6a' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#9ec8e0' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4a88a8' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#212121' }] },
+    // Water and landscape in dark gray/black
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#000000' }] },
+    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#181818' }] },
+    // Roads in subtle gray
+    { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#2c2c2c' }] },
+    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#8a8a8a' }] },
+    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#373737' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3c3c3c' }] }
 ];
 
 // ─── SVG Icons (Google Maps–inspired, minimal stroke) ──────────────────────
@@ -476,8 +447,10 @@ export default function MapScreen() {
                         center={center} zoom={zoom}
                         mapId="DEMO_MAP_ID"
                         gestureHandling="greedy"
-                        disableDefaultUI={true}
-                        styles={isDark ? MapStyleDark : MapStyleLight}
+                        options={{
+                            styles: customMapStyles,
+                            disableDefaultUI: true,
+                        }}
                         onCameraChanged={onCameraChanged}
                         onClick={() => setSelectedPin(null)}
                     >
