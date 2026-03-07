@@ -10,7 +10,7 @@ const BG = '#0d0f14';
 const CARD_BG = 'rgba(14,19,30,0.9)';
 const DUNBAR_GOLD = '#FFD700';
 
-type DunbarMode = 'My 220' | 'Friends of Friends' | 'Global';
+type DunbarMode = 'My 20' | 'Friends of Friends' | 'Global';
 
 // ─── Category SVG Icons ───────────────────────────────────────────────────────
 const IconRestaurant = () => (
@@ -96,7 +96,7 @@ function Stars({ rating }: { rating: number }) {
 // ─── Master Card ──────────────────────────────────────────────────────────────
 function MasterCardComp({ card, mode }: { card: MasterCard; mode: DunbarMode }) {
     const navigate = useNavigate();
-    const isTop5 = card.dunbarWeight === 2.0 && mode === 'My 220';
+    const isTop5 = card.dunbarWeight === 2.0 && mode === 'My 20';
     return (
         <div
             onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate('/lead-form'); }}
@@ -203,13 +203,13 @@ function Shelf({ title, children }: { title: string; children: React.ReactNode }
 export default function Discovery() {
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
-    const [ring, setRing] = useState<DunbarMode>('My 220');
+    const [ring, setRing] = useState<DunbarMode>('My 20');
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-    const rings: DunbarMode[] = ['My 220', 'Friends of Friends', 'Global'];
+    const rings: DunbarMode[] = ['My 20', 'Friends of Friends', 'Global'];
 
     const filterByRing = (card: MasterCard): boolean => {
-        if (ring === 'My 220') return card.dunbarWeight >= 1.0;
+        if (ring === 'My 20') return card.dunbarWeight >= 1.0;
         if (ring === 'Friends of Friends') return card.dunbarWeight >= 0.5 && card.dunbarWeight < 2.0;
         return true;
     };
@@ -302,6 +302,11 @@ export default function Discovery() {
                 >
                     {rings.map(r => {
                         const isActive = ring === r;
+                        const isMy20 = r === 'My 20';
+                        const accentColor = isMy20 ? DUNBAR_GOLD : NEON;
+                        const accentDim = isMy20 ? 'rgba(255,215,0,0.15)' : NEON_DIM;
+                        const accentHighlight = isMy20 ? 'rgba(255,215,0,0.35)' : NEON_BORDER;
+
                         return (
                             <button
                                 key={r}
@@ -309,10 +314,10 @@ export default function Discovery() {
                                 className="flex-1 rounded-[10px] text-[10px] font-black uppercase tracking-wide transition-all active:scale-95"
                                 style={{
                                     height: 30, border: 'none', letterSpacing: '0.03em',
-                                    background: isActive ? NEON_DIM : 'transparent',
-                                    color: isActive ? NEON : 'rgba(255,255,255,0.38)',
-                                    boxShadow: isActive ? `inset 0 0 0 1px ${NEON_BORDER}, 0 0 12px rgba(0,229,204,0.1)` : 'none',
-                                    textShadow: isActive ? `0 0 8px ${NEON}99` : 'none',
+                                    background: isActive ? accentDim : 'transparent',
+                                    color: isActive ? accentColor : 'rgba(255,255,255,0.38)',
+                                    boxShadow: isActive ? `inset 0 0 0 1px ${accentHighlight}, 0 0 12px ${accentColor}33` : 'none',
+                                    textShadow: isActive ? `0 0 8px ${accentColor}99` : 'none',
                                 }}
                             >
                                 {r}
@@ -389,7 +394,7 @@ export default function Discovery() {
                             transform: 'translate(-50%, -50%)',
                             width: 20, height: 20, borderRadius: '50% 50% 50% 0',
                             background: pos.color, rotate: '-45deg',
-                            boxShadow: `0 0 10px ${pos.color}88`,
+                            boxShadow: `0 0 12px ${pos.color}aa`,
                         }} />
                     ))}
                     <div style={{
