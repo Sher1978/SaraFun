@@ -139,32 +139,32 @@ export default function MasterProfileEditor() {
         }
     };
 
-    if (loading) return <div className="p-4 text-center text-tg-hint">Loading Profile...</div>;
+    if (loading) return <div className="bg-[#0d0f14] min-h-screen p-4 text-center text-white/20 font-medium">Loading Profile...</div>;
 
     return (
-        <div className="bg-tg-bg min-h-screen pb-24 text-tg-primary">
+        <div className="bg-[#0d0f14] min-h-screen pb-24 text-white font-['Inter']">
             {/* Header */}
-            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50">
-                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50">Back</button>
-                <h1 className="text-base font-bold">Business Identity</h1>
+            <header className="h-14 border-b border-[#00E5CC]/10 flex items-center justify-between px-4 bg-[#0d0f14]/80 backdrop-blur-xl sticky top-0 z-50">
+                <button onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate(-1); }} className="text-white/60 font-medium px-2 py-1 -ml-2 active:opacity-50 transition-opacity">Back</button>
+                <h1 className="text-[18px] font-bold tracking-tight neon-text neon-glow">Business Identity</h1>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                    className="text-[#00E5CC] font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
                 >
                     {saving ? '...' : 'Save'}
                 </button>
             </header>
 
             {/* Traffic Light Dashboard */}
-            <div className="px-4 mb-6">
-                <div className="bg-tg-secondary/50 backdrop-blur-xl border border-tg-hint/10 p-5 rounded-2xl shadow-xl">
+            <div className="px-4 mb-6 mt-4">
+                <div className="cyber-glass p-5 rounded-2xl">
                     <div className="flex justify-between items-start mb-4">
                         <div>
-                            <p className="text-[10px] uppercase tracking-widest font-black text-tg-hint mb-1">Star Balance</p>
+                            <p className="text-[10px] uppercase tracking-[0.08em] font-bold text-white/40 mb-1">Star Balance</p>
                             <div className="flex items-center gap-2">
-                                <span className="text-3xl font-black">⭐️ {starsBalance}</span>
-                                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${safetyStatus.color === 'green' ? 'bg-green-500/20 text-green-500' :
+                                <span className="text-3xl font-black text-white">⭐️ {starsBalance}</span>
+                                <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${safetyStatus.color === 'green' ? 'bg-[#00E5CC]/20 text-[#00E5CC]' :
                                     safetyStatus.color === 'yellow' ? 'bg-yellow-500/20 text-yellow-500' :
                                         'bg-red-500/20 text-red-500'
                                     }`}>
@@ -172,33 +172,36 @@ export default function MasterProfileEditor() {
                                 </div>
                             </div>
                         </div>
-                        <button className="bg-[#FFD700] text-black px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider active:scale-95 transition-transform shadow-[0_0_15px_rgba(255,215,0,0.3)]">
+                        <button
+                            onClick={() => WebApp.HapticFeedback.impactOccurred('medium')}
+                            className="bg-[#00E5CC] text-[#0d0f14] px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider active-scale shadow-[0_4px_12px_rgba(0,229,204,0.3)]"
+                        >
                             Top Up
                         </button>
                     </div>
                     <div className="flex gap-3 items-center">
-                        <div className={`w-2 h-2 rounded-full shadow-[0_0_10px_currentColor] ${safetyStatus.color === 'green' ? 'bg-green-500 text-green-500' :
-                            safetyStatus.color === 'yellow' ? 'bg-yellow-500 text-yellow-500' :
-                                'bg-red-500 text-red-500'
+                        <div className={`w-2 h-2 rounded-full shadow-[0_0_8px_currentColor] ${safetyStatus.color === 'green' ? 'text-[#00E5CC] bg-[#00E5CC]' :
+                            safetyStatus.color === 'yellow' ? 'text-yellow-500 bg-yellow-500' :
+                                'text-red-500 bg-red-500'
                             }`} />
-                        <p className="text-xs text-tg-hint font-medium leading-relaxed">{safetyStatus.sub}</p>
+                        <p className="text-[13px] text-white/60 font-medium leading-tight">{safetyStatus.sub}</p>
                     </div>
                 </div>
             </div>
 
-            {/* Identity Form - Telegram Style */}
-            <div className="space-y-6">
+            {/* Identity Form - Cyber Style */}
+            <div className="space-y-4">
                 {/* 1. Avatar Section */}
                 <section>
-                    <div className="px-4 py-2 text-[11px] uppercase tracking-widest font-black text-tg-hint bg-tg-secondary/30">Profile Image</div>
-                    <div className="bg-tg-secondary px-4 py-6 flex flex-col items-center gap-4">
-                        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-tg-bg border-4 border-tg-hint/10 flex items-center justify-center shadow-lg">
+                    <div className="px-5 py-2 text-[10px] uppercase tracking-[0.1em] font-bold text-white/30">Profile Image</div>
+                    <div className="bg-[#121620]/40 backdrop-blur-md px-4 py-6 flex flex-col items-center gap-4 border-y border-white/5">
+                        <div className="relative w-full aspect-video rounded-2xl overflow-hidden bg-[#0d0f14] border border-[#00E5CC]/20 flex items-center justify-center shadow-2xl group active-scale transition-all">
                             {photoUrl ? (
                                 <img src={photoUrl} alt="Business" className="w-full h-full object-cover" />
                             ) : (
-                                <div className="flex flex-col items-center gap-2 opacity-30">
-                                    <span className="text-4xl">🏢</span>
-                                    <span className="text-[10px] font-black uppercase tracking-tight">Add Business Photo</span>
+                                <div className="flex flex-col items-center gap-2 opacity-40">
+                                    <span className="text-4xl filter grayscale contrast-125">🏢</span>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#00E5CC]">Add Business Cover</span>
                                 </div>
                             )}
                             <input
@@ -207,55 +210,61 @@ export default function MasterProfileEditor() {
                                 onChange={onFileChange}
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                             />
+                            <div className="absolute inset-0 bg-[#00E5CC]/5 opacity-0 group-active:opacity-100 pointer-events-none transition-opacity" />
                         </div>
-                        <p className="text-[10px] text-tg-hint uppercase font-bold tracking-widest">Tap to change business cover</p>
+                        <p className="text-[10px] text-white/40 uppercase font-medium tracking-[0.05em]">16:9 Aspect Ratio recommended</p>
                     </div>
                 </section>
 
                 {/* 2. Basic Info Group */}
                 <section>
-                    <div className="px-4 py-2 text-[11px] uppercase tracking-widest font-black text-tg-hint bg-tg-secondary/30">Business Details</div>
-                    <div className="bg-tg-secondary divide-y divide-tg-hint/10">
+                    <div className="px-5 py-2 text-[10px] uppercase tracking-[0.1em] font-bold text-white/30">Business Details</div>
+                    <div className="bg-[#121620]/40 backdrop-blur-md divide-y divide-white/5 border-y border-white/5">
                         {/* Name */}
-                        <div className="flex flex-col p-4 gap-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase">Brand Name</label>
+                        <div className="flex flex-col px-5 py-4 gap-1.5 focus-within:bg-[#00E5CC]/5 transition-colors">
+                            <label className="text-[10px] font-bold text-[#00E5CC]/60 uppercase tracking-wider">Brand Name</label>
                             <input
                                 value={businessName}
                                 onChange={(e) => setBusinessName(e.target.value)}
                                 placeholder="Your Brand or Name"
                                 maxLength={40}
-                                className="bg-transparent text-sm focus:outline-none placeholder:text-tg-hint/30"
+                                className="bg-transparent text-[15px] font-medium text-white focus:outline-none placeholder:text-white/10"
                             />
                         </div>
                         {/* Sector */}
-                        <div className="flex flex-col p-4 gap-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase">Primary Sector</label>
-                            <select
-                                value={sector}
-                                onChange={(e) => setSector(e.target.value)}
-                                className="bg-transparent text-sm focus:outline-none appearance-none w-full"
-                            >
-                                {SECTORS.map(s => <option key={s} value={s}>{s}</option>)}
-                            </select>
+                        <div className="flex flex-col px-5 py-4 gap-1.5 focus-within:bg-[#00E5CC]/5 transition-colors">
+                            <label className="text-[10px] font-bold text-[#00E5CC]/60 uppercase tracking-wider">Primary Sector</label>
+                            <div className="relative">
+                                <select
+                                    value={sector}
+                                    onChange={(e) => setSector(e.target.value)}
+                                    className="bg-transparent text-[15px] font-medium text-white focus:outline-none appearance-none w-full relative z-10"
+                                >
+                                    {SECTORS.map(s => <option key={s} value={s} className="bg-[#0d0f14]">{s}</option>)}
+                                </select>
+                                <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/20"><path d="M19 9l-7 7-7-7" /></svg>
+                                </div>
+                            </div>
                         </div>
                         {/* Location */}
-                        <div className="flex flex-col p-4 gap-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase">Base Location</label>
+                        <div className="flex flex-col px-5 py-4 gap-1.5 focus-within:bg-[#00E5CC]/5 transition-colors">
+                            <label className="text-[10px] font-bold text-[#00E5CC]/60 uppercase tracking-wider">Base Location</label>
                             <input
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Street, City, Building"
-                                className="bg-transparent text-sm focus:outline-none placeholder:text-tg-hint/30"
+                                className="bg-transparent text-[15px] font-medium text-white focus:outline-none placeholder:text-white/10"
                             />
                         </div>
                         {/* Contact Phone */}
-                        <div className="flex flex-col p-4 gap-1">
-                            <label className="text-[10px] font-black text-tg-hint uppercase">Contact Phone (Optional)</label>
+                        <div className="flex flex-col px-5 py-4 gap-1.5 focus-within:bg-[#00E5CC]/5 transition-colors">
+                            <label className="text-[10px] font-bold text-[#00E5CC]/60 uppercase tracking-wider">Contact Phone (Optional)</label>
                             <input
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 placeholder="+7 999 000-00-00"
-                                className="bg-transparent text-sm focus:outline-none placeholder:text-tg-hint/30"
+                                className="bg-transparent text-[15px] font-medium text-white focus:outline-none placeholder:text-white/10"
                             />
                         </div>
                     </div>
@@ -263,24 +272,24 @@ export default function MasterProfileEditor() {
 
                 {/* 3. Bio Section */}
                 <section>
-                    <div className="px-4 py-2 text-[11px] uppercase tracking-widest font-black text-tg-hint bg-tg-secondary/30">About Business</div>
-                    <div className="bg-tg-secondary p-4">
+                    <div className="px-5 py-2 text-[10px] uppercase tracking-[0.1em] font-bold text-white/30">About Business</div>
+                    <div className="bg-[#121620]/40 backdrop-blur-md p-5 border-y border-white/5 focus-within:bg-[#00E5CC]/5 transition-colors">
                         <textarea
                             value={bio}
                             onChange={(e) => setBio(e.target.value)}
                             placeholder="Short pitch for your clients (max 200 chars)..."
                             maxLength={200}
-                            className="w-full bg-transparent text-sm focus:outline-none min-h-[100px] resize-none placeholder:text-tg-hint/30"
+                            className="w-full bg-transparent text-[15px] font-medium text-white focus:outline-none min-h-[120px] resize-none placeholder:text-white/10 leading-relaxed"
                         />
                     </div>
                 </section>
             </div>
 
 
-            {/* Crop Overlay (Simplified Reuse) */}
+            {/* Crop Overlay */}
             {imageSrc && (
-                <div className="fixed inset-0 z-[100] bg-black flex flex-col pt-10 pb-6 px-4">
-                    <div className="flex-1 relative mb-6 rounded-2xl overflow-hidden bg-tg-secondary/30">
+                <div className="fixed inset-0 z-[1000] bg-[#0d0f14] flex flex-col pt-10 pb-6 px-4 animate-in fade-in duration-300">
+                    <div className="flex-1 relative mb-6 rounded-3xl overflow-hidden cyber-glass">
                         <Cropper
                             image={imageSrc}
                             crop={crop}
@@ -292,18 +301,19 @@ export default function MasterProfileEditor() {
                         />
                     </div>
                     <div className="flex justify-between gap-4">
-                        <button onClick={() => setImageSrc(null)} className="flex-1 py-4 bg-white/10 text-white rounded-xl font-bold active:scale-95">Cancel</button>
+                        <button onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); setImageSrc(null); }} className="flex-1 py-4 bg-[#1a1f2e] text-white/40 rounded-2xl font-bold active-scale">Cancel</button>
                         <button
                             onClick={async () => {
+                                WebApp.HapticFeedback.impactOccurred('medium');
                                 if (imageSrc && croppedAreaPixels) {
                                     const cropped = await getCroppedImg(imageSrc, croppedAreaPixels);
                                     setPhotoUrl(cropped);
                                     setImageSrc(null);
                                 }
                             }}
-                            className="flex-1 py-4 bg-[#FFD700] text-black rounded-xl font-black uppercase tracking-widest active:scale-95"
+                            className="flex-1 py-4 bg-[#00E5CC] text-[#0d0f14] rounded-2xl font-black uppercase tracking-widest active-scale shadow-[0_0_20px_rgba(0,229,204,0.4)]"
                         >
-                            Crop Image
+                            Crop Cover
                         </button>
                     </div>
                 </div>

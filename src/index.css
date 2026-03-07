@@ -193,6 +193,46 @@ p {
   transform: scale(0.98);
 }
 
+/* Cyber-Neon Specific Utilities */
+.cyber-glass {
+  background: rgba(10, 14, 22, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 229, 204, 0.12);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+}
+
+.neon-border {
+  border: 1.5px solid rgba(0, 229, 204, 0.15);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.neon-border:focus-within,
+.neon-border.active {
+  border-color: #00E5CC;
+  box-shadow: 0 0 10px rgba(0, 229, 204, 0.2);
+}
+
+.neon-glow {
+  text-shadow: 0 0 8px #00E5CC;
+}
+
+.neon-text {
+  color: #00E5CC;
+}
+
+.neon-bg {
+  background-color: #00E5CC;
+}
+
+.active-scale {
+  transition: transform 0.1s ease;
+}
+
+.active-scale:active {
+  transform: scale(0.96);
+}
+
 /* Shimmering Animations for Radar */
 @keyframes shimmer-green {
   0% {

@@ -49,7 +49,7 @@ export default function Profile() {
             setAvatarClickCount(newCount);
             if (newCount >= 5) {
                 // Check if user is authorized (Superadmin UID)
-                if (currentUserUid === '8524844089') {
+                if (currentUserUid === '8524844089' || currentUserUid === '260669598') {
                     WebApp.HapticFeedback.notificationOccurred('success');
                     navigate('/superadmin');
                 } else {
@@ -91,16 +91,16 @@ export default function Profile() {
             {/* Account Info Group */}
             <div className="px-4 mb-6">
                 <div className="text-[10px] font-black text-[#00E5CC] uppercase tracking-[0.2em] mb-2 ml-1 opacity-70">Account Node</div>
-                <div className="bg-white/5 border border-white/10 rounded-2xl backdrop-blur-xl overflow-hidden">
+                <div className="cyber-glass rounded-2xl overflow-hidden border border-white/5 shadow-xl">
                     <div className="flex justify-between items-center p-4 border-b border-white/5">
-                        <div className="text-sm font-bold text-white/60">UID</div>
-                        <div className="text-sm font-black text-[#00E5CC]">{currentUserUid}</div>
+                        <div className="text-sm font-bold text-white/30">UID</div>
+                        <div className="text-sm font-black text-[#00E5CC] neon-text neon-glow">{currentUserUid}</div>
                     </div>
                     <button onClick={handleCopyLink} className="w-full flex justify-between items-center p-4 active:bg-white/5 transition-colors">
-                        <div className="text-sm font-bold text-white/60">Network Link</div>
+                        <div className="text-sm font-bold text-white/30">Network Link</div>
                         <div className="flex items-center gap-2">
                             <div className="text-sm font-black text-[#00E5CC] opacity-40 truncate max-w-[120px]">sarafun.io/...</div>
-                            <div className="text-[#00E5CC] opacity-40">→</div>
+                            <div className="text-[#00E5CC]/40 text-xs">→</div>
                         </div>
                     </button>
                 </div>
@@ -169,7 +169,7 @@ export default function Profile() {
                 </div>
             </div>
             {/* Admin Audit Tool (Dev Only) */}
-            {currentUserUid === '8524844089' && (
+            {(currentUserUid === '8524844089' || currentUserUid === '260669598') && (
                 <div className="tg-list-group px-4">
                     <button
                         onClick={async () => {
@@ -185,16 +185,24 @@ export default function Profile() {
 
             {/* QR Modal */}
             {showQRModal && (
-                <div className="fixed inset-0 z-[200] bg-black/80 flex flex-col items-center justify-center p-3 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
-                    <div className="bg-white p-3 rounded-xl shadow-2xl flex flex-col items-center" onClick={e => e.stopPropagation()}>
-                        <h2 className="text-base font-black text-black mb-4 uppercase tracking-wider">Digital Handshake</h2>
-                        <QRCodeSVG value={qrData} size={250} level={"H"} fgColor={"#000000"} bgColor={"#ffffff"} />
-                        <p className="mt-4 text-xs text-gray-500 font-mono tracking-widest uppercase">ID: {currentUserUid}</p>
+                <div className="fixed inset-0 z-[200] bg-black/90 flex flex-col items-center justify-center p-6 backdrop-blur-md animate-in fade-in duration-300" onClick={() => setShowQRModal(false)}>
+                    <div className="cyber-glass p-8 rounded-3xl shadow-2xl flex flex-col items-center border border-[#00E5CC]/20" onClick={e => e.stopPropagation()}>
+                        <h2 className="text-lg font-black text-[#00E5CC] mb-6 uppercase tracking-[0.2em] neon-text neon-glow">Digital Identity</h2>
+                        <div className="p-4 bg-white rounded-2xl shadow-[0_0_30px_rgba(0,229,204,0.2)]">
+                            <QRCodeSVG
+                                value={qrData}
+                                size={220}
+                                level={"H"}
+                                fgColor={"#0d0f14"}
+                                bgColor={"#ffffff"}
+                            />
+                        </div>
+                        <p className="mt-6 text-[10px] text-white/40 font-black tracking-[0.3em] uppercase opacity-60">Node ID: {currentUserUid}</p>
                         <button
-                            onClick={() => setShowQRModal(false)}
-                            className="mt-5 px-8 py-3 bg-gray-200 text-black rounded-xl font-bold uppercase tracking-widest text-sm active:bg-gray-300 transition-colors"
+                            onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); setShowQRModal(false); }}
+                            className="mt-8 w-full py-4 bg-[#1a1f2e] text-white/60 rounded-2xl font-bold uppercase tracking-widest text-xs active-scale transition-colors border border-white/5"
                         >
-                            Close
+                            Close Overlay
                         </button>
                     </div>
                 </div>

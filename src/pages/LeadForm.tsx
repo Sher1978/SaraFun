@@ -113,46 +113,50 @@ export default function LeadForm() {
         }
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center text-tg-hint">Loading Lead Context...</div>;
+    if (loading) return <div className="h-screen bg-[#0d0f14] flex items-center justify-center text-[#00E5CC] font-black animate-pulse uppercase tracking-[0.2em]">Synchronizing...</div>;
     if (!service) return null;
 
     return (
-        <div className="min-h-screen bg-tg-bg p-6 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="min-h-screen bg-[#0d0f14] text-white p-6 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500 font-['Inter']">
             {/* Header with Hero Image */}
-            <div className="absolute top-0 left-0 w-full h-48 -z-10 opacity-30 blur-xl overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-48 -z-10 opacity-20 blur-2xl overflow-hidden scale-110">
                 <img src={service.imageUrl} className="w-full h-full object-cover" alt="" />
             </div>
 
             {/* Sticky Header with Action */}
-            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50 -mx-6 -mt-6 mb-6">
-                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50 transition-opacity">
+            <header className="h-14 border-b border-[#00E5CC]/10 flex items-center justify-between px-4 bg-[#0d0f14]/80 backdrop-blur-xl sticky top-0 z-50 -mx-6 -mt-6 mb-8">
+                <button onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate(-1); }} className="text-white/40 font-bold px-2 py-1 -ml-2 active:opacity-50 transition-opacity">
                     Back
                 </button>
-                <h1 className="text-base font-bold">New Request</h1>
+                <h1 className="text-[17px] font-black tracking-tight neon-text neon-glow">Create Request</h1>
                 <button
                     onClick={handleSubmit}
                     disabled={submitting}
-                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                    className="text-[#00E5CC] font-black px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
                 >
                     {submitting ? '...' : 'Send'}
                 </button>
             </header>
 
             <div className="flex items-center gap-4 mb-8">
+                <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[#00E5CC]/30 shadow-lg shadow-[#00E5CC]/10">
+                    <img src={service.imageUrl} className="w-full h-full object-cover" alt="" />
+                </div>
                 <div>
-                    <h1 className="text-2xl font-black text-tg-text tracking-tight">{service.title}</h1>
-                    <p className="text-xs font-bold text-tg-hint uppercase tracking-widest">{service.type}</p>
+                    <h1 className="text-xl font-black text-white tracking-tight leading-tight">{service.title}</h1>
+                    <p className="text-[10px] font-black text-[#00E5CC] uppercase tracking-[0.2em] opacity-60 mt-0.5">{service.type}</p>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="bg-white/5 backdrop-blur-md rounded-3xl p-6 border border-white/10 shadow-xl">
+                <div className="cyber-glass rounded-3xl p-6 border border-white/5 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#00E5CC]/20 to-transparent" />
 
                     {/* Dynamic Fields */}
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                         {(service.ask_date || service.ask_time) && (
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-tg-button mb-3 ml-1 tracking-widest">Desired Date & Time</label>
+                                <label className="block text-[10px] font-black uppercase text-[#00E5CC]/60 mb-3 ml-1 tracking-[0.2em]">Schedule Slot</label>
                                 <div className="flex gap-3">
                                     {service.ask_date && (
                                         <input
@@ -160,7 +164,7 @@ export default function LeadForm() {
                                             required
                                             value={date}
                                             onChange={e => setDate(e.target.value)}
-                                            className="flex-1 bg-black/20 border-none rounded-2xl px-4 py-3 text-tg-text focus:ring-2 focus:ring-tg-button appearance-none"
+                                            className="flex-1 bg-[#0d0f14] border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-[#00E5CC]/50 transition-colors appearance-none"
                                         />
                                     )}
                                     {service.ask_time && (
@@ -169,7 +173,7 @@ export default function LeadForm() {
                                             required
                                             value={time}
                                             onChange={e => setTime(e.target.value)}
-                                            className="w-32 bg-black/20 border-none rounded-2xl px-4 py-3 text-tg-text focus:ring-2 focus:ring-tg-button appearance-none"
+                                            className="w-32 bg-[#0d0f14] border border-white/10 rounded-2xl px-4 py-3.5 text-sm text-white focus:outline-none focus:border-[#00E5CC]/50 transition-colors appearance-none"
                                         />
                                     )}
                                 </div>
@@ -178,22 +182,22 @@ export default function LeadForm() {
 
                         {service.ask_quantity && (
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-tg-button mb-3 ml-1 tracking-widest">Quantity / Guests</label>
-                                <div className="flex items-center gap-6 bg-black/20 rounded-2xl p-2 w-fit">
+                                <label className="block text-[10px] font-black uppercase text-[#00E5CC]/60 mb-3 ml-1 tracking-[0.2em]">Load / Capacity</label>
+                                <div className="flex items-center gap-8 bg-[#0d0f14] border border-white/10 rounded-2xl p-2 w-fit">
                                     <button
                                         type="button"
-                                        onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                        className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center active:scale-90 transition-transform"
+                                        onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); setQuantity(q => Math.max(1, q - 1)); }}
+                                        className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center active:scale-90 transition-transform text-[#00E5CC]"
                                     >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                     </button>
-                                    <span className="text-xl font-black min-w-[1.5rem] text-center">{quantity}</span>
+                                    <span className="text-xl font-black min-w-[1.5rem] text-center neon-text">{quantity}</span>
                                     <button
                                         type="button"
-                                        onClick={() => setQuantity(q => q + 1)}
-                                        className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center active:scale-90 transition-transform"
+                                        onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); setQuantity(q => q + 1); }}
+                                        className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center active:scale-90 transition-transform text-[#00E5CC]"
                                     >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                     </button>
                                 </div>
                             </div>
@@ -201,46 +205,49 @@ export default function LeadForm() {
 
                         {service.ask_period && (
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-tg-button mb-3 ml-1 tracking-widest">Desired Period</label>
+                                <label className="block text-[10px] font-black uppercase text-[#00E5CC]/60 mb-3 ml-1 tracking-[0.2em]">Operational Window</label>
                                 <div className="flex items-center gap-3">
                                     <input
                                         type="date"
                                         required
                                         value={startDate}
                                         onChange={e => setStartDate(e.target.value)}
-                                        className="flex-1 bg-black/20 border-none rounded-2xl px-4 py-3 text-sm text-tg-text focus:ring-2 focus:ring-tg-button"
+                                        className="flex-1 bg-[#0d0f14] border border-white/10 rounded-2xl px-4 py-3.5 text-[13px] text-white focus:outline-none focus:border-[#00E5CC]/50 transition-colors"
                                     />
-                                    <div className="text-tg-hint text-xs font-bold">to</div>
+                                    <div className="text-white/20 text-[10px] font-black uppercase tracking-widest">to</div>
                                     <input
                                         type="date"
                                         required
                                         value={endDate}
                                         onChange={e => setEndDate(e.target.value)}
-                                        className="flex-1 bg-black/20 border-none rounded-2xl px-4 py-3 text-sm text-tg-text focus:ring-2 focus:ring-tg-button"
+                                        className="flex-1 bg-[#0d0f14] border border-white/10 rounded-2xl px-4 py-3.5 text-[13px] text-white focus:outline-none focus:border-[#00E5CC]/50 transition-colors"
                                     />
                                 </div>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-[10px] font-black uppercase text-tg-button mb-3 ml-1 tracking-widest">Details or Wishes</label>
+                            <label className="block text-[10px] font-black uppercase text-[#00E5CC]/60 mb-3 ml-1 tracking-[0.2em]">Mission Intel / Details</label>
                             <textarea
-                                placeholder="Write your wishes to the master..."
+                                placeholder="State your requirements here..."
                                 value={details}
                                 onChange={e => setDetails(e.target.value)}
-                                className="w-full bg-black/20 border-none rounded-2xl px-5 py-4 text-tg-text focus:ring-2 focus:ring-tg-button resize-none"
+                                className="w-full bg-[#0d0f14] border border-white/10 rounded-2xl px-5 py-4 text-sm text-white focus:outline-none focus:border-[#00E5CC]/50 transition-colors resize-none leading-relaxed"
                                 rows={4}
                             />
                         </div>
                     </div>
-
                 </div>
-
             </form>
 
+            <div className="mt-8 px-2 flex items-center gap-3 opacity-40">
+                <div className="w-2 h-2 rounded-full bg-[#00E5CC] animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Neural Link Stable</span>
+            </div>
+
             {/* Decorative glass elements */}
-            <div className="fixed top-1/4 -right-20 w-48 h-48 bg-tg-button/10 rounded-full blur-3xl -z-20" />
-            <div className="fixed bottom-1/4 -left-20 w-64 h-64 bg-[#FFD700]/10 rounded-full blur-3xl -z-20" />
+            <div className="fixed top-1/4 -right-20 w-48 h-48 bg-[#00E5CC]/5 rounded-full blur-3xl -z-20" />
+            <div className="fixed bottom-1/4 -left-20 w-64 h-64 bg-white/5 rounded-full blur-3xl -z-20" />
         </div>
     );
 }
