@@ -10,10 +10,10 @@ import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/co
 // Radar Rings Configuration - Optimized spacing
 // Radar Rings Configuration - Cyber-Neon Edition
 const RINGS_CONFIG = [
-    { id: '150', max: 150, radius: 180, color: '#FF2D55', opacity: 0.1, delay: '0.8s' }, // Neon Red
-    { id: '50', max: 50, radius: 135, color: '#007AFF', opacity: 0.2, delay: '0.6s' },  // Neon Blue
-    { id: '15', max: 15, radius: 95, color: '#FFD60A', opacity: 0.3, delay: '0.4s' },   // Neon Yellow
-    { id: 'Top5', max: 5, radius: 55, color: '#00E5CC', opacity: 0.5, delay: '0.2s' },   // Neon Turquoise
+    { id: '150', max: 150, radius: 180, color: '#C0524A', opacity: 0.1, delay: '0.8s' }, // Muted Red (risk, not danger)
+    { id: '50', max: 50, radius: 135, color: '#A8BAC4', opacity: 0.2, delay: '0.6s' },  // Silver-Blue
+    { id: '15', max: 15, radius: 95, color: '#FFD700', opacity: 0.3, delay: '0.4s' },   // Gold
+    { id: 'Top5', max: 5, radius: 55, color: '#00E5CC', opacity: 0.5, delay: '0.2s' },  // Teal (primary)
 ];
 
 function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: string, status: string, photo?: string, isOverlay?: boolean }) {
@@ -30,10 +30,10 @@ function DraggableAvatar({ uid, status, photo, isOverlay = false }: { uid: strin
 
     // Determine colors based on status
     const ringColors: Record<string, string> = {
-        Top5: '#14b8a6',
-        '15': '#d4af37',
-        '50': '#0ea5e9',
-        '150': '#f43f5e',
+        Top5: '#00E5CC',   // Teal — primary design color
+        '15': '#FFD700',   // Gold
+        '50': '#A8BAC4',   // Silver-blue
+        '150': '#C0524A',  // Muted rose-red (potential risk)
         Shadow: '#64748b'
     };
 
