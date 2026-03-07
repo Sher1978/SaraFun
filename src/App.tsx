@@ -18,6 +18,8 @@ import ReferralDashboard from './pages/ReferralDashboard';
 import SherlockAdminConsole from './pages/SherlockAdminConsole';
 import CommunityPulse from './pages/CommunityPulse';
 import TrustNotifications from './components/TrustNotifications';
+import LeadForm from './pages/LeadForm';
+import MasterProfileEditor from './pages/MasterProfileEditor';
 import { openQRScanner } from './services/QRScannerService';
 
 export default function App() {
@@ -79,6 +81,8 @@ export default function App() {
                         <Route path="business-landing" element={<BusinessLanding />} />
                         <Route path="rules" element={<RulesScreen />} />
                         <Route path="add-user" element={<AddUserScreen />} />
+                        <Route path="lead/:masterId/:serviceId" element={<LeadForm />} />
+                        <Route path="master-editor" element={<MasterProfileEditor />} />
                         <Route path="*" element={<Navigate to="/discovery" replace />} />
                     </Route>
                 </Routes>

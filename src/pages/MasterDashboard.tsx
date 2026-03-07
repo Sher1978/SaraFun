@@ -5,6 +5,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { TransactionService, Transaction } from '../services/TransactionService';
 import MasterAnalytics from '../components/MasterAnalytics';
+import MasterCardBuilder from '../components/MasterCardBuilder';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ export default function MasterDashboard() {
     const [stats, setStats] = useState({ views: 0, leads: 0, top5Connections: 0, totalStars: 0 });
     const [isBusinessLive, setIsBusinessLive] = useState(true);
     const [history, setHistory] = useState<Transaction[]>([]);
+    const [isBuilderOpen, setIsBuilderOpen] = useState(false);
 
     // POS State
     const [isPosOpen, setIsPosOpen] = useState(false);
@@ -222,16 +224,33 @@ export default function MasterDashboard() {
                     Quick Checkout
                 </button>
                 <button
-                    onClick={() => navigate('/edit-master')}
+                    onClick={() => navigate('/master-editor')}
                     className="h-12 bg-tg-secondary border border-tg-hint/20 text-tg-primary rounded-xl font-bold text-xs uppercase tracking-widest active:scale-95 transition-transform"
                 >
                     Edit Profile
                 </button>
             </div>
 
+            <button
+                onClick={() => setIsBuilderOpen(true)}
+                className="w-full h-12 bg-teal-500 text-white py-3 rounded-xl font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(20,184,166,0.3)] active:scale-95 transition-transform"
+            >
+                Add Service Card
+            </button>
+
             <button className="w-full h-12 bg-yellow-500 text-black py-3 rounded-xl font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(234,179,8,0.3)] active:scale-95 transition-transform">
                 Withdraw Stars to TON
             </button>
+
+            {isBuilderOpen && (
+                <MasterCardBuilder
+                    onClose={() => setIsBuilderOpen(false)}
+                    onSuccess={() => {
+                        WebApp.HapticFeedback.notificationOccurred('success');
+                        setIsBuilderOpen(false);
+                    }}
+                />
+            )}
         </div>
     );
 }
