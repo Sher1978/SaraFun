@@ -146,48 +146,62 @@ const MOCK_PINS: MockPin[] = [
 const CATEGORIES = ['All', 'Restaurants', 'Cafes', 'Shops', 'Nightlife', 'Gyms', 'Art', 'Events'];
 
 // ─── Google Maps–style teardrop pin ─────────────────────────────────────────
-// Size: 40×52px — comparable to a real Google Maps pin (slightly bigger for touch targets)
+// Body: light-grey with a contrasting accent circle inside that holds the icon.
+// Default: grey body + accent circle + grey icon. Selected: accent body + white circle + white icon + glow.
+// Size: 32×40px (80% of original 40×50)
 function BusinessPin({ pin, isSelected, onClick }: { pin: MockPin; isSelected: boolean; onClick: () => void }) {
     const color = TIER_COLOR[pin.trust];
     const icon = SVG_ICONS[pin.category];
-    // Dark-on-gold for readability, white-on-teal/grey
-    const iconColorDefault = 'rgba(255,255,255,0.60)';
-    const iconColorSelected = '#ffffff';
+
+    // Body colour: light grey by default, accent when selected
+    const bodyFill = isSelected ? color : '#C8D4E0';
+    const bodyStroke = isSelected ? color : 'rgba(100,120,150,0.4)';
+    // Accent circle inside: accent by default, white when selected
+    const circleFill = isSelected ? '#ffffff' : color;
+    // Icon: semi-transparent grey by default, white when selected
+    const iconColor = isSelected ? '#ffffff' : 'rgba(255,255,255,0.72)';
 
     return (
         <AdvancedMarker position={{ lat: pin.lat, lng: pin.lng }} onClick={onClick}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transform: isSelected ? 'scale(1.15)' : 'scale(1)', transition: 'transform 0.18s cubic-bezier(.34,1.56,.64,1)', filter: isSelected ? `drop-shadow(0 0 8px ${color})` : 'none' }}>
-
-                {/* Teardrop SVG body */}
-                <svg width="40" height="50" viewBox="0 0 40 50" fill="none">
-                    {/* Drop shape */}
+            <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                cursor: 'pointer',
+                transform: isSelected ? 'scale(1.18)' : 'scale(1)',
+                transition: 'transform 0.18s cubic-bezier(.34,1.56,.64,1)',
+                filter: isSelected
+                    ? `drop-shadow(0 0 6px ${color}) drop-shadow(0 2px 4px rgba(0,0,0,0.5))`
+                    : 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))',
+            }}>
+                {/* Teardrop — 32×40px */}
+                <svg width="32" height="40" viewBox="0 0 40 50" fill="none">
+                    {/* Body */}
                     <path
                         d="M20 2C11.16 2 4 9.16 4 18C4 29.5 20 48 20 48C20 48 36 29.5 36 18C36 9.16 28.84 2 20 2Z"
-                        fill={color}
-                        stroke={isSelected ? '#ffffff' : `${color}cc`}
-                        strokeWidth={isSelected ? 2 : 1.5}
+                        fill={bodyFill}
+                        stroke={bodyStroke}
+                        strokeWidth={1.5}
                     />
-                    {/* Shine dot */}
-                    <circle cx="14" cy="12" r="3.5" fill="rgba(255,255,255,0.20)" />
-                    {/* Icon area — centered in circle portion (top ~36px) */}
-                    <foreignObject x="8" y="8" width="24" height="24">
+                    {/* Accent circle */}
+                    <circle cx="20" cy="18" r="11" fill={circleFill} />
+                    {/* Icon centred in circle */}
+                    <foreignObject x="9" y="7" width="22" height="22">
                         <div style={{
-                            width: 24, height: 24,
+                            width: 22, height: 22,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            color: isSelected ? iconColorSelected : iconColorDefault,
+                            color: iconColor,
                         }}>
                             {icon}
                         </div>
                     </foreignObject>
                 </svg>
 
-                {/* Gold tier pulse */}
+                {/* Gold idle pulse */}
                 {pin.trust === 'gold' && !isSelected && (
                     <div style={{
-                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 10,
+                        position: 'absolute', top: -4, left: -4, right: -4, bottom: 8,
                         borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                        background: `${color}18`,
-                        animation: 'ping 2s cubic-bezier(0,0,.2,1) infinite',
+                        background: `${color}15`,
+                        animation: 'ping 2.4s cubic-bezier(0,0,.2,1) infinite',
                         pointerEvents: 'none',
                     }} />
                 )}
@@ -295,67 +309,52 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
     );
 }
 
-// ─── Collapsible rating filter button ────────────────────────────────────────
-const RATING_STEPS = [0, 3, 4, 4.5, 4.8];
-const RATING_LABELS = ['All', '3+', '4+', '4.5+', '4.8+'];
-
-function RatingButton({ min, onChange }: { min: number; onChange: (v: number) => void }) {
-    const [open, setOpen] = useState(false);
-    const label = min === 0 ? '★ Rating' : `★ ${min}+`;
-
+// ─── Tier legend + Star rating filter (combined right-panel widget) ──────────
+function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: number) => void }) {
     return (
-        <div style={{ position: 'relative' }}>
-            {/* Collapsed pill button */}
-            <button
-                onClick={() => setOpen(o => !o)}
-                style={{
-                    padding: '7px 13px', borderRadius: 20,
-                    background: open || min > 0 ? NEON : 'rgba(10,13,22,0.82)',
-                    backdropFilter: 'blur(14px)',
-                    border: `1.5px solid ${open || min > 0 ? NEON : 'rgba(0,229,204,0.2)'}`,
-                    color: open || min > 0 ? '#000' : 'rgba(255,255,255,0.65)',
-                    fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                    boxShadow: open || min > 0 ? `0 0 14px ${NEON}55` : 'none',
-                    whiteSpace: 'nowrap',
-                }}
-            >
-                {label}
-                <span style={{ marginLeft: 4, opacity: 0.7, fontSize: 9 }}>{open ? '▲' : '▼'}</span>
-            </button>
+        <div style={{
+            background: 'rgba(8,11,20,0.82)', backdropFilter: 'blur(14px)',
+            border: '1px solid rgba(0,229,204,0.18)', borderRadius: 14,
+            padding: '9px 11px', display: 'flex', flexDirection: 'column', gap: 8,
+        }}>
+            {/* Trust tier dots */}
+            {(['gold', 'teal', 'grey'] as const).map(t => (
+                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: TIER_COLOR[t], boxShadow: `0 0 5px ${TIER_COLOR[t]}` }} />
+                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.48)' }}>
+                        {t === 'gold' ? 'Trusted' : t === 'teal' ? 'Verified' : 'Global'}
+                    </span>
+                </div>
+            ))}
 
-            {/* Dropdown step panel */}
-            {open && (
-                <div style={{
-                    position: 'absolute', top: 42, left: 0,
-                    background: 'rgba(8,11,20,0.94)',
-                    backdropFilter: 'blur(20px)',
-                    border: `1px solid rgba(0,229,204,0.22)`,
-                    borderRadius: 14, padding: '10px 10px',
-                    display: 'flex', flexDirection: 'column', gap: 5,
-                    boxShadow: `0 8px 32px rgba(0,0,0,0.5), 0 0 16px ${NEON}22`,
-                    zIndex: 50, minWidth: 100,
-                    animation: 'fadeDown 0.15s ease-out',
-                }}>
-                    {RATING_STEPS.map((step, i) => {
-                        const isActive = min === step;
+            {/* Divider */}
+            <div style={{ height: 1, background: 'rgba(0,229,204,0.15)', margin: '0 -2px' }} />
+
+            {/* 5-star rating tap filter */}
+            <div>
+                <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 5 }}>Min ★</div>
+                <div style={{ display: 'flex', gap: 3 }}>
+                    {[1, 2, 3, 4, 5].map(star => {
+                        const filled = star <= minRating;
                         return (
-                            <button key={step}
-                                onClick={() => { onChange(step); setOpen(false); WebApp.HapticFeedback.impactOccurred('light'); }}
-                                style={{
-                                    padding: '7px 14px', borderRadius: 9, border: 'none',
-                                    background: isActive ? NEON : 'rgba(255,255,255,0.05)',
-                                    color: isActive ? '#000' : 'rgba(255,255,255,0.55)',
-                                    fontSize: 12, fontWeight: 800, cursor: 'pointer',
-                                    textAlign: 'left',
-                                    boxShadow: isActive ? `0 0 10px ${NEON}55` : 'none',
-                                    transition: 'all 0.14s',
-                                }}>
-                                {RATING_LABELS[i]}
+                            <button key={star}
+                                onClick={() => {
+                                    // tap same star → clear filter
+                                    onChange(star === minRating ? 0 : star);
+                                    WebApp.HapticFeedback.impactOccurred('light');
+                                }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}>
+                                <svg width="16" height="16" viewBox="0 0 24 24"
+                                    fill={filled ? GOLD : 'none'}
+                                    stroke={filled ? GOLD : 'rgba(255,255,255,0.25)'}
+                                    strokeWidth={1.8}>
+                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                </svg>
                             </button>
                         );
                     })}
                 </div>
-            )}
+            </div>
         </div>
     );
 }
@@ -405,7 +404,7 @@ export default function MapScreen() {
 
     const filteredPins = MOCK_PINS.filter(p => {
         const catOk = activeCategory === 'All' || p.category === activeCategory;
-        const ratingOk = p.rating >= (minRating || 0);
+        const ratingOk = minRating === 0 || p.rating >= minRating;
         return catOk && ratingOk;
     });
 
@@ -446,17 +445,11 @@ export default function MapScreen() {
                             </button>
                         );
                     })}
-                    {/* Separator */}
-                    <div style={{ width: 1, height: 20, background: 'rgba(0,229,204,0.2)', flexShrink: 0 }} />
-                    {/* Rating button */}
-                    <div className="flex-shrink-0">
-                        <RatingButton min={minRating} onChange={setMinRating} />
-                    </div>
                 </div>
 
-                {/* ── Legend (top-right, below chips) ── */}
+                {/* ── Side panel: legend + star rating ── */}
                 <div className="absolute right-3 z-20" style={{ top: 68 }}>
-                    <TierLegend />
+                    <SidePanel minRating={minRating} onChange={setMinRating} />
                 </div>
 
                 {/* ── Map ── */}
