@@ -185,7 +185,7 @@ export default function Profile() {
 
             {/* QR Modal */}
             {showQRModal && (
-                <div className="fixed inset-0 z-50 bg-black/80 flex flex-col items-center justify-center p-3 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
+                <div className="fixed inset-0 z-[200] bg-black/80 flex flex-col items-center justify-center p-3 backdrop-blur-sm animate-fade-in" onClick={() => setShowQRModal(false)}>
                     <div className="bg-white p-3 rounded-xl shadow-2xl flex flex-col items-center" onClick={e => e.stopPropagation()}>
                         <h2 className="text-base font-black text-black mb-4 uppercase tracking-wider">Digital Handshake</h2>
                         <QRCodeSVG value={qrData} size={250} level={"H"} fgColor={"#000000"} bgColor={"#ffffff"} />

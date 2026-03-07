@@ -144,9 +144,16 @@ export default function MasterProfileEditor() {
     return (
         <div className="bg-tg-bg min-h-screen pb-24 text-tg-primary">
             {/* Header */}
-            <header className="p-4 flex items-center gap-3">
-                <button onClick={() => navigate(-1)} className="p-1 -ml-2 text-tg-button font-bold">Back</button>
-                <h1 className="text-lg font-black tracking-tight">Business Identity</h1>
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50">
+                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50">Back</button>
+                <h1 className="text-base font-bold">Business Identity</h1>
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                >
+                    {saving ? '...' : 'Save'}
+                </button>
             </header>
 
             {/* Traffic Light Dashboard */}
@@ -185,11 +192,14 @@ export default function MasterProfileEditor() {
                 <section>
                     <div className="px-4 py-2 text-[11px] uppercase tracking-widest font-black text-tg-hint bg-tg-secondary/30">Profile Image</div>
                     <div className="bg-tg-secondary px-4 py-6 flex flex-col items-center gap-4">
-                        <div className="relative w-28 h-28 rounded-full overflow-hidden bg-tg-bg border-4 border-tg-hint/10 flex items-center justify-center shadow-lg">
+                        <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-tg-bg border-4 border-tg-hint/10 flex items-center justify-center shadow-lg">
                             {photoUrl ? (
                                 <img src={photoUrl} alt="Business" className="w-full h-full object-cover" />
                             ) : (
-                                <span className="text-3xl opacity-30">🏢</span>
+                                <div className="flex flex-col items-center gap-2 opacity-30">
+                                    <span className="text-4xl">🏢</span>
+                                    <span className="text-[10px] font-black uppercase tracking-tight">Add Business Photo</span>
+                                </div>
                             )}
                             <input
                                 type="file"
@@ -198,7 +208,7 @@ export default function MasterProfileEditor() {
                                 className="absolute inset-0 opacity-0 cursor-pointer"
                             />
                         </div>
-                        <p className="text-[10px] text-tg-hint uppercase font-bold tracking-widest">Tap to change logo</p>
+                        <p className="text-[10px] text-tg-hint uppercase font-bold tracking-widest">Tap to change business cover</p>
                     </div>
                 </section>
 
@@ -266,16 +276,6 @@ export default function MasterProfileEditor() {
                 </section>
             </div>
 
-            {/* Sticky Bottom Save Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-tg-bg via-tg-bg to-transparent">
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="w-full h-12 bg-[#FFD700] text-black rounded-xl font-black uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(255,215,0,0.3)] active:scale-95 transition-transform"
-                >
-                    {saving ? 'Saving...' : 'Save Business Profile'}
-                </button>
-            </div>
 
             {/* Crop Overlay (Simplified Reuse) */}
             {imageSrc && (
@@ -285,7 +285,7 @@ export default function MasterProfileEditor() {
                             image={imageSrc}
                             crop={crop}
                             zoom={zoom}
-                            aspect={1}
+                            aspect={16 / 9}
                             onCropChange={setCrop}
                             onCropComplete={(a, p) => setCroppedAreaPixels(p)}
                             onZoomChange={setZoom}

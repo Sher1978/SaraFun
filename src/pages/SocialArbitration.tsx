@@ -34,10 +34,17 @@ export default function SocialArbitration() {
     };
 
     return (
-        <div className="p-3 bg-tg-main text-tg-primary min-h-screen flex flex-col gap-3">
-            <header className="flex flex-col gap-1">
-                <h1 className="text-base font-black">Social Arbitration</h1>
-                <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Dispute Center</p>
+        <div className="p-3 bg-tg-main text-tg-primary min-h-screen flex flex-col gap-3 pb-24">
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50">
+                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50">Back</button>
+                <h1 className="text-base font-bold">Dispute Center</h1>
+                <button
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                    className="text-red-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                >
+                    {isSubmitting ? '...' : 'Stake'}
+                </button>
             </header>
 
             <section className="bg-tg-secondary/50 border border-tg-hint/10 rounded-xl p-3">
@@ -68,7 +75,7 @@ export default function SocialArbitration() {
                 </div>
             </div>
 
-            <div className="mt-auto flex flex-col gap-3">
+            <div className="flex flex-col gap-3">
                 <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3 flex gap-3 items-center">
                     <span className="text-base">⚖️</span>
                     <p className="text-[10px] text-yellow-500 font-bold uppercase leading-tight">
@@ -76,15 +83,6 @@ export default function SocialArbitration() {
                         If Dispute is lost, the amount is burnt & karma is lost.
                     </p>
                 </div>
-
-                <button
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${isSubmitting ? 'bg-tg-hint/20 text-tg-hint' : 'bg-tg-button text-tg-button-text shadow-lg active:scale-[0.98]'
-                        }`}
-                >
-                    {isSubmitting ? 'Submitting...' : 'Stake 500⭐️ & Submit Dispute'}
-                </button>
             </div>
         </div>
     );

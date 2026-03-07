@@ -123,12 +123,22 @@ export default function LeadForm() {
                 <img src={service.imageUrl} className="w-full h-full object-cover" alt="" />
             </div>
 
-            <div className="flex items-center gap-4 mb-8">
-                <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full active:scale-90 transition-transform">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                        <path d="M15 18l-6-6 6-6" />
-                    </svg>
+            {/* Sticky Header with Action */}
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50 -mx-6 -mt-6 mb-6">
+                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50 transition-opacity">
+                    Back
                 </button>
+                <h1 className="text-base font-bold">New Request</h1>
+                <button
+                    onClick={handleSubmit}
+                    disabled={submitting}
+                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
+                >
+                    {submitting ? '...' : 'Send'}
+                </button>
+            </header>
+
+            <div className="flex items-center gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl font-black text-tg-text tracking-tight">{service.title}</h1>
                     <p className="text-xs font-bold text-tg-hint uppercase tracking-widest">{service.type}</p>
@@ -226,19 +236,6 @@ export default function LeadForm() {
 
                 </div>
 
-                <button
-                    type="submit"
-                    disabled={submitting}
-                    className="fixed bottom-10 left-6 right-6 h-14 bg-[#FFD700] text-black font-black rounded-2xl shadow-2xl shadow-[#FFD700]/30 active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
-                    style={{ fontSize: '16px', zIndex: 60 }}
-                >
-                    {submitting ? 'Sending...' : 'Send Request'}
-                    {!submitting && (
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                            <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                    )}
-                </button>
             </form>
 
             {/* Decorative glass elements */}

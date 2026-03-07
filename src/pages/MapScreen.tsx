@@ -236,7 +236,7 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
     const color = TIER_COLOR[pin.trust];
 
     return (
-        <div className="absolute bottom-6 left-4 right-4 z-30" style={{ animation: 'slideUp 0.25s ease-out' }}>
+        <div className="absolute bottom-[80px] left-4 right-4 z-[150]" style={{ animation: 'slideUp 0.25s ease-out' }}>
             <div style={{
                 background: 'rgba(8,11,20,0.92)',
                 backdropFilter: 'blur(28px)',

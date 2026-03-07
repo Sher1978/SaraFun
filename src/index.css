@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 
 @tailwind components;
@@ -43,7 +44,6 @@ input[type='range'].custom-slider::-webkit-slider-runnable-track {
 }
 
 /* Cyber-Neon Design System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
   --tg-viewport-height: 100vh;

@@ -74,7 +74,7 @@ export default function ServiceCardBuilder({ onClose, onSuccess }: ServiceCardBu
     };
 
     return (
-        <div className="fixed inset-0 z-[100] bg-tg-bg flex flex-col animate-in slide-in-from-bottom duration-300">
+        <div className="fixed inset-0 z-[1000] bg-tg-bg flex flex-col animate-in slide-in-from-bottom duration-300">
             {/* HEADER */}
             <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg shrink-0">
                 <button
@@ -147,8 +147,8 @@ export default function ServiceCardBuilder({ onClose, onSuccess }: ServiceCardBu
                                 key={t}
                                 onClick={() => setType(t)}
                                 className={`h-11 rounded-xl font-bold text-sm transition-all border ${type === t
-                                        ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20'
-                                        : 'bg-tg-secondary border-tg-hint/10 text-tg-text'
+                                    ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20'
+                                    : 'bg-tg-secondary border-tg-hint/10 text-tg-text'
                                     }`}
                             >
                                 {t}
@@ -221,16 +221,6 @@ export default function ServiceCardBuilder({ onClose, onSuccess }: ServiceCardBu
 
             </main>
 
-            {/* BOTTOM ACTION */}
-            <footer className="p-4 bg-tg-bg border-t border-tg-hint/10 pb-8">
-                <button
-                    onClick={handlePublish}
-                    disabled={saving}
-                    className="w-full h-12 bg-teal-500 text-white font-bold rounded-xl shadow-lg shadow-teal-500/30 active:scale-[0.98] transition-all"
-                >
-                    {saving ? 'Публикация...' : 'Опубликовать'}
-                </button>
-            </footer>
         </div>
     );
 }

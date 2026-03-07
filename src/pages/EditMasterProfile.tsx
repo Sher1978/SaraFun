@@ -121,15 +121,16 @@ export default function EditMasterProfile() {
 
     return (
         <div className="p-3 bg-tg-main text-tg-primary min-h-screen space-y-6 pb-24">
-            <header className="relative pl-8">
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50">
+                <button onClick={() => navigate(-1)} className="text-tg-hint font-bold px-2 py-1 -ml-2 active:opacity-50">Back</button>
+                <h1 className="text-base font-bold">Business Identity</h1>
                 <button
-                    onClick={() => navigate(-1)}
-                    className="absolute -left-2 top-0 p-2 text-tg-hint active:text-tg-primary transition-colors"
+                    onClick={handleSave}
+                    disabled={loading}
+                    className="text-teal-500 font-bold px-2 py-1 -mr-2 active:opacity-50 disabled:opacity-30 transition-opacity"
                 >
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                    {loading ? '...' : 'Save'}
                 </button>
-                <h1 className="text-base font-black">{t('business_identity')}</h1>
-                <p className="text-xs text-tg-hint uppercase tracking-widest font-bold">Master Profile Edit</p>
             </header>
 
             <section className="space-y-4">
@@ -197,13 +198,6 @@ export default function EditMasterProfile() {
                 </div>
             </section>
 
-            <button
-                onClick={handleSave}
-                disabled={loading}
-                className="w-full bg-tg-button text-tg-button-text py-4 rounded-xl font-bold shadow-lg shadow-teal-500/10 active:scale-95 transition-transform"
-            >
-                {loading ? '...' : t('save')}
-            </button>
 
             {/* Crop Modal */}
             {imageSrc && (

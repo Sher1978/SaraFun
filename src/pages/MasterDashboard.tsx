@@ -68,13 +68,11 @@ export default function MasterDashboard() {
         try {
             const userRef = doc(db, 'Users', uid);
             await updateDoc(userRef, {
-                master_profile: {
-                    photo_url: avatarUrl,
-                    business_name: businessName,
-                    bio: bio,
-                    category: sector,
-                    updatedAt: new Date().toISOString()
-                }
+                'master_profile.photo_url': avatarUrl,
+                'master_profile.business_name': businessName,
+                'master_profile.bio': bio,
+                'master_profile.category': sector,
+                'master_profile.updatedAt': new Date().toISOString()
             });
             WebApp.HapticFeedback.notificationOccurred('success');
             WebApp.showAlert("Профиль сохранен!");
@@ -95,8 +93,16 @@ export default function MasterDashboard() {
     return (
         <div className="min-h-screen bg-tg-bg text-tg-text pb-32">
             {/* 1. HEADER */}
-            <header className="pt-6 pb-2 px-4">
-                <h1 className="text-xl font-bold text-center">Business Profile</h1>
+            <header className="h-14 border-b border-tg-hint/10 flex items-center justify-between px-4 bg-tg-bg sticky top-0 z-50">
+                <div className="w-12" /> {/* Spacer */}
+                <h1 className="text-base font-bold">Business Profile</h1>
+                <button
+                    onClick={handleSaveProfile}
+                    disabled={saving}
+                    className="text-teal-500 font-bold px-2 py-1 active:opacity-50 disabled:opacity-30 transition-opacity"
+                >
+                    {saving ? '...' : 'Save'}
+                </button>
             </header>
 
             <main className="px-4 space-y-6">
@@ -104,7 +110,21 @@ export default function MasterDashboard() {
                 <section className="bg-tg-secondary p-4 rounded-xl space-y-4 border border-tg-hint/5">
                     <div className="space-y-3">
                         <div>
-                            <label className="text-[11px] font-bold text-tg-hint uppercase ml-1">Avatar Image URL</label>
+                            <label className="text-[11px] font-bold text-tg-hint uppercase ml-1 block mb-2">Business Cover (16:9)</label>
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-tg-bg border-4 border-tg-hint/10 flex items-center justify-center shadow-lg mb-3 cursor-pointer active:scale-[0.98] transition-all"
+                                onClick={() => {
+                                    // Placeholder for image upload or modal
+                                    WebApp.HapticFeedback.impactOccurred('light');
+                                }}>
+                                {avatarUrl ? (
+                                    <img src={avatarUrl} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="flex flex-col items-center gap-2 opacity-30">
+                                        <span className="text-4xl">🏢</span>
+                                        <span className="text-[10px] font-black uppercase">Add Photo</span>
+                                    </div>
+                                )}
+                            </div>
                             <input
                                 type="text"
                                 value={avatarUrl}
@@ -155,13 +175,7 @@ export default function MasterDashboard() {
                         </div>
                     </div>
 
-                    <button
-                        onClick={handleSaveProfile}
-                        disabled={saving}
-                        className="w-full h-12 bg-teal-500 hover:bg-teal-600 disabled:opacity-50 text-white font-bold rounded-xl shadow-lg shadow-teal-500/20 active:scale-[0.98] transition-all"
-                    >
-                        {saving ? 'Сохранение...' : 'Сохранить профиль'}
-                    </button>
+                    {/* Button hidden since it's now in the header */}
                 </section>
 
                 {/* 3. SERVICES LIST */}
@@ -207,8 +221,8 @@ export default function MasterDashboard() {
                         onClick={() => setIsBuilderOpen(true)}
                         disabled={services.length >= 20}
                         className={`w-full h-12 flex items-center justify-center gap-2 rounded-xl font-bold transition-all active:scale-[0.98] ${services.length >= 20
-                                ? 'bg-tg-hint/10 text-tg-hint cursor-not-allowed'
-                                : 'border-2 border-teal-500/30 text-teal-500 hover:bg-teal-500/5'
+                            ? 'bg-tg-hint/10 text-tg-hint cursor-not-allowed'
+                            : 'bg-teal-500 text-white shadow-lg shadow-teal-500/30'
                             }`}
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
