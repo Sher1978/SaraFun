@@ -7,26 +7,9 @@ const NEON = '#00E5CC';
 const GOLD = '#FFD700';
 const GREY_NEUTRAL = '#8896A4';
 
-// ─── Map styles ─────────────────────────────────────────────────────────────
-const customMapStyles = [
-    // Hide all default Google markers (POIs, Transit, Businesses)
-    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi', elementType: 'geometry', stylers: [{ visibility: 'off' }] },
-    { featureType: 'transit', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    // Grayscale and dark mode baseline
-    { elementType: 'geometry', stylers: [{ color: '#212121' }] },
-    { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#757575' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#212121' }] },
-    // Water and landscape in dark gray/black
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#000000' }] },
-    { featureType: 'landscape', elementType: 'geometry', stylers: [{ color: '#181818' }] },
-    // Roads in subtle gray
-    { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#2c2c2c' }] },
-    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#8a8a8a' }] },
-    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#373737' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3c3c3c' }] }
-];
+// ─── Cloud Map IDs ──────────────────────────────────────────────────────────
+const DARK_MAP_ID = "446cb87541004670ba3b460a";
+const LIGHT_MAP_ID = "446cb875410046702d15b2b9";
 
 // ─── SVG Icons (Google Maps–inspired, minimal stroke) ──────────────────────
 const SVG_ICONS: Record<string, React.ReactNode> = {
@@ -445,10 +428,9 @@ export default function MapScreen() {
                 <div className="absolute inset-0">
                     <Map
                         center={center} zoom={zoom}
-                        mapId="DEMO_MAP_ID"
+                        mapId={isDark ? DARK_MAP_ID : LIGHT_MAP_ID}
                         gestureHandling="greedy"
                         options={{
-                            styles: customMapStyles,
                             disableDefaultUI: true,
                         }}
                         onCameraChanged={onCameraChanged}
