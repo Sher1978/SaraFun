@@ -12,6 +12,49 @@ const DUNBAR_GOLD = '#FFD700';
 
 type DunbarMode = 'My 220' | 'Friends of Friends' | 'Global';
 
+// ─── Category SVG Icons ───────────────────────────────────────────────────────
+const IconRestaurant = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 2v20M4 2v3.1c0 .8.6 1.4 1.4 1.4H8M5 2v4M8 2v4" /><path d="M13 2.1c0 .9-.7 1.6-1.5 1.6S10 3 10 2.1V2h3v.1zM10 20c0 1.1.9 2 2 2s2-.9 2-2V8h-4v12z" />
+    </svg>
+);
+
+const IconCafe = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8h1a4 4 0 010 8h-1" /><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" /><path d="M6 1v3M10 1v3M14 1v3" />
+    </svg>
+);
+
+const IconShop = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+);
+
+const IconNightlife = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 2h-12c-1.1 0-2 .9-2 2v1l8 7.5L20 5V4c0-1.1-.9-2-2-2zM12 11.5v7.5M8 22h8" />
+    </svg>
+);
+
+const IconGym = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 4h3M18 20h3M3 4h3M3 20h3M18 4v16M6 4v16M2 12h20" />
+    </svg>
+);
+
+const IconArt = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" /><circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+    </svg>
+);
+
+const IconEvents = () => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 interface MasterCard {
     id: string; name: string; service: string; rating: number;
@@ -63,8 +106,9 @@ function MasterCardComp({ card, mode }: { card: MasterCard; mode: DunbarMode }) 
                 background: CARD_BG,
                 borderRadius: 14,
                 overflow: 'hidden',
-                border: `1.5px solid ${isTop5 ? DUNBAR_GOLD : NEON_BORDER}`,
-                boxShadow: `0 0 ${isTop5 ? 18 : 10}px ${isTop5 ? 'rgba(255,215,0,0.2)' : 'rgba(0,229,204,0.12)'}`,
+                // Updated border: Top 5 gets a thicker glowing NEON border instead of gold
+                border: isTop5 ? `2px solid ${NEON}` : `1px solid ${NEON_BORDER}`,
+                boxShadow: isTop5 ? `0 0 18px ${NEON}44` : `0 0 10px rgba(0,229,204,0.12)`,
                 scrollSnapAlign: 'start',
             }}
         >
@@ -137,7 +181,6 @@ function EventCard({ event }: { event: typeof MOCK_EVENTS[0] }) {
 function Shelf({ title, children }: { title: string; children: React.ReactNode }) {
     return (
         <section>
-            {/* Neon-glow section heading — exact style from photo */}
             <h2 style={{
                 margin: '0 0 14px 16px',
                 fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em',
@@ -176,21 +219,20 @@ export default function Discovery() {
     const allFiltered = MOCK_MASTERS.filter(filterByRing);
 
     const categoryCounts: Record<string, number> = {
-        'SOS': Math.max(1, allFiltered.filter(m => !m.isSafe).length),
-        'Auto': 1, 'Beauty': 2, 'Health': 1,
-        'Events': MOCK_EVENTS.length, 'Market': Math.floor(allFiltered.length / 2) + 1,
+        'Restaurants': 1, 'Cafes': 2, 'Shops': 1, 'Nightlife': 1, 'Gyms': 1, 'Art': 1, 'Events': 2
     };
 
+    // Updated Quick Links to use SVG matching the photo
     const QUICK_LINKS = [
-        { id: 'SOS', label: 'SOS', icon: '🚨', sos: true },
-        { id: 'Auto', label: 'Auto', icon: '🚘', sos: false },
-        { id: 'Beauty', label: 'Beauty', icon: '💆', sos: false },
-        { id: 'Health', label: 'Health', icon: '🩺', sos: false },
-        { id: 'Events', label: 'Events', icon: '🎉', sos: false },
-        { id: 'Market', label: 'Market', icon: '🛒', sos: false },
+        { id: 'Restaurants', label: 'Restaurants', icon: <IconRestaurant />, sos: false },
+        { id: 'Cafes', label: 'Cafes', icon: <IconCafe />, sos: false },
+        { id: 'Shops', label: 'Shops', icon: <IconShop />, sos: false },
+        { id: 'Nightlife', label: 'Nightlife', icon: <IconNightlife />, sos: false },
+        { id: 'Gyms', label: 'Gyms', icon: <IconGym />, sos: false },
+        { id: 'Art', label: 'Art', icon: <IconArt />, sos: false },
+        { id: 'Events', label: 'Events', icon: <IconEvents />, sos: false },
     ];
 
-    // Hex grid background pattern (like photo)
     const hexBg: React.CSSProperties = {
         background: BG,
         backgroundImage: `
@@ -219,7 +261,6 @@ export default function Discovery() {
                     boxShadow: `0 1px 0 ${NEON_BORDER}`,
                 }}
             >
-                {/* Location row */}
                 <div className="flex items-center gap-1.5">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={NEON} strokeWidth={2.5} strokeLinecap="round">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
@@ -230,7 +271,6 @@ export default function Discovery() {
                     </svg>
                 </div>
 
-                {/* Search Bar — glassmorphism with neon outline */}
                 <div style={{ position: 'relative' }}>
                     <svg style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }}
                         width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth={2.2} strokeLinecap="round">
@@ -239,7 +279,7 @@ export default function Discovery() {
                     <input
                         value={search}
                         onChange={e => setSearch(e.target.value)}
-                        placeholder="Find who my friends trust..."
+                        placeholder="Search by name..."
                         style={{
                             width: '100%', height: 46,
                             background: 'rgba(255,255,255,0.06)',
@@ -251,12 +291,11 @@ export default function Discovery() {
                         }}
                     />
                     <svg style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }}
-                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={NEON} strokeWidth={2} strokeLinecap="round">
+                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth={2} strokeLinecap="round">
                         <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                 </div>
 
-                {/* ══ BLOCK 2: DUNBAR SEGMENTED CONTROL ══ */}
                 <div
                     className="flex rounded-xl p-0.5 gap-0.5"
                     style={{ background: 'rgba(0,229,204,0.06)', border: `1px solid ${NEON_BORDER}` }}
@@ -283,7 +322,7 @@ export default function Discovery() {
                 </div>
             </header>
 
-            {/* ══ BLOCK 3: QUICK LINKS (square icon buttons from photo) ══ */}
+            {/* ══ BLOCK 3: QUICK LINKS ══ */}
             <div className="flex gap-3 px-4 pt-5 pb-1 overflow-x-auto hide-scrollbar">
                 {QUICK_LINKS.map(cat => {
                     const count = categoryCounts[cat.id] ?? 0;
@@ -294,18 +333,16 @@ export default function Discovery() {
                             onClick={() => { setActiveCategory(p => p === cat.id ? null : cat.id); WebApp.HapticFeedback.impactOccurred('light'); }}
                             className="flex flex-col items-center gap-1.5 flex-shrink-0 active:scale-90 transition-transform"
                         >
-                            {/* Square icon — matching photo style */}
                             <div
                                 style={{
                                     width: 58, height: 58,
                                     borderRadius: 12,
                                     background: isActive ? NEON_DIM : 'rgba(14,19,30,0.85)',
-                                    border: `1.5px solid ${cat.sos ? (isActive ? '#ef4444' : 'rgba(239,68,68,0.45)') : (isActive ? NEON : NEON_BORDER)}`,
-                                    boxShadow: cat.sos
-                                        ? `0 0 12px rgba(239,68,68,0.25)${isActive ? ', inset 0 0 10px rgba(239,68,68,0.05)' : ''}`
-                                        : isActive ? `0 0 14px rgba(0,229,204,0.25)` : `0 0 8px rgba(0,229,204,0.08)`,
+                                    border: `1.5px solid ${isActive ? NEON : NEON_BORDER}`,
+                                    boxShadow: isActive ? `0 0 14px rgba(0,229,204,0.25)` : `0 0 8px rgba(0,229,204,0.08)`,
                                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    fontSize: 26, transition: 'all 0.2s',
+                                    color: isActive ? NEON : 'rgba(255,255,255,0.6)',
+                                    transition: 'all 0.2s',
                                 }}
                             >
                                 {cat.icon}
@@ -313,15 +350,6 @@ export default function Discovery() {
                             <span style={{ fontSize: 9.5, fontWeight: 700, color: isActive ? NEON : 'rgba(255,255,255,0.55)', textAlign: 'center' }}>
                                 {cat.label}
                             </span>
-                            {count > 0 && (
-                                <span style={{
-                                    fontSize: 9, fontWeight: 900, marginTop: -4,
-                                    color: cat.sos ? '#ef4444' : NEON,
-                                    textShadow: `0 0 6px ${cat.sos ? 'rgba(239,68,68,0.6)' : 'rgba(0,229,204,0.6)'}`,
-                                }}>
-                                    {count}
-                                </span>
-                            )}
                         </button>
                     );
                 })}
@@ -337,7 +365,6 @@ export default function Discovery() {
                         boxShadow: `0 0 18px rgba(0,229,204,0.08)`,
                     }}
                 >
-                    {/* Map grid */}
                     <svg className="absolute inset-0 opacity-[0.12]" width="100%" height="100%">
                         <defs>
                             <pattern id="hexgrid" width="28" height="28" patternUnits="userSpaceOnUse">
@@ -346,22 +373,25 @@ export default function Discovery() {
                         </defs>
                         <rect width="100%" height="100%" fill="url(#hexgrid)" />
                     </svg>
-                    {/* Neon radial glow */}
                     <div style={{
                         position: 'absolute', inset: 0,
                         background: 'radial-gradient(ellipse at 50% 50%, rgba(0,229,204,0.06) 0%, transparent 70%)',
                     }} />
-                    {/* Gold pins */}
-                    {[{ x: '28%', y: '35%' }, { x: '56%', y: '52%' }, { x: '75%', y: '28%' }].map((pos, i) => (
+                    {/* Updated pins: both gold and teal */}
+                    {[
+                        { x: '28%', y: '35%', color: DUNBAR_GOLD },
+                        { x: '56%', y: '52%', color: NEON },
+                        { x: '75%', y: '28%', color: DUNBAR_GOLD },
+                        { x: '42%', y: '20%', color: NEON }
+                    ].map((pos, i) => (
                         <div key={i} style={{
                             position: 'absolute', left: pos.x, top: pos.y,
                             transform: 'translate(-50%, -50%)',
                             width: 20, height: 20, borderRadius: '50% 50% 50% 0',
-                            background: DUNBAR_GOLD, rotate: '-45deg',
-                            boxShadow: `0 0 10px rgba(255,215,0,0.55)`,
+                            background: pos.color, rotate: '-45deg',
+                            boxShadow: `0 0 10px ${pos.color}88`,
                         }} />
                     ))}
-                    {/* Overlay */}
                     <div style={{
                         position: 'absolute', bottom: 0, left: 0, right: 0,
                         padding: '10px 14px 12px',
@@ -391,26 +421,19 @@ export default function Discovery() {
 
             {/* ══ BLOCK 5: SMART FEEDS ══ */}
             <div className="mt-7 space-y-7">
-
-                {/* Shelf 1 – Circles Trust (mirrors "Circles Trust" from photo) */}
                 {top5Masters.length > 0 && (
                     <Shelf title="Circles Trust">
                         {top5Masters.map(m => <MasterCardComp key={m.id} card={m} mode={ring} />)}
                     </Shelf>
                 )}
-
-                {/* Shelf 2 – Popular Nearby (mirrors photo label) */}
                 {safeMasters.length > 0 && (
                     <Shelf title="Popular Nearby">
                         {safeMasters.map(m => <MasterCardComp key={m.id} card={m} mode={ring} />)}
                     </Shelf>
                 )}
-
-                {/* Shelf 3 – New Discoveries (mirrors photo label) */}
                 <Shelf title="New Discoveries">
                     {MOCK_EVENTS.map(e => <EventCard key={e.id} event={e} />)}
                 </Shelf>
-
             </div>
         </div>
     );
