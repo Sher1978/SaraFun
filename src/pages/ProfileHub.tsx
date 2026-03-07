@@ -188,6 +188,12 @@ export default function ProfileHub() {
                     </div>
                 </div>
             )}
+            {/* Version Indicator for Debugging */}
+            <div className="px-4 py-8 text-center">
+                <p className="text-[9px] text-tg-hint opacity-30 font-mono tracking-tighter uppercase">
+                    Build: Phase 23.Active (19:35)
+                </p>
+            </div>
         </div>
     );
 }
