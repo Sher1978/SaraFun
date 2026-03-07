@@ -1,529 +1,361 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { calculateDunbarScore, RatingData } from '../utils/math';
-import { createInvoice } from '../services/paymentService';
-import { SemanticSearch } from '../services/SemanticSearch';
-import ReviewFlow from '../components/ReviewFlow';
 import WebApp from '@twa-dev/sdk';
 
-// ─── Design Tokens (Using CSS Variables) ────────────────────────────────────
-const NEON = 'var(--neon)';
-const CARD_BG = 'var(--card-bg)';
-const BG = 'var(--bg-dark)';
+// ─── Constants ───────────────────────────────────────────────────────────────
+const DUNBAR_GOLD = '#FFD700';
 
-// ─── Category Data ───────────────────────────────────────────────────────────
-const CATEGORIES = [
-    { id: 'restaurants', label: 'Restaurants', icon: CategoryRestaurantIcon },
-    { id: 'cafes', label: 'Cafes', icon: CategoryCafeIcon },
-    { id: 'shops', label: 'Shops', icon: CategoryShopIcon },
-    { id: 'nightlife', label: 'Nightlife', icon: CategoryNightlifeIcon },
-    { id: 'gyms', label: 'Gyms', icon: CategoryGymIcon },
-    { id: 'art', label: 'Art', icon: CategoryArtIcon },
-    { id: 'events', label: 'Events', icon: CategoryEventsIcon },
-];
+type DunbarMode = 'My 220' | 'Friends of Friends' | 'Global';
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
-const TRUST_CARDS = [
-    {
-        id: 'p1',
-        name: 'Aurora Dining',
-        rating: 4.8,
-        total: 5,
-        distance: '1.2 km away',
-        count: 15,
-        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80',
-        category: 'restaurants',
-    },
-    {
-        id: 'p2',
-        name: 'Neon Lounge',
-        rating: 4.5,
-        total: 5,
-        distance: '0.8 km away',
-        count: 15,
-        image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80',
-        category: 'nightlife',
-    },
-    {
-        id: 'p3',
-        name: 'Skyline Café',
-        rating: 4.7,
-        total: 5,
-        distance: '2.1 km away',
-        count: 15,
-        image: 'https://images.unsplash.com/photo-1559925393-1d6d879e60e5?w=600&q=80',
-        category: 'cafes',
-    },
+interface MasterCard {
+    id: string;
+    name: string;
+    service: string;
+    rating: number;
+    distance: string;
+    image: string;
+    isSafe: boolean;
+    dunbarWeight: number;
+    abcd: [number, number, number, number];
+}
+
+const MOCK_MASTERS: MasterCard[] = [
+    { id: 'm1', name: 'Alex Barber', service: 'Haircut & Styling', rating: 4.9, distance: '0.4 km', image: 'https://images.unsplash.com/photo-1503467913725-8484b65b0715?w=400&q=80', isSafe: true, dunbarWeight: 2.0, abcd: [5, 4.8, 5, 4.9] },
+    { id: 'm2', name: 'Marina SPA', service: 'Full Body Massage', rating: 4.8, distance: '1.1 km', image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=400&q=80', isSafe: true, dunbarWeight: 2.0, abcd: [4.8, 5, 4.7, 4.8] },
+    { id: 'm3', name: 'Dr. Nguyen', service: 'General Practice', rating: 4.7, distance: '0.9 km', image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&q=80', isSafe: true, dunbarWeight: 1.5, abcd: [4.9, 4.7, 4.8, 4.6] },
+    { id: 'm4', name: 'AutoMaster+', service: 'Full Diagnostics', rating: 4.6, distance: '2.2 km', image: 'https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?w=400&q=80', isSafe: false, dunbarWeight: 1.2, abcd: [4.6, 4.4, 4.5, 4.3] },
+    { id: 'm5', name: 'Neon Café', service: 'Coffee & Co-work', rating: 4.5, distance: '0.3 km', image: 'https://images.unsplash.com/photo-1559925393-1d6d879e60e5?w=400&q=80', isSafe: true, dunbarWeight: 1.5, abcd: [4.5, 4.6, 4.7, 4.5] },
+    { id: 'm6', name: 'Global Fix', service: 'Home Repairs', rating: 4.2, distance: '3.1 km', image: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=400&q=80', isSafe: true, dunbarWeight: 0.5, abcd: [4.2, 4.1, 4.0, 4.3] },
 ];
 
-const NEARBY_CARDS = [
-    {
-        id: 'n1',
-        name: 'The Brewloft',
-        rating: 4.3,
-        total: 5,
-        distance: '0.4 km',
-        count: 20,
-        image: 'https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?w=600&q=80',
-    },
-    {
-        id: 'n2',
-        name: 'Urban Bites',
-        rating: 4.1,
-        total: 5,
-        distance: '1.0 km',
-        count: 20,
-        image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80',
-    },
-    {
-        id: 'n3',
-        name: 'Zen Garden',
-        rating: 4.6,
-        total: 5,
-        distance: '3.2 km',
-        count: 20,
-        image: 'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=600&q=80',
-    },
+const MOCK_EVENTS = [
+    { id: 'e1', name: 'Crypto Night 2025', date: 'Mar 8 · 20:00', image: 'https://images.unsplash.com/photo-1514525253361-bee243870d12?w=400&q=80', attendees: 8 },
+    { id: 'e2', name: 'Rooftop Networking', date: 'Mar 9 · 19:30', image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=400&q=80', attendees: 5 },
+    { id: 'e3', name: 'Beach Cleanup + BBQ', date: 'Mar 10 · 09:00', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=400&q=80', attendees: 12 },
 ];
 
-const DISCOVERY_CARDS = [
-    {
-        id: 'd1',
-        name: 'Galerie Noire',
-        rating: 4.9,
-        total: 5,
-        distance: '1.5 km',
-        count: 10,
-        image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80',
-    },
-    {
-        id: 'd2',
-        name: 'Sky Gym Alpha',
-        rating: 4.4,
-        total: 5,
-        distance: '0.9 km',
-        count: 10,
-        image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80',
-    },
-];
+// ─── Sub-components ──────────────────────────────────────────────────────────
 
-// ─── SVG Icon Components ─────────────────────────────────────────────────────
-function CategoryRestaurantIcon() {
+/** Reusable ABCD score bar, compact */
+function AbcdBar({ abcd }: { abcd: [number, number, number, number] }) {
+    const avg = (abcd.reduce((a, b) => a + b, 0) / 4).toFixed(1);
     return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <path d="M3 2v7c0 1.66 1.34 3 3 3h0c1.66 0 3-1.34 3-3V2" />
-            <line x1="6" y1="5" x2="6" y2="2" />
-            <path d="M16 2v4a4 4 0 00-4 4v0a4 4 0 004 4h0V2" />
-            <line x1="3" y1="22" x2="21" y2="22" />
-            <line x1="3" y1="11" x2="21" y2="11" />
-        </svg>
-    );
-}
-function CategoryCafeIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <path d="M18 8h1a4 4 0 010 8h-1" />
-            <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
-            <line x1="6" y1="1" x2="6" y2="4" />
-            <line x1="10" y1="1" x2="10" y2="4" />
-            <line x1="14" y1="1" x2="14" y2="4" />
-        </svg>
-    );
-}
-function CategoryShopIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
-            <line x1="3" y1="6" x2="21" y2="6" />
-            <path d="M16 10a4 4 0 01-8 0" />
-        </svg>
-    );
-}
-function CategoryNightlifeIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <path d="M8 22V12l-6-6h20L16 12v10" />
-            <line x1="8" y1="22" x2="16" y2="22" />
-        </svg>
-    );
-}
-function CategoryGymIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <path d="M6.5 6.5h11M6.5 17.5h11" />
-            <path d="M3 9.5v5M21 9.5v5M6.5 6.5v11M17.5 6.5v11" />
-        </svg>
-    );
-}
-function CategoryArtIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
-            <circle cx="8.5" cy="8.5" r="1.5" />
-            <polyline points="21 15 16 10 5 21" />
-        </svg>
-    );
-}
-function CategoryEventsIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
-            <line x1="3" y1="10" x2="21" y2="10" />
-        </svg>
-    );
-}
-
-// ─── Star Row ────────────────────────────────────────────────────────────────
-function Stars({ rating, total }: { rating: number; total: number }) {
-    return (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {Array.from({ length: total }).map((_, i) => {
-                const filled = i < Math.floor(rating);
-                const half = !filled && i < rating;
-                return (
-                    <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill={filled ? NEON : half ? 'url(#half)' : 'none'} stroke={NEON} strokeWidth={1.5}>
-                        {half && (
-                            <defs>
-                                <linearGradient id="half">
-                                    <stop offset="50%" stopColor={NEON} />
-                                    <stop offset="50%" stopColor="transparent" />
-                                </linearGradient>
-                            </defs>
-                        )}
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                );
-            })}
-            <span style={{ color: NEON, fontSize: 12, fontWeight: 700, marginLeft: 4 }}>{rating}/{total}</span>
+        <span className="text-[10px] font-bold" style={{ color: DUNBAR_GOLD }}>
+            ⭐ {avg}
         </span>
     );
 }
 
-// ─── Place Card (wide, for Circles Trust) ───────────────────────────────────
-function PlaceCardWide({ card, active }: { card: typeof TRUST_CARDS[0]; active: boolean }) {
+/** Master service card — used in all shelves */
+function MasterCardComp({ card, mode }: { card: MasterCard; mode: DunbarMode }) {
+    const navigate = useNavigate();
+    const isTop5 = card.dunbarWeight === 2.0 && mode === 'My 220';
+
     return (
         <div
+            onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate('/lead-form'); }}
+            className="flex-shrink-0 bg-tg-secondary rounded-xl overflow-hidden active:scale-[0.97] transition-transform cursor-pointer"
             style={{
-                position: 'relative',
-                width: active ? 260 : 210,
-                height: active ? 200 : 170,
-                borderRadius: 18,
-                overflow: 'hidden',
-                border: active ? `2px solid ${NEON}` : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: active ? `0 0 24px ${NEON}55, 0 8px 32px rgba(0,0,0,0.8)` : '0 4px 20px rgba(0,0,0,0.6)',
-                flexShrink: 0,
-                transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)',
-                cursor: 'pointer',
+                width: 160,
+                border: isTop5 ? `1.5px solid ${DUNBAR_GOLD}` : '1px solid rgba(255,255,255,0.06)',
+                boxShadow: isTop5 ? `0 0 14px rgba(255,215,0,0.15)` : 'none',
+                scrollSnapAlign: 'start',
             }}
         >
-            <img
-                src={card.image}
-                alt={card.name}
-                style={{
-                    width: '100%', height: '100%', objectFit: 'cover',
-                    filter: active ? 'brightness(0.85)' : 'brightness(0.5) saturate(0.6)',
-                    transition: 'filter 0.35s ease',
-                }}
-            />
-            {/* Counter badge */}
-            <div style={{
-                position: 'absolute', top: 10, right: 10,
-                background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: 8, padding: '2px 8px',
-                color: '#fff', fontSize: 11, fontWeight: 700,
-            }}>
-                1/{card.count}
+            <div className="relative" style={{ height: 110 }}>
+                <img src={card.image} alt={card.name} className="w-full h-full object-cover" style={{ filter: 'brightness(0.82)' }} />
+                {/* Safe dot */}
+                <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-black uppercase"
+                    style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)', letterSpacing: '0.04em' }}>
+                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: card.isSafe ? '#22c55e' : '#eab308', flexShrink: 0 }} />
+                    {card.isSafe ? 'SAFE' : 'CHECK'}
+                </div>
+                {/* Distance */}
+                <div className="absolute bottom-2 right-2 text-[9px] font-bold text-white/60 bg-black/50 rounded px-1.5 py-0.5">
+                    {card.distance}
+                </div>
             </div>
-            {/* Info overlay – only on active */}
-            {active && (
-                <div style={{
-                    position: 'absolute', bottom: 0, left: 0, right: 0,
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, transparent 100%)',
-                    padding: '14px 14px 14px',
-                }}>
-                    <div style={{ color: '#fff', fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>{card.name}</div>
-                    <div style={{ marginTop: 4 }}><Stars rating={card.rating} total={card.total} /></div>
-                    <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>{card.distance}</div>
-                </div>
-            )}
-            {/* Blurred name for non-active */}
-            {!active && (
-                <div style={{
-                    position: 'absolute', bottom: 10, left: 10,
-                    color: '#fff', fontSize: 14, fontWeight: 700,
-                    textShadow: '0 2px 8px rgba(0,0,0,0.8)',
-                }}>
-                    {card.name.slice(0, 4)}…
-                </div>
-            )}
+            <div className="p-2.5 space-y-1">
+                <div className="text-[12px] font-black leading-tight text-tg-primary truncate">{card.name}</div>
+                <div className="text-[10px] text-tg-hint truncate">{card.service}</div>
+                <AbcdBar abcd={card.abcd} />
+            </div>
         </div>
     );
 }
 
-// ─── Place Card (compact, for Popular / Discovery rows) ──────────────────────
-function PlaceCardCompact({ card }: { card: typeof NEARBY_CARDS[0] }) {
+/** Event card — used in Hot Events shelf */
+function EventCard({ event }: { event: typeof MOCK_EVENTS[0] }) {
+    const navigate = useNavigate();
     return (
-        <div style={{
-            position: 'relative', width: 180, height: 120,
-            borderRadius: 14, overflow: 'hidden',
-            border: '1.5px solid rgba(255,255,255,0.12)',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
-            flexShrink: 0, cursor: 'pointer',
-        }}>
-            <img src={card.image} alt={card.name} style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.65)' }} />
-            <div style={{
-                position: 'absolute', top: 8, right: 8,
-                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: 6, padding: '1px 6px',
-                color: '#fff', fontSize: 10, fontWeight: 700,
-            }}>
-                1/{card.count}
+        <div
+            onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate('/lead-form'); }}
+            className="flex-shrink-0 bg-tg-secondary rounded-xl overflow-hidden active:scale-[0.97] transition-transform cursor-pointer"
+            style={{ width: 200, border: '1px solid rgba(255,255,255,0.06)', scrollSnapAlign: 'start' }}
+        >
+            <div className="relative" style={{ height: 110 }}>
+                <img src={event.image} alt={event.name} className="w-full h-full object-cover" style={{ filter: 'brightness(0.75)' }} />
+                <div className="absolute inset-0 flex flex-col justify-end p-2.5"
+                    style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 55%)' }}>
+                    <div className="text-[11px] font-black leading-tight text-white">{event.name}</div>
+                    <div className="text-[9px] font-bold mt-0.5" style={{ color: DUNBAR_GOLD }}>{event.date}</div>
+                </div>
             </div>
-            <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)',
-                padding: '8px 10px 8px',
-            }}>
-                <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, lineHeight: 1.2 }}>{card.name}</div>
+            <div className="px-2.5 py-2 flex items-center justify-between">
+                <span className="text-[10px] text-tg-hint">from your 220</span>
+                <span className="text-[10px] font-black" style={{ color: DUNBAR_GOLD }}>+{event.attendees} going</span>
             </div>
         </div>
     );
 }
 
-// ─── Deleted local bottom nav components ───
+/** Horizontal shelf with title and scroll row */
+function Shelf({ title, children }: { title: string; children: React.ReactNode }) {
+    return (
+        <section className="space-y-3">
+            <h2 className="px-4 text-sm font-black uppercase tracking-wider text-tg-primary">{title}</h2>
+            <div
+                className="flex gap-3 px-4 overflow-x-auto hide-scrollbar pb-1"
+                style={{ scrollSnapType: 'x mandatory' }}
+            >
+                {children}
+            </div>
+        </section>
+    );
+}
 
-// ─── MAIN COMPONENT ──────────────────────────────────────────────────────────
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export default function Discovery() {
     const navigate = useNavigate();
-    const [searchQuery, setSearchQuery] = useState('');
+    const [search, setSearch] = useState('');
+    const [ring, setRing] = useState<DunbarMode>('My 220');
     const [activeCategory, setActiveCategory] = useState<string | null>(null);
-    const [activeTrustIdx, setActiveTrustIdx] = useState(0);
-    const [reviewMaster, setReviewMaster] = useState<{ id: string; name: string } | null>(null);
-    const scrollRef = useRef<HTMLDivElement>(null);
 
-    const handleCategoryTap = (id: string) => {
-        try { WebApp.HapticFeedback.impactOccurred('light'); } catch (e) { }
-        setActiveCategory(prev => (prev === id ? null : id));
+    const rings: DunbarMode[] = ['My 220', 'Friends of Friends', 'Global'];
+
+    // Filter logic based on ring
+    const filterByRing = (card: MasterCard): boolean => {
+        if (ring === 'My 220') return card.dunbarWeight >= 1.0;
+        if (ring === 'Friends of Friends') return card.dunbarWeight >= 0.5 && card.dunbarWeight < 2.0;
+        return true; // Global
     };
 
-    const handleTrustScroll = (dir: 1 | -1) => {
-        setActiveTrustIdx(prev => Math.max(0, Math.min(TRUST_CARDS.length - 1, prev + dir)));
+    const top5Masters = MOCK_MASTERS.filter(m => m.dunbarWeight === 2.0 && filterByRing(m));
+    const safeMasters = MOCK_MASTERS.filter(m => m.isSafe && filterByRing(m));
+    const allFiltered = MOCK_MASTERS.filter(filterByRing);
+
+    const categoryCounts: Record<string, number> = {
+        'SOS': Math.max(1, allFiltered.filter(m => !m.isSafe).length),
+        'Auto': allFiltered.filter(m => m.service.toLowerCase().includes('auto') || m.service.toLowerCase().includes('car')).length || 1,
+        'Beauty': allFiltered.filter(m => m.service.toLowerCase().includes('spa') || m.service.toLowerCase().includes('hair')).length || 2,
+        'Health': allFiltered.filter(m => m.service.toLowerCase().includes('health') || m.name.toLowerCase().includes('dr')).length || 1,
+        'Events': MOCK_EVENTS.length,
+        'Market': Math.floor(allFiltered.length / 2) + 1,
     };
 
-    // Touch swipe for trust carousel
-    const trustTouchStart = useRef(0);
-    const onTrustTouchStart = (e: React.TouchEvent) => { trustTouchStart.current = e.touches[0].clientX; };
-    const onTrustTouchEnd = (e: React.TouchEvent) => {
-        const delta = e.changedTouches[0].clientX - trustTouchStart.current;
-        if (Math.abs(delta) > 50) handleTrustScroll(delta < 0 ? 1 : -1);
-    };
+    const QUICK_LINKS = [
+        { id: 'SOS', label: 'SOS', emoji: '🚨', isSOS: true },
+        { id: 'Auto', label: 'Auto', emoji: '🚘', isSOS: false },
+        { id: 'Beauty', label: 'Beauty', emoji: '💆', isSOS: false },
+        { id: 'Health', label: 'Health', emoji: '🩺', isSOS: false },
+        { id: 'Events', label: 'Events', emoji: '🎉', isSOS: false },
+        { id: 'Market', label: 'Market', emoji: '🛒', isSOS: false },
+    ];
 
     return (
-        <div className="disc-root" style={{ paddingBottom: 20 }}>
+        <div className="min-h-screen" style={{ background: 'var(--bg-dark)', paddingBottom: 96 }}>
 
-            {/* Review Flow Overlay */}
-            {reviewMaster && (
-                <div style={{
-                    position: 'fixed', inset: 0, zIndex: 200,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(12px)',
-                }}>
-                    <ReviewFlow
-                        masterId={reviewMaster.id}
-                        masterName={reviewMaster.name}
-                        onSubmit={() => setReviewMaster(null)}
-                    />
-                </div>
-            )}
+            {/* ═══════════ BLOCK 1: STICKY HEADER ═══════════ */}
+            <header className="sticky top-0 z-50 space-y-3 px-4 pt-3 pb-3"
+                style={{ background: 'rgba(13,15,20,0.96)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
 
-            {/* ── Header ── */}
-            <header className="disc-fadein" style={{
-                position: 'sticky', top: 0, zIndex: 50,
-                background: 'rgba(10,14,22,0.96)', backdropFilter: 'blur(20px)',
-                borderBottom: '1px solid rgba(0,229,204,0.12)',
-                padding: '14px 16px 10px',
-                animationDelay: '0s'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                    <button
-                        onClick={() => navigate(-1)}
-                        style={{ background: 'none', border: 'none', color: NEON, fontSize: 15, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                        Back
-                    </button>
-                    <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#fff', letterSpacing: '-0.01em' }}>Discovery</h1>
-                    <button
-                        style={{
-                            width: 34, height: 34, borderRadius: '50%',
-                            background: `linear-gradient(135deg, #2a3050, #1a2240)`,
-                            border: `1.5px solid ${NEON}55`,
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                        }}
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={NEON} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
-                        </svg>
-                    </button>
-                </div>
-
-                {/* Search Bar */}
-                <div style={{ position: 'relative' }}>
-                    <svg
-                        style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)' }}
-                        width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round"
-                    >
-                        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                {/* Location Row */}
+                <div className="flex items-center gap-1.5">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke={DUNBAR_GOLD} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" />
                     </svg>
-                    <input
-                        className="disc-search"
-                        type="text"
-                        placeholder="Search by name..."
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        style={{
-                            width: '100%', height: 44,
-                            background: 'rgba(255,255,255,0.06)',
-                            border: '1.5px solid rgba(255,255,255,0.1)',
-                            borderRadius: 14,
-                            paddingLeft: 42, paddingRight: 14,
-                            color: '#fff', fontSize: 14,
-                            transition: 'border-color 0.2s, box-shadow 0.2s',
-                        }}
-                    />
+                    <span className="text-[13px] font-bold text-tg-primary">Nha Trang</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="text-tg-hint">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                    <div className="ml-auto flex items-center gap-2">
+                        <button className="text-tg-hint active:text-tg-primary transition-colors">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 8h1a4 4 0 010 8h-1" /><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
+                                <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </header>
 
-            {/* ── Category Icons Row ── */}
-            <div style={{ padding: '16px 0 8px', overflowX: 'auto' }} className="disc-scroll-row">
-                <div style={{ display: 'flex', gap: 10, padding: '0 16px', flexShrink: 0 }}>
-                    {CATEGORIES.map(cat => {
-                        const Icon = cat.icon;
-                        const isActive = activeCategory === cat.id;
+                {/* Omni-Search Bar */}
+                <div className="relative flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <svg style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', opacity: 0.4 }}
+                            width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round">
+                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Find who my friends trust..."
+                            className="w-full text-[13px] text-tg-primary placeholder:text-tg-hint outline-none rounded-xl"
+                            style={{
+                                height: 44,
+                                background: 'rgba(255,255,255,0.06)',
+                                border: '1px solid rgba(255,255,255,0.09)',
+                                paddingLeft: 38, paddingRight: 12,
+                            }}
+                        />
+                    </div>
+                    <button
+                        className="flex items-center justify-center rounded-xl active:scale-90 transition-transform"
+                        style={{ width: 44, height: 44, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)', flexShrink: 0 }}
+                    >
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke={DUNBAR_GOLD} strokeWidth={2} strokeLinecap="round">
+                            <path d="M4 21v-7m0-4V3m8 18V11m0-4V3m8 18v-5m0-4V3M2 14h4m4-9h4m4 9h4" />
+                        </svg>
+                    </button>
+                </div>
+
+                {/* ═══════════ BLOCK 2: DUNBAR SEGMENTED CONTROL ═══════════ */}
+                <div className="flex rounded-xl p-1 gap-1"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    {rings.map(r => {
+                        const isActive = ring === r;
                         return (
                             <button
-                                key={cat.id}
-                                className={`disc-cat-btn${isActive ? ' active' : ''}`}
-                                onClick={() => handleCategoryTap(cat.id)}
+                                key={r}
+                                onClick={() => { setRing(r); WebApp.HapticFeedback.impactOccurred('light'); }}
+                                className="flex-1 text-[10px] font-black uppercase tracking-wide rounded-lg transition-all active:scale-95"
                                 style={{
-                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                                    padding: '10px 12px',
-                                    background: 'rgba(255,255,255,0.04)',
-                                    border: isActive ? `1.5px solid ${NEON}` : '1.5px solid rgba(255,255,255,0.12)',
-                                    boxShadow: isActive ? `0 0 12px ${NEON}66` : 'none',
-                                    borderRadius: 14,
-                                    minWidth: 64, cursor: 'pointer',
-                                    flexShrink: 0,
+                                    height: 32,
+                                    background: isActive ? DUNBAR_GOLD : 'transparent',
+                                    color: isActive ? '#000' : 'rgba(255,255,255,0.45)',
+                                    boxShadow: isActive ? `0 0 16px rgba(255,215,0,0.25)` : 'none',
+                                    border: 'none',
                                 }}
                             >
-                                <span style={{ color: isActive ? NEON : 'rgba(255,255,255,0.75)' }}>
-                                    <Icon />
-                                </span>
-                                <span style={{
-                                    fontSize: 9.5, fontWeight: 700,
-                                    color: isActive ? NEON : 'rgba(255,255,255,0.5)',
-                                    textShadow: isActive ? `0 0 8px ${NEON}aa` : 'none',
-                                    letterSpacing: '0.02em',
-                                    textAlign: 'center', lineHeight: 1.2,
-                                }}>
-                                    {cat.label}
-                                </span>
+                                {r}
                             </button>
                         );
                     })}
                 </div>
-            </div>
+            </header>
 
-            {/* ── Circles Trust ── */}
-            <section className="disc-fadein" style={{ padding: '18px 0 8px', animationDelay: '0.2s' }}>
-                <h2 className="disc-neon-pulse disc-neon-text" style={{
-                    margin: '0 0 14px 16px', fontSize: 22, fontWeight: 800,
-                    letterSpacing: '-0.02em',
-                }}>
-                    Circles Trust
-                </h2>
-
-                {/* Trust Carousel */}
-                <div
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, paddingLeft: 16, paddingRight: 16, overflowX: 'hidden' }}
-                    onTouchStart={onTrustTouchStart}
-                    onTouchEnd={onTrustTouchEnd}
-                >
-                    {TRUST_CARDS.map((card, idx) => {
-                        const diff = idx - activeTrustIdx;
-                        const visible = Math.abs(diff) <= 1;
-                        return (
+            {/* ═══════════ BLOCK 3: QUICK LINKS ═══════════ */}
+            <div className="flex gap-3 px-4 pt-5 overflow-x-auto hide-scrollbar pb-1">
+                {QUICK_LINKS.map(cat => {
+                    const count = categoryCounts[cat.id] ?? 0;
+                    const isActive = activeCategory === cat.id;
+                    return (
+                        <button
+                            key={cat.id}
+                            onClick={() => { setActiveCategory(prev => prev === cat.id ? null : cat.id); WebApp.HapticFeedback.impactOccurred('light'); }}
+                            className="flex flex-col items-center gap-1.5 flex-shrink-0 active:scale-90 transition-transform"
+                        >
                             <div
-                                key={card.id}
+                                className="flex items-center justify-center text-2xl rounded-full"
                                 style={{
-                                    display: visible ? 'block' : 'none',
-                                    transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)',
+                                    width: 56, height: 56,
+                                    background: isActive ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.05)',
+                                    border: cat.isSOS
+                                        ? `2px solid ${isActive ? '#ef4444' : 'rgba(239,68,68,0.4)'}`
+                                        : `1px solid ${isActive ? DUNBAR_GOLD : 'rgba(255,255,255,0.08)'}`,
+                                    boxShadow: cat.isSOS ? '0 0 10px rgba(239,68,68,0.2)' : isActive ? `0 0 12px rgba(255,215,0,0.2)` : 'none',
+                                    transition: 'all 0.2s',
                                 }}
                             >
-                                <PlaceCardWide card={card} active={idx === activeTrustIdx} />
+                                {cat.emoji}
                             </div>
-                        );
-                    })}
-                </div>
+                            <span className="text-[9px] font-bold text-tg-hint">{cat.label}</span>
+                            {count > 0 && (
+                                <span className="text-[8px] font-black" style={{ color: cat.isSOS ? '#ef4444' : DUNBAR_GOLD, marginTop: -4 }}>
+                                    {count}
+                                </span>
+                            )}
+                        </button>
+                    );
+                })}
+            </div>
 
-                {/* Dot indicators */}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 12 }}>
-                    {TRUST_CARDS.map((_, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setActiveTrustIdx(i)}
+            {/* ═══════════ BLOCK 4: TRUST MAP WIDGET ═══════════ */}
+            <div className="mx-4 mt-5">
+                <div
+                    className="relative rounded-xl overflow-hidden"
+                    style={{ height: 140, background: 'rgba(18,22,32,0.85)', border: '1px solid rgba(255,255,255,0.07)' }}
+                >
+                    {/* Static map placeholder with gradient */}
+                    <div className="absolute inset-0"
+                        style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(0,229,204,0.06), rgba(13,15,20,0.9))' }} />
+
+                    {/* Grid overlay (map feel) */}
+                    <svg className="absolute inset-0 opacity-10" width="100%" height="100%">
+                        <defs>
+                            <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+                                <path d="M 28 0 L 0 0 0 28" fill="none" stroke="rgba(0,229,204,0.5)" strokeWidth="0.5" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+
+                    {/* Gold pins */}
+                    {[
+                        { x: '28%', y: '38%' }, { x: '55%', y: '55%' }, { x: '72%', y: '30%' },
+                    ].map((pos, i) => (
+                        <div key={i} className="absolute flex items-center justify-center text-[11px] font-black"
                             style={{
-                                width: i === activeTrustIdx ? 18 : 6, height: 6,
-                                borderRadius: 3, border: 'none', cursor: 'pointer',
-                                background: i === activeTrustIdx ? NEON : 'rgba(255,255,255,0.25)',
-                                transition: 'all 0.3s',
+                                left: pos.x, top: pos.y, transform: 'translate(-50%, -50%)',
+                                width: 22, height: 22, borderRadius: '50% 50% 50% 0',
+                                background: DUNBAR_GOLD, color: '#000',
+                                boxShadow: `0 0 10px rgba(255,215,0,0.5)`,
+                                rotate: '-45deg', fontSize: 9,
                             }}
                         />
                     ))}
-                </div>
-            </section>
 
-            {/* ── Popular Nearby ── */}
-            <section className="disc-fadein" style={{ padding: '22px 0 8px', animationDelay: '0.3s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
-                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
-                        Popular Nearby
-                    </h2>
-                    <span style={{ fontSize: 12, color: NEON, fontWeight: 600, cursor: 'pointer' }}>See all →</span>
+                    {/* Text overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3 flex items-end justify-between"
+                        style={{ background: 'linear-gradient(to top, rgba(13,15,20,0.9) 0%, transparent 100%)' }}>
+                        <span className="text-[12px] font-bold text-tg-primary">
+                            <span style={{ color: DUNBAR_GOLD }}>{allFiltered.length}</span> trusted masters nearby
+                        </span>
+                        <button
+                            onClick={() => { WebApp.HapticFeedback.impactOccurred('light'); navigate('/map'); }}
+                            className="text-[10px] font-black uppercase px-3 py-1.5 rounded-lg active:scale-90 transition-transform"
+                            style={{ background: 'rgba(255,215,0,0.15)', color: DUNBAR_GOLD, border: `1px solid rgba(255,215,0,0.3)` }}
+                        >
+                            Expand →
+                        </button>
+                    </div>
                 </div>
-                <div className="disc-scroll-row" style={{ paddingLeft: 16, paddingRight: 16 }}>
-                    {NEARBY_CARDS.map(card => (
-                        <div key={card.id} className="disc-section-card">
-                            <PlaceCardCompact card={card} />
-                        </div>
-                    ))}
-                </div>
-            </section>
+            </div>
 
-            {/* ── New Discoveries ── */}
-            <section className="disc-fadein" style={{ padding: '22px 0 8px', animationDelay: '0.4s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', marginBottom: 12 }}>
-                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: 'rgba(255,255,255,0.82)', letterSpacing: '-0.02em' }}>
-                        New Discoveries
-                    </h2>
-                    <span style={{ fontSize: 12, color: NEON, fontWeight: 600, cursor: 'pointer' }}>See all →</span>
-                </div>
-                <div className="disc-scroll-row" style={{ paddingLeft: 16, paddingRight: 16 }}>
-                    {DISCOVERY_CARDS.map(card => (
-                        <div key={card.id} className="disc-section-card">
-                            <PlaceCardCompact card={card} />
-                        </div>
-                    ))}
-                </div>
-            </section>
+            {/* ═══════════ BLOCK 5: SMART FEEDS ═══════════ */}
+            <div className="mt-6 space-y-6">
 
-            {/* Bottom Nav removed (handled by Layout) */}
+                {/* Shelf 1 – Top 5 Choice */}
+                {top5Masters.length > 0 && (
+                    <Shelf title="⭐ Top 5 Choice">
+                        {top5Masters.map(m => <MasterCardComp key={m.id} card={m} mode={ring} />)}
+                    </Shelf>
+                )}
+
+                {/* Shelf 2 – Safe Business */}
+                {safeMasters.length > 0 && (
+                    <Shelf title="✅ Safe Business">
+                        {safeMasters.map(m => <MasterCardComp key={m.id} card={m} mode={ring} />)}
+                    </Shelf>
+                )}
+
+                {/* Shelf 3 – Hot Events */}
+                <Shelf title="🔥 Hot Events">
+                    {MOCK_EVENTS.map(e => <EventCard key={e.id} event={e} />)}
+                </Shelf>
+
+            </div>
         </div>
     );
 }
