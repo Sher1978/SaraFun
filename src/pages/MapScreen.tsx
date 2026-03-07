@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { APIProvider, Map, MapCameraChangedEvent, AdvancedMarker } from '@vis.gl/react-google-maps';
 import WebApp from '@twa-dev/sdk';
 
@@ -60,40 +60,38 @@ const MapStyleLight = [
 // ─── SVG Icons (Google Maps–inspired, minimal stroke) ──────────────────────
 const SVG_ICONS: Record<string, React.ReactNode> = {
     Restaurants: (
-        // Fork left + knife right (Google Maps dining icon)
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" />
             <path d="M7 2v20" />
             <path d="M21 15V2a5 5 0 00-5 5v6c0 .55.45 1 1 1h3M21 15a2 2 0 01-2 2v5" />
         </svg>
     ),
     Cafes: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M18 8h1a4 4 0 010 8h-1" />
             <path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" />
             <line x1="6" y1="1" x2="6" y2="4" /><line x1="10" y1="1" x2="10" y2="4" /><line x1="14" y1="1" x2="14" y2="4" />
         </svg>
     ),
     Shops: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
             <line x1="3" y1="6" x2="21" y2="6" />
             <path d="M16 10a4 4 0 01-8 0" />
         </svg>
     ),
     Nightlife: (
-        // Martini glass — Google Maps bar icon
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M8 22h8M12 11v11M5 2l7 9 7-9H5z" />
         </svg>
     ),
     Gyms: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6.5 6.5h11M6.5 17.5h11M4 12h16M2 10h2v4H2zM20 10h2v4h-2zM6 8V6a2 2 0 012-2h8a2 2 0 012 2v2M6 16v2a2 2 0 002 2h8a2 2 0 002-2v-2" />
         </svg>
     ),
     Art: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
             <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
             <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
@@ -102,10 +100,9 @@ const SVG_ICONS: Record<string, React.ReactNode> = {
         </svg>
     ),
     Events: (
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" y1="2" x2="16" y2="6" />
-            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
             <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01" />
         </svg>
@@ -121,7 +118,7 @@ interface MockPin {
     rating: number; distance: string; trust: TrustTier; lat: number; lng: number; image: string;
 }
 
-// ─── Mock data (Nha Trang area) ─────────────────────────────────────────────
+// ─── Mock data ──────────────────────────────────────────────────────────────
 const MOCK_PINS: MockPin[] = [
     { id: 'r1', category: 'Restaurants', name: 'Aurora Dining', service: 'Fine Dining', rating: 4.9, distance: '0.3 km', trust: 'gold', lat: 12.2415, lng: 109.1943, image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80' },
     { id: 'r2', category: 'Restaurants', name: 'Sea Breeze', service: 'Seafood', rating: 4.6, distance: '0.8 km', trust: 'teal', lat: 12.2394, lng: 109.1972, image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80' },
@@ -145,48 +142,102 @@ const MOCK_PINS: MockPin[] = [
 
 const CATEGORIES = ['All', 'Restaurants', 'Cafes', 'Shops', 'Nightlife', 'Gyms', 'Art', 'Events'];
 
-// ─── Google Maps–style teardrop pin ─────────────────────────────────────────
-// Body: light-grey with a contrasting accent circle inside that holds the icon.
-// Default: grey body + accent circle + grey icon. Selected: accent body + white circle + white icon + glow.
-// Size: 32×40px (80% of original 40×50)
+// ─── Clustering ──────────────────────────────────────────────────────────────
+interface Cluster { lat: number; lng: number; pins: MockPin[]; }
+
+function clusterPins(pins: MockPin[], zoom: number): Cluster[] {
+    // Higher zoom → smaller merge radius. Below zoom 15 we cluster; at 17+ no clustering.
+    if (zoom >= 17 || pins.length <= 1) return pins.map(p => ({ lat: p.lat, lng: p.lng, pins: [p] }));
+
+    const gridSize = 0.003 / Math.pow(2, Math.max(0, zoom - 13));
+    const used = new Set<number>();
+    const clusters: Cluster[] = [];
+
+    for (let i = 0; i < pins.length; i++) {
+        if (used.has(i)) continue;
+        const group: MockPin[] = [pins[i]];
+        used.add(i);
+        for (let j = i + 1; j < pins.length; j++) {
+            if (used.has(j)) continue;
+            const dLat = Math.abs(pins[i].lat - pins[j].lat);
+            const dLng = Math.abs(pins[i].lng - pins[j].lng);
+            if (dLat < gridSize && dLng < gridSize) {
+                group.push(pins[j]);
+                used.add(j);
+            }
+        }
+        const avgLat = group.reduce((s, p) => s + p.lat, 0) / group.length;
+        const avgLng = group.reduce((s, p) => s + p.lng, 0) / group.length;
+        clusters.push({ lat: avgLat, lng: avgLng, pins: group });
+    }
+    return clusters;
+}
+
+// ─── Cluster pin (circle with +XX count) ─────────────────────────────────────
+function ClusterPin({ cluster, onClick }: { cluster: Cluster; onClick: () => void }) {
+    const count = cluster.pins.length;
+    // Use the most "important" trust tier in the cluster for color
+    const hasTrust = (t: TrustTier) => cluster.pins.some(p => p.trust === t);
+    const color = hasTrust('gold') ? GOLD : hasTrust('teal') ? NEON : GREY_NEUTRAL;
+
+    return (
+        <AdvancedMarker position={{ lat: cluster.lat, lng: cluster.lng }} onClick={onClick}>
+            <div style={{
+                width: 38, height: 38, borderRadius: '50%',
+                background: 'rgba(248,250,255,0.95)',
+                border: `2.5px solid ${color}`,
+                boxShadow: `0 2px 8px rgba(0,0,0,0.35), 0 0 12px ${color}44`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                filter: `drop-shadow(0 2px 4px rgba(0,0,0,0.3))`,
+            }}>
+                <span style={{ fontSize: 13, fontWeight: 900, color: color, letterSpacing: '-0.03em' }}>
+                    +{count}
+                </span>
+            </div>
+        </AdvancedMarker>
+    );
+}
+
+// ─── Business pin (Google Maps-style, short stem, big circle) ────────────────
+// Body: soft-white (#F2F5FA), accent circle inside is maxed out.
+// Selected: body fills accent color, inner circle becomes white, icon becomes white, glow added.
+// SVG viewBox 30×36: stubby teardrop shape with r=13 circle occupying almost all of it.
 function BusinessPin({ pin, isSelected, onClick }: { pin: MockPin; isSelected: boolean; onClick: () => void }) {
     const color = TIER_COLOR[pin.trust];
     const icon = SVG_ICONS[pin.category];
 
-    // Body colour: light grey by default, accent when selected
-    const bodyFill = isSelected ? color : '#C8D4E0';
-    const bodyStroke = isSelected ? color : 'rgba(100,120,150,0.4)';
-    // Accent circle inside: accent by default, white when selected
+    const bodyFill = isSelected ? color : '#F2F5FA';
+    const bodyStroke = isSelected ? color : '#D0D8E6';
     const circleFill = isSelected ? '#ffffff' : color;
-    // Icon: semi-transparent grey by default, white when selected
-    const iconColor = isSelected ? '#ffffff' : 'rgba(255,255,255,0.72)';
+    const iconColor = isSelected ? color : 'rgba(255,255,255,0.92)';
 
     return (
         <AdvancedMarker position={{ lat: pin.lat, lng: pin.lng }} onClick={onClick}>
             <div style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 cursor: 'pointer',
-                transform: isSelected ? 'scale(1.18)' : 'scale(1)',
-                transition: 'transform 0.18s cubic-bezier(.34,1.56,.64,1)',
+                transform: isSelected ? 'scale(1.15) translateY(-3px)' : 'scale(1)',
+                transition: 'transform 0.2s cubic-bezier(.34,1.56,.64,1), filter 0.2s',
                 filter: isSelected
-                    ? `drop-shadow(0 0 6px ${color}) drop-shadow(0 2px 4px rgba(0,0,0,0.5))`
-                    : 'drop-shadow(0 2px 4px rgba(0,0,0,0.45))',
+                    ? `drop-shadow(0 0 8px ${color}) drop-shadow(0 3px 6px rgba(0,0,0,0.4))`
+                    : 'drop-shadow(0 2px 3px rgba(0,0,0,0.3))',
             }}>
-                {/* Teardrop — 32×40px */}
-                <svg width="32" height="40" viewBox="0 0 40 50" fill="none">
-                    {/* Body */}
+                {/* Pin shape: 30×36, short stubby teardrop */}
+                <svg width="30" height="36" viewBox="0 0 30 36" fill="none">
+                    {/* Teardrop: large circle (r=13) with short point */}
                     <path
-                        d="M20 2C11.16 2 4 9.16 4 18C4 29.5 20 48 20 48C20 48 36 29.5 36 18C36 9.16 28.84 2 20 2Z"
+                        d="M15 1C7.27 1 1 7.27 1 15C1 23.5 15 35 15 35C15 35 29 23.5 29 15C29 7.27 22.73 1 15 1Z"
                         fill={bodyFill}
                         stroke={bodyStroke}
-                        strokeWidth={1.5}
+                        strokeWidth={1.2}
                     />
-                    {/* Accent circle */}
-                    <circle cx="20" cy="18" r="11" fill={circleFill} />
-                    {/* Icon centred in circle */}
-                    <foreignObject x="9" y="7" width="22" height="22">
+                    {/* Inner accent circle — large, touching pin edges */}
+                    <circle cx="15" cy="15" r="11" fill={circleFill} />
+                    {/* Icon */}
+                    <foreignObject x="3" y="3" width="24" height="24">
                         <div style={{
-                            width: 22, height: 22,
+                            width: 24, height: 24,
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             color: iconColor,
                         }}>
@@ -198,9 +249,9 @@ function BusinessPin({ pin, isSelected, onClick }: { pin: MockPin; isSelected: b
                 {/* Gold idle pulse */}
                 {pin.trust === 'gold' && !isSelected && (
                     <div style={{
-                        position: 'absolute', top: -4, left: -4, right: -4, bottom: 8,
-                        borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
-                        background: `${color}15`,
+                        position: 'absolute', top: -3, left: -3, right: -3, bottom: 6,
+                        borderRadius: '50% 50% 50% 50% / 55% 55% 45% 45%',
+                        background: `${color}12`,
                         animation: 'ping 2.4s cubic-bezier(0,0,.2,1) infinite',
                         pointerEvents: 'none',
                     }} />
@@ -210,7 +261,7 @@ function BusinessPin({ pin, isSelected, onClick }: { pin: MockPin; isSelected: b
     );
 }
 
-// ─── Star rating ─────────────────────────────────────────────────────────────
+// ─── Star rating for cards ───────────────────────────────────────────────────
 function Stars({ rating, color }: { rating: number; color: string }) {
     return (
         <span style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -238,7 +289,6 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
                 WebkitBackdropFilter: 'blur(28px)',
                 border: `1.5px solid ${color}55`,
                 borderRadius: 18,
-                // Glow effect on selected card
                 boxShadow: `0 8px 40px rgba(0,0,0,0.65), 0 0 36px ${color}33, 0 0 12px ${color}22, inset 0 0 0 1px ${color}18`,
                 overflow: 'hidden',
             }}>
@@ -246,23 +296,19 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
                 <div style={{ position: 'relative', height: 104 }}>
                     <img src={pin.image} alt={pin.name}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.65) saturate(0.75)' }} />
-                    {/* gradient overlay */}
                     <div style={{ position: 'absolute', inset: 0, background: `linear-gradient(to bottom, transparent 40%, ${color}22 100%)` }} />
-                    {/* Category badge */}
                     <div style={{
                         position: 'absolute', top: 9, left: 10,
                         background: `${color}22`, backdropFilter: 'blur(10px)',
                         border: `1px solid ${color}55`, borderRadius: 8,
                         padding: '3px 10px', color: color, fontSize: 10, fontWeight: 800, letterSpacing: '0.05em'
                     }}>{pin.category}</div>
-                    {/* Trust badge */}
                     <div style={{
                         position: 'absolute', top: 9, right: 36,
                         background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)',
                         border: `1px solid ${color}44`, borderRadius: 8,
                         padding: '3px 9px', color: '#fff', fontSize: 10, fontWeight: 700,
                     }}>{pin.trust === 'gold' ? '⭐ Trusted' : pin.trust === 'teal' ? '✓ Verified' : 'Global'}</div>
-                    {/* Close */}
                     <button onClick={onClose} style={{
                         position: 'absolute', top: 9, right: 9,
                         width: 23, height: 23, borderRadius: '50%',
@@ -276,7 +322,6 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
                         </svg>
                     </button>
                 </div>
-
                 {/* Body */}
                 <div style={{ padding: '12px 14px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 10 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -309,7 +354,7 @@ function PinCard({ pin, onClose }: { pin: MockPin; onClose: () => void }) {
     );
 }
 
-// ─── Tier legend + Star rating filter (combined right-panel widget) ──────────
+// ─── Side panel (legend + star filter) ───────────────────────────────────────
 function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: number) => void }) {
     return (
         <div style={{
@@ -317,7 +362,6 @@ function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: n
             border: '1px solid rgba(0,229,204,0.18)', borderRadius: 14,
             padding: '9px 11px', display: 'flex', flexDirection: 'column', gap: 8,
         }}>
-            {/* Trust tier dots */}
             {(['gold', 'teal', 'grey'] as const).map(t => (
                 <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: TIER_COLOR[t], boxShadow: `0 0 5px ${TIER_COLOR[t]}` }} />
@@ -326,11 +370,7 @@ function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: n
                     </span>
                 </div>
             ))}
-
-            {/* Divider */}
             <div style={{ height: 1, background: 'rgba(0,229,204,0.15)', margin: '0 -2px' }} />
-
-            {/* 5-star rating tap filter */}
             <div>
                 <div style={{ fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 5 }}>Min ★</div>
                 <div style={{ display: 'flex', gap: 3 }}>
@@ -338,11 +378,7 @@ function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: n
                         const filled = star <= minRating;
                         return (
                             <button key={star}
-                                onClick={() => {
-                                    // tap same star → clear filter
-                                    onChange(star === minRating ? 0 : star);
-                                    WebApp.HapticFeedback.impactOccurred('light');
-                                }}
+                                onClick={() => { onChange(star === minRating ? 0 : star); WebApp.HapticFeedback.impactOccurred('light'); }}
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', lineHeight: 1 }}>
                                 <svg width="16" height="16" viewBox="0 0 24 24"
                                     fill={filled ? GOLD : 'none'}
@@ -355,26 +391,6 @@ function SidePanel({ minRating, onChange }: { minRating: number; onChange: (v: n
                     })}
                 </div>
             </div>
-        </div>
-    );
-}
-
-// ─── Tier legend ─────────────────────────────────────────────────────────────
-function TierLegend() {
-    return (
-        <div style={{
-            background: 'rgba(8,11,20,0.82)', backdropFilter: 'blur(14px)',
-            border: '1px solid rgba(0,229,204,0.18)', borderRadius: 12,
-            padding: '7px 11px', display: 'flex', flexDirection: 'column', gap: 5,
-        }}>
-            {(['gold', 'teal', 'grey'] as const).map(t => (
-                <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: TIER_COLOR[t], boxShadow: `0 0 5px ${TIER_COLOR[t]}` }} />
-                    <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.48)', textTransform: 'capitalize' }}>
-                        {t === 'gold' ? 'Trusted' : t === 'teal' ? 'Verified' : 'Global'}
-                    </span>
-                </div>
-            ))}
         </div>
     );
 }
@@ -408,6 +424,9 @@ export default function MapScreen() {
         return catOk && ratingOk;
     });
 
+    // Cluster pins based on zoom
+    const clusters = useMemo(() => clusterPins(filteredPins, zoom), [filteredPins, zoom]);
+
     const onCameraChanged = (ev: MapCameraChangedEvent) => {
         setCenter(ev.detail.center);
         setZoom(ev.detail.zoom);
@@ -417,13 +436,12 @@ export default function MapScreen() {
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <style>{`
                 @keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-                @keyframes fadeDown { from { transform: translateY(-6px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
                 @keyframes ping { 0%,100% { transform: scale(1); opacity: .6; } 50% { transform: scale(1.6); opacity: 0; } }
             `}</style>
 
             <div className="relative w-full h-[calc(100vh-64px)]" style={{ background: '#0d111a' }}>
 
-                {/* ── Top bar: category chips + rating filter ── */}
+                {/* ── Category chips ── */}
                 <div className="absolute top-4 w-full z-20 px-4 flex gap-2 items-center overflow-x-auto hide-scrollbar pointer-events-auto">
                     {CATEGORIES.map(cat => {
                         const isActive = activeCategory === cat;
@@ -447,7 +465,7 @@ export default function MapScreen() {
                     })}
                 </div>
 
-                {/* ── Side panel: legend + star rating ── */}
+                {/* ── Side panel ── */}
                 <div className="absolute right-3 z-20" style={{ top: 68 }}>
                     <SidePanel minRating={minRating} onChange={setMinRating} />
                 </div>
@@ -473,15 +491,29 @@ export default function MapScreen() {
                             </AdvancedMarker>
                         )}
 
-                        {/* Business pins */}
-                        {filteredPins.map(pin => (
-                            <BusinessPin key={pin.id} pin={pin}
-                                isSelected={selectedPin?.id === pin.id}
-                                onClick={() => {
-                                    setSelectedPin(prev => prev?.id === pin.id ? null : pin);
-                                    WebApp.HapticFeedback.impactOccurred('light');
-                                }} />
-                        ))}
+                        {/* Clustered or individual pins */}
+                        {clusters.map((cluster, idx) => {
+                            if (cluster.pins.length > 1) {
+                                return (
+                                    <ClusterPin key={`cluster-${idx}`} cluster={cluster}
+                                        onClick={() => {
+                                            // Zoom into cluster
+                                            setCenter({ lat: cluster.lat, lng: cluster.lng });
+                                            setZoom(z => Math.min(z + 2, 20));
+                                            WebApp.HapticFeedback.impactOccurred('medium');
+                                        }} />
+                                );
+                            }
+                            const pin = cluster.pins[0];
+                            return (
+                                <BusinessPin key={pin.id} pin={pin}
+                                    isSelected={selectedPin?.id === pin.id}
+                                    onClick={() => {
+                                        setSelectedPin(prev => prev?.id === pin.id ? null : pin);
+                                        WebApp.HapticFeedback.impactOccurred('light');
+                                    }} />
+                            );
+                        })}
                     </Map>
                 </div>
 

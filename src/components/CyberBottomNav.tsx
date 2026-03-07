@@ -6,46 +6,72 @@ import { openQRScanner } from '../services/QRScannerService';
 // ─── Design Tokens ──────────────────────────────────────────────────────────
 const NEON = '#00E5CC';
 
-// ─── SVG Icons ───────────────────────────────────────────────────────────────
-function ExploreIcon() {
+// ─── SVG Icons (matching Stitch design reference) ───────────────────────────
+function ExploreIcon({ active }: { active: boolean }) {
     return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}
+            strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
     );
 }
-function MapIcon() {
+
+function MapIcon({ active }: { active: boolean }) {
     return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-            <line x1="8" y1="2" x2="8" y2="18" /><line x1="16" y1="6" x2="16" y2="22" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}
+            strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+            <circle cx="12" cy="10" r="3" />
         </svg>
     );
 }
+
 function QrIcon() {
     return (
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d0f14" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" />
-            <rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="3" height="3" />
-            <rect x="18" y="14" width="3" height="3" /><rect x="14" y="18" width="3" height="3" />
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth={2}
+            strokeLinecap="round" strokeLinejoin="round">
+            {/* Top-left corner */}
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="5" y="5" width="3" height="3" fill="currentColor" />
+            {/* Top-right corner */}
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="16" y="5" width="3" height="3" fill="currentColor" />
+            {/* Bottom-left corner */}
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="5" y="16" width="3" height="3" fill="currentColor" />
+            {/* Bottom-right quadrant pattern */}
+            <rect x="14" y="14" width="3" height="3" />
+            <rect x="18" y="14" width="3" height="3" />
+            <rect x="14" y="18" width="3" height="3" />
             <rect x="18" y="18" width="3" height="3" />
-            <line x1="5" y1="5" x2="5" y2="7" /><line x1="16" y1="5" x2="16" y2="7" /><line x1="5" y1="16" x2="5" y2="18" />
         </svg>
     );
 }
-function RadarIcon() {
+
+function RadarIcon({ active }: { active: boolean }) {
     return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}
+            strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
             <circle cx="12" cy="12" r="2" />
-            <path d="M16.24 7.76a6 6 0 010 8.49" /><path d="M7.76 16.24a6 6 0 010-8.49" />
-            <path d="M20.07 3.93a10 10 0 010 16.14" /><path d="M3.93 20.07a10 10 0 010-16.14" />
+            <line x1="12" y1="2" x2="12" y2="6" />
         </svg>
     );
 }
-function ProfileIcon() {
+
+function ProfileIcon({ active }: { active: boolean }) {
     return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" /><circle cx="12" cy="7" r="4" />
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth={active ? 2.2 : 1.8}
+            strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
         </svg>
     );
 }
@@ -78,7 +104,7 @@ export default function CyberBottomNav() {
             position: 'fixed', bottom: 0, left: 0, right: 0,
             background: 'rgba(10,14,22,0.97)',
             backdropFilter: 'blur(20px)',
-            borderTop: `1px solid rgba(0,229,204,0.2)`,
+            borderTop: `1px solid rgba(0,229,204,0.15)`,
             height: 72,
             display: 'flex', alignItems: 'center', justifyContent: 'space-around',
             paddingBottom: 'env(safe-area-inset-bottom)',
@@ -87,6 +113,7 @@ export default function CyberBottomNav() {
             {items.map((item) => {
                 const Icon = item.icon;
                 if (item.center) {
+                    // QR Scanner button — always glowing
                     return (
                         <button
                             key={item.id}
@@ -94,13 +121,14 @@ export default function CyberBottomNav() {
                             style={{
                                 width: 58, height: 58,
                                 borderRadius: '50%',
-                                background: `radial-gradient(circle at 40% 35%, #00E5CC, #009980)`,
-                                boxShadow: `0 0 28px ${NEON}88, 0 4px 16px rgba(0,0,0,0.6)`,
+                                background: `radial-gradient(circle at 40% 35%, ${NEON}, #009980)`,
+                                boxShadow: `0 0 24px ${NEON}99, 0 0 48px ${NEON}44, 0 4px 16px rgba(0,0,0,0.6)`,
                                 border: 'none', cursor: 'pointer',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 marginTop: -18,
                                 flexShrink: 0,
                                 transition: 'transform 0.1s',
+                                color: '#0d0f14',
                             }}
                             className="active:scale-90"
                         >
@@ -116,14 +144,22 @@ export default function CyberBottomNav() {
                         style={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
                             background: 'none', border: 'none', cursor: 'pointer',
-                            color: isActive ? NEON : 'rgba(255,255,255,0.4)',
-                            transition: 'color 0.2s, transform 0.1s',
+                            color: isActive ? NEON : 'rgba(255,255,255,0.35)',
+                            transition: 'color 0.2s, transform 0.1s, filter 0.2s',
                             minWidth: 48,
+                            // Active icon glow
+                            filter: isActive ? `drop-shadow(0 0 6px ${NEON}88)` : 'none',
                         }}
                         className="active:scale-95"
                     >
-                        <Icon />
-                        <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em' }}>{item.label}</span>
+                        <Icon active={isActive} />
+                        <span style={{
+                            fontSize: 9, fontWeight: 700, letterSpacing: '0.08em',
+                            // Active label glow via text-shadow
+                            textShadow: isActive ? `0 0 8px ${NEON}88` : 'none',
+                        }}>
+                            {item.label}
+                        </span>
                     </button>
                 );
             })}
