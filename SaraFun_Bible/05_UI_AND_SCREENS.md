@@ -19,10 +19,11 @@
 ## 5.3. Блок В: Личный кабинет и Финансы
 * **L1 (Информация)**: Управление данными пользователя и кошельком.
 * **L2 (Пояснение)**: 
-  - **My Profile**: Редактирование био, чекбоксы юридических оферт.
-  - **Wallet (Кошелек)**: Единый баланс ⭐️, курс Оракула, кнопки Ввод/Вывод TON.
-  - **Referral Tree**: Дерево L1-L3, B2B доход, история кэшбэка.
-  - **Dunbar Radar**: 3 интерактивных кольца и Shadow List (Drag-and-drop).
+  - **My Profile (ProfileHub)**: Premium Wallet & Social Capital Dashboard. Refined Gold/Silver aesthetics.
+  - **Wallet & Assets**: Glassmorphism card showing ⭐️ balance, TON/USD estimate, Top Up and History actions.
+  - **Digital Handshake**: Full-width QR Code portal for offline trust networking.
+  - **Social Empire**: Referral L1-L3 tree, ABCD deal history, and Master upgrade gateway.
+  - **Dunbar Radar**: 3 interactive rings and Shadow List (Drag-and-drop).
 
 ## 5.4. Блок Г: Мастерская (Бизнес-режим)
 * **L1 (Информация)**: Инструменты для ведения бизнеса.

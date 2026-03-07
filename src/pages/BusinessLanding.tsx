@@ -8,7 +8,7 @@ export default function BusinessLanding() {
 
     const handleStartBusiness = () => {
         WebApp.HapticFeedback.impactOccurred('heavy');
-        navigate('/edit-master');
+        navigate('/master-editor');
     };
 
     return (

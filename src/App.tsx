@@ -13,7 +13,7 @@ import EditMasterProfile from './pages/EditMasterProfile';
 import BusinessLanding from './pages/BusinessLanding';
 import RulesScreen from './pages/RulesScreen';
 import AddUserScreen from './pages/AddUserScreen';
-import Profile from './pages/Profile';
+import ProfileHub from './pages/ProfileHub';
 import ReferralDashboard from './pages/ReferralDashboard';
 import SherlockAdminConsole from './pages/SherlockAdminConsole';
 import CommunityPulse from './pages/CommunityPulse';
@@ -69,7 +69,7 @@ export default function App() {
                         <Route path="discovery" element={<Discovery />} />
                         <Route path="radar" element={<DunbarRadar />} />
                         <Route path="map" element={<MapScreen />} />
-                        <Route path="profile" element={<Profile />} />
+                        <Route path="profile" element={<ProfileHub />} />
                         <Route path="dashboard" element={<MasterDashboard />} />
 
                         {/* Secondary Routes */}
