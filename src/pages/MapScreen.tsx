@@ -363,12 +363,36 @@ export default function MapScreen() {
         const update = () => setIsDark((WebApp.colorScheme || 'dark') === 'dark');
         update();
         WebApp.onEvent('themeChanged', update);
-        if ('geolocation' in navigator) {
-            navigator.geolocation.getCurrentPosition(({ coords }) => {
-                setUserLocation({ lat: coords.latitude, lng: coords.longitude });
-                setCenter({ lat: coords.latitude, lng: coords.longitude });
+
+        // --- УМНАЯ ГЕОЛОКАЦИЯ ---
+        const handleLocationUpdate = (lat: number, lng: number) => {
+            setUserLocation({ lat, lng });
+            setCenter({ lat, lng });
+        };
+
+        // 1. Пробуем нативный LocationManager от Telegram (Тихо и без спама)
+        if (WebApp.LocationManager) {
+            WebApp.LocationManager.init(() => {
+                WebApp.LocationManager.getLocation((data) => {
+                    if (data && data.latitude) {
+                        handleLocationUpdate(data.latitude, data.longitude);
+                    }
+                });
             });
         }
+        // 2. Фоллбэк: Браузерный API, но с жестким кэшем на 10 минут
+        else if ('geolocation' in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                ({ coords }) => handleLocationUpdate(coords.latitude, coords.longitude),
+                (error) => console.warn("Ошибка геолокации:", error),
+                {
+                    enableHighAccuracy: false, // Экономим батарею
+                    maximumAge: 600000,        // КЭШИРОВАНИЕ: 10 минут (600 000 мс)
+                    timeout: 10000
+                }
+            );
+        }
+
         return () => WebApp.offEvent('themeChanged', update);
     }, []);
 
