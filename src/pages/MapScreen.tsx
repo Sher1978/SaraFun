@@ -357,7 +357,7 @@ export default function MapScreen() {
     const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [center, setCenter] = useState({ lat: 12.240, lng: 109.195 });
     const [zoom, setZoom] = useState(14);
-    const [isDark, setIsDark] = useState(true);
+    const [isDark, setIsDark] = useState((WebApp.colorScheme || 'dark') === 'dark');
 
     useEffect(() => {
         const update = () => setIsDark((WebApp.colorScheme || 'dark') === 'dark');
@@ -451,6 +451,7 @@ export default function MapScreen() {
                 {/* ── Map ── */}
                 <div className="absolute inset-0">
                     <Map
+                        key={isDark ? DARK_MAP_ID : LIGHT_MAP_ID}
                         center={center} zoom={zoom}
                         mapId={isDark ? DARK_MAP_ID : LIGHT_MAP_ID}
                         gestureHandling="greedy"
